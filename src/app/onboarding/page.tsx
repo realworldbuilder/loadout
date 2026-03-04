@@ -131,11 +131,18 @@ export default function OnboardingPage() {
     setLoading(true);
     
     try {
-      // Clean social links
+      // Build full URLs from handles
+      const socialUrlMap: Record<string, string> = {
+        instagram: 'https://instagram.com/',
+        tiktok: 'https://tiktok.com/@',
+        youtube: 'https://youtube.com/@',
+        twitter: 'https://x.com/',
+      };
       const cleanedLinks: SocialLinks = {};
-      Object.entries(formData.socialLinks).forEach(([platform, url]) => {
-        if (url && url.trim()) {
-          cleanedLinks[platform as keyof SocialLinks] = url.trim();
+      Object.entries(formData.socialLinks).forEach(([platform, handle]) => {
+        if (handle && handle.trim()) {
+          const h = handle.trim().replace(/^@/, '');
+          cleanedLinks[platform as keyof SocialLinks] = socialUrlMap[platform] + h;
         }
       });
 
@@ -295,22 +302,25 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <h3 className="text-white/80 text-sm font-medium">social links</h3>
                 {[
-                  { key: 'instagram', label: 'instagram', placeholder: 'https://instagram.com/yourusername' },
-                  { key: 'tiktok', label: 'tiktok', placeholder: 'https://tiktok.com/@yourusername' },
-                  { key: 'youtube', label: 'youtube', placeholder: 'https://youtube.com/@yourusername' },
-                  { key: 'twitter', label: 'twitter/x', placeholder: 'https://twitter.com/yourusername' },
+                  { key: 'instagram', label: 'instagram', placeholder: 'yourusername', prefix: '@' },
+                  { key: 'tiktok', label: 'tiktok', placeholder: 'yourusername', prefix: '@' },
+                  { key: 'youtube', label: 'youtube', placeholder: 'yourusername', prefix: '@' },
+                  { key: 'twitter', label: 'twitter/x', placeholder: 'yourusername', prefix: '@' },
                 ].map((social) => (
                   <div key={social.key}>
                     <label className="block text-white/70 text-sm mb-1">
                       {social.label}
                     </label>
-                    <input
-                      type="url"
-                      value={formData.socialLinks[social.key as keyof SocialLinks] || ''}
-                      onChange={(e) => updateSocialLink(social.key as keyof SocialLinks, e.target.value)}
-                      className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
-                      placeholder={social.placeholder}
-                    />
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40">{social.prefix}</div>
+                      <input
+                        type="text"
+                        value={formData.socialLinks[social.key as keyof SocialLinks] || ''}
+                        onChange={(e) => updateSocialLink(social.key as keyof SocialLinks, e.target.value.replace(/^@/, ''))}
+                        className="w-full pl-8 pr-3 py-2 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
+                        placeholder={social.placeholder}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
