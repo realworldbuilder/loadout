@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-const supabaseUrl = 'https://ewqlronqewlghdkhuflw.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3cWxyb25xZXdsZ2hka2h1Zmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODY4MzMsImV4cCI6MjA4Nzk2MjgzM30.3OXwn-cyXsqbfzqalydy1hRZaaE6X720c7CU-zJmSkE';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // For server-side operations
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
