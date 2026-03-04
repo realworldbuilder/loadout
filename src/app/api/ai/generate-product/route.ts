@@ -6,8 +6,10 @@ const openai = new OpenAI({
 });
 
 export async function POST(request: NextRequest) {
+  let description, type, duration, difficulty, audience;
+  
   try {
-    const { description, type, duration, difficulty, audience } = await request.json();
+    ({ description, type, duration, difficulty, audience } = await request.json());
 
     if (!description || !type || !duration || !difficulty || !audience) {
       return NextResponse.json(
