@@ -11,7 +11,8 @@ import {
   CreditCard,
   Users,
   Dumbbell,
-  LogOut
+  LogOut,
+  Wand2
 } from 'lucide-react';
 import { createSupabaseClient } from '@/lib/supabase';
 
@@ -33,6 +34,11 @@ export default function CreatorNav({ creatorHandle }: CreatorNavProps) {
       label: 'Products',
       href: '/dashboard/products',
       icon: Package,
+    },
+    {
+      label: 'AI Tools',
+      href: '/dashboard/ai/writer',
+      icon: Wand2,
     },
     {
       label: 'Orders',
@@ -74,7 +80,7 @@ export default function CreatorNav({ creatorHandle }: CreatorNavProps) {
       <div className="flex-1 py-6">
         <ul className="space-y-2 px-4">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href === '/dashboard/ai/writer' && pathname.startsWith('/dashboard/ai'));
             const Icon = item.icon;
             
             return (

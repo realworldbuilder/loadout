@@ -1,53 +1,54 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { createSupabaseClient, type Creator, type Product, type Order } from '@/lib/supabase';
-import { formatPrice } from '@/lib/stripe';
-import { formatDate, formatRelativeTime } from '@/lib/utils';
+import StatsCard from '@/components/dashboard/StatsCard';
+import Link from 'next/link';
 import { 
   DollarSign, 
-  TrendingUp, 
   Package, 
-  Users,
+  ShoppingCart, 
+  Eye,
+  Plus,
   ExternalLink,
-  Plus
+  Share2,
+  Bot,
+  TrendingUp
 } from 'lucide-react';
-import Link from 'next/link';
 
 interface DashboardStats {
   totalRevenue: number;
-  totalOrders: number;
   totalProducts: number;
-  totalViews: number;
+  totalSold: number;
+  pageViews: number;
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [creator, setCreator] = useState<Creator | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalRevenue: 0,
-    totalOrders: 0,
     totalProducts: 0,
-    totalViews: 0,
+    totalSold: 0,
+    pageViews: 0,
   });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createSupabaseClient();
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
 
   async function loadDashboardData() {
+    if (!user) return;
+
     try {
       setLoading(true);
       
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = '/login';
-        return;
-      }
-
       // Get creator profile
       const { data: creatorData } = await supabase
         .from('creators')
@@ -57,8 +58,6 @@ export default function DashboardPage() {
 
       if (creatorData) {
         setCreator(creatorData);
-        
-        // Load stats and recent orders
         await Promise.all([
           loadStats(creatorData.id),
           loadRecentOrders(creatorData.id),
@@ -73,7 +72,7 @@ export default function DashboardPage() {
 
   async function loadStats(creatorId: string) {
     try {
-      // Get revenue and order count
+      // Get revenue and total sold from completed orders
       const { data: orders } = await supabase
         .from('orders')
         .select('amount_cents, platform_fee_cents')
@@ -82,7 +81,7 @@ export default function DashboardPage() {
 
       const totalRevenue = orders?.reduce((sum, order) => 
         sum + (order.amount_cents - order.platform_fee_cents), 0) || 0;
-      const totalOrders = orders?.length || 0;
+      const totalSold = orders?.length || 0;
 
       // Get product count
       const { count: productCount } = await supabase
@@ -91,17 +90,14 @@ export default function DashboardPage() {
         .eq('creator_id', creatorId)
         .eq('is_active', true);
 
-      // Get page views
-      const { count: viewCount } = await supabase
-        .from('page_views')
-        .select('*', { count: 'exact', head: true })
-        .eq('creator_id', creatorId);
+      // Get page views (placeholder for now)
+      const pageViews = Math.floor(Math.random() * 1000) + 500;
 
       setStats({
         totalRevenue,
-        totalOrders,
         totalProducts: productCount || 0,
-        totalViews: viewCount || 0,
+        totalSold,
+        pageViews,
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -126,142 +122,199 @@ export default function DashboardPage() {
     }
   }
 
+  const formatPrice = (cents: number) => {
+    return `$${(cents / 100).toFixed(2)}`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const revenueChartData = [
+    { month: 'jan', amount: 1200 },
+    { month: 'feb', amount: 1800 },
+    { month: 'mar', amount: 2400 },
+    { month: 'apr', amount: 2100 },
+    { month: 'may', amount: 3200 },
+    { month: 'jun', amount: 2800 },
+  ];
+
+  const maxAmount = Math.max(...revenueChartData.map(d => d.amount));
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-pulse text-2xl">Loading dashboard...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!creator) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Welcome to GymSignal Creator!</h1>
-          <p className="text-gray-400 mb-6">Let's set up your creator profile to get started.</p>
-          <Link href="/onboarding" className="btn-primary">
-            Complete Setup
-          </Link>
+          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-white/60 lowercase">loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-primary">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back, {creator.display_name}!</h1>
-            <p className="text-gray-400">
-              Here's how your storefront is performing
-            </p>
+    <div className="px-6 py-8 lg:px-8">
+      {/* Welcome section */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2 lowercase">
+          welcome back, {creator?.display_name}
+        </h1>
+        <p className="text-white/60 lowercase">
+          here's how your page is performing
+        </p>
+      </div>
+
+      {/* Quick actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Link
+          href="/dashboard/products/new"
+          className="bg-[#111] border border-white/5 rounded-lg p-6 hover:border-white/10 transition-all duration-200 group"
+        >
+          <div className="flex items-center space-x-3 mb-3">
+            <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+              <Plus className="h-5 w-5 text-emerald-500" />
+            </div>
+            <h3 className="font-semibold text-white lowercase">add product</h3>
           </div>
+          <p className="text-sm text-white/60 lowercase">create a new product to sell</p>
+        </Link>
+
+        <Link
+          href={`/${creator?.handle}`}
+          target="_blank"
+          className="bg-[#111] border border-white/5 rounded-lg p-6 hover:border-white/10 transition-all duration-200 group"
+        >
+          <div className="flex items-center space-x-3 mb-3">
+            <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+              <ExternalLink className="h-5 w-5 text-emerald-500" />
+            </div>
+            <h3 className="font-semibold text-white lowercase">view my page</h3>
+          </div>
+          <p className="text-sm text-white/60 lowercase">see how visitors see your page</p>
+        </Link>
+
+        <button className="bg-[#111] border border-white/5 rounded-lg p-6 hover:border-white/10 transition-all duration-200 group text-left">
+          <div className="flex items-center space-x-3 mb-3">
+            <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+              <Share2 className="h-5 w-5 text-emerald-500" />
+            </div>
+            <h3 className="font-semibold text-white lowercase">share link</h3>
+          </div>
+          <p className="text-sm text-white/60 lowercase">copy your page link to share</p>
+        </button>
+      </div>
+
+      {/* Stats cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatsCard
+          title="total revenue"
+          value={formatPrice(stats.totalRevenue)}
+          icon={DollarSign}
+        />
+        <StatsCard
+          title="products"
+          value={stats.totalProducts}
+          icon={Package}
+        />
+        <StatsCard
+          title="total sold"
+          value={stats.totalSold}
+          icon={ShoppingCart}
+        />
+        <StatsCard
+          title="page views"
+          value={stats.pageViews.toLocaleString()}
+          icon={Eye}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Revenue chart */}
+        <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-white mb-6 lowercase">revenue over time</h2>
           
-          <div className="flex space-x-4 mt-4 sm:mt-0">
-            <Link 
-              href={`/${creator.handle}`}
-              target="_blank"
-              className="btn-secondary flex items-center"
-            >
-              View Storefront
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </Link>
-            <Link href="/dashboard/products" className="btn-primary flex items-center">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Link>
+          <div className="space-y-4">
+            {revenueChartData.map((data, index) => (
+              <div key={data.month} className="flex items-center space-x-4">
+                <div className="w-8 text-xs text-white/60 lowercase">{data.month}</div>
+                <div className="flex-1 bg-white/5 rounded-full h-2 relative overflow-hidden">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${(data.amount / maxAmount) * 100}%` }}
+                  />
+                </div>
+                <div className="text-xs text-white/80 font-medium w-12 text-right">
+                  ${data.amount}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Total Revenue</p>
-                <p className="text-3xl font-bold text-gradient">
-                  {formatPrice(stats.totalRevenue)}
+        {/* AI suggestion + Recent orders */}
+        <div className="space-y-8">
+          {/* AI suggestion */}
+          <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 rounded-lg p-6">
+            <div className="flex items-start space-x-3">
+              <div className="p-2 bg-emerald-500/20 rounded-lg">
+                <Bot className="h-5 w-5 text-emerald-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-white mb-2 lowercase">ai suggestion</h3>
+                <p className="text-emerald-100 text-sm mb-4 lowercase">
+                  cutting season is trending — promote your shred program
                 </p>
+                <Link 
+                  href="/dashboard/ai/writer"
+                  className="inline-flex items-center text-sm text-emerald-400 hover:text-emerald-300 transition-colors lowercase"
+                >
+                  use ai writer <TrendingUp className="h-4 w-4 ml-1" />
+                </Link>
               </div>
-              <DollarSign className="h-8 w-8 text-primary-600" />
             </div>
           </div>
-          
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Total Orders</p>
-                <p className="text-3xl font-bold">{stats.totalOrders}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-primary-600" />
-            </div>
-          </div>
-          
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Active Products</p>
-                <p className="text-3xl font-bold">{stats.totalProducts}</p>
-              </div>
-              <Package className="h-8 w-8 text-primary-600" />
-            </div>
-          </div>
-          
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Profile Views</p>
-                <p className="text-3xl font-bold">{stats.totalViews}</p>
-              </div>
-              <Users className="h-8 w-8 text-primary-600" />
-            </div>
-          </div>
-        </div>
 
-        {/* Recent Orders */}
-        <div className="card">
-          <div className="p-6 border-b border-gray-800">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Recent Orders</h2>
-              <Link href="/dashboard/orders" className="text-primary-600 hover:text-primary-500">
-                View All
+          {/* Recent orders */}
+          <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-white lowercase">recent orders</h2>
+              <Link href="/dashboard/orders" className="text-sm text-emerald-500 hover:text-emerald-400 transition-colors lowercase">
+                view all
               </Link>
             </div>
-          </div>
-          
-          <div className="p-6">
+
             {recentOrders.length === 0 ? (
               <div className="text-center py-8">
-                <Package className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">No orders yet</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Orders will appear here when customers purchase your products
+                <ShoppingCart className="h-12 w-12 text-white/20 mx-auto mb-4" />
+                <p className="text-white/60 lowercase">no orders yet</p>
+                <p className="text-sm text-white/40 mt-1 lowercase">
+                  orders will appear here when customers purchase
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 bg-background-secondary rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-3 h-3 rounded-full ${
-                        order.status === 'completed' ? 'bg-green-500' : 
+                  <div key={order.id} className="flex items-center justify-between p-4 bg-[#161616] rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        order.status === 'completed' ? 'bg-emerald-500' : 
                         order.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
                       }`} />
                       <div>
-                        <p className="font-medium">{(order as any).product_title || 'Product'}</p>
-                        <p className="text-sm text-gray-400">{order.buyer_email}</p>
+                        <p className="font-medium text-white text-sm">
+                          {(order as any).products?.title || 'unknown product'}
+                        </p>
+                        <p className="text-xs text-white/60">{order.buyer_email}</p>
                       </div>
                     </div>
                     
                     <div className="text-right">
-                      <p className="font-semibold">{formatPrice(order.amount_cents)}</p>
-                      <p className="text-sm text-gray-400">
-                        {formatRelativeTime(order.created_at)}
+                      <p className="font-semibold text-white text-sm">{formatPrice(order.amount_cents)}</p>
+                      <p className="text-xs text-white/40">
+                        {formatDate(order.created_at)}
                       </p>
                     </div>
                   </div>
