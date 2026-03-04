@@ -112,6 +112,26 @@ const DEMO_CREATORS: Record<string, any> = {
   },
 };
 
+  aline_tdn: {
+    handle: 'aline_tdn',
+    display_name: 'Aline Taddonio',
+    bio: 'mom · fitness & nutrition coach · creator of BBFIT · helping women stop starting over 💪',
+    avatar_emoji: '✨',
+    followers: '~10k',
+    tag: 'women\'s fitness',
+    color: 'from-fuchsia-400 to-pink-600',
+    social_links: { instagram: true },
+    products: [
+      { title: 'BBFIT Digital Program', desc: 'Complete fitness and nutrition program designed for busy moms. Simple, high-protein strategies that actually fit into real life.', price: '$49', type: 'Program', sold: 0, emoji: '🔥' },
+      { title: 'High-Protein Meal Guide', desc: 'Easy meal prep strategies, grocery lists, and recipes for women who don\'t have time to overthink food.', price: '$24', type: 'PDF', sold: 0, emoji: '🥗' },
+      { title: 'Free 10-Min 1:1 Consult', desc: 'Book a quick call with me to talk about your goals. No pressure, just real advice from someone who gets it.', price: 'Free', type: 'Booking', sold: 0, emoji: '📞' },
+      { title: '1st Phorm Supplements', desc: 'The supplements I actually use and recommend. Elevate your nutrition game 💪', price: 'Affiliate', type: 'Link', sold: 0, emoji: '💊', link: 'https://1stphorm.com/Aline_tdn' },
+      { title: 'SqueezMeSkinny Waist Trainer', desc: 'Everyday waist trainer I wear during workouts. Use code "ALINE" for a discount.', price: 'Code: ALINE', type: 'Link', sold: 0, emoji: '💋', link: 'https://squeezmeskinny.com/?aff=1885' },
+      { title: 'My Amazon Recommendations', desc: 'Fitness gear, kitchen essentials, and mom life must-haves I swear by.', price: 'Shop', type: 'Link', sold: 0, emoji: '🛒' },
+      { title: 'Glute Lab Classes — Ft. Lauderdale', desc: 'Book in-person glute lab classes at our Fort Lauderdale location.', price: 'Book', type: 'Link', sold: 0, emoji: '🍑', link: 'https://apps.apple.com/us/app/glute-lab-fort-lauderdale/id6752358317' },
+    ],
+  },
+
 // Directory of all demo creators
 const DEMO_LIST = Object.entries(DEMO_CREATORS)
   .filter(([k, v]) => !v.isDirectory)
@@ -278,9 +298,9 @@ export default function CreatorProfile({ handle }: { handle: string }) {
               </div>
               <p className="text-sm text-gray-500 leading-relaxed mb-3 pl-8">{p.desc}</p>
               <div className="flex items-center justify-between pl-8">
-                <span className="text-[11px] font-mono text-gray-600">{p.type} · {p.sold.toLocaleString()} sold</span>
+                <span className="text-[11px] font-mono text-gray-600">{p.type}{p.sold > 0 ? ` · ${p.sold.toLocaleString()} sold` : ''}</span>
                 <button className="text-xs font-medium bg-emerald-500 text-black px-4 py-1.5 rounded-lg hover:bg-emerald-400 transition-colors">
-                  Get it
+                  {p.type === 'Link' ? 'Visit' : p.type === 'Booking' ? 'Book' : p.price === 'Free' ? 'Get free' : 'Get it'}
                 </button>
               </div>
             </div>
