@@ -3,7 +3,12 @@ import CreatorProfile from '@/components/CreatorProfile';
 export function generateStaticParams() {
   return [
     { handle: 'demo' },
-    { handle: 'fitcreator' },
+    { handle: 'alexrivera' },
+    { handle: 'mayafit' },
+    { handle: 'ironmike' },
+    { handle: 'zenlifts' },
+    { handle: 'coachdre' },
+    { handle: 'macrosbymel' },
   ];
 }
 
