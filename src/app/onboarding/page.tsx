@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   checkHandleAvailability, 
-  createCreatorProfile, 
-  updateCreatorProfile 
+  createCreatorProfile
 } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
 
 interface SocialLinks {
   instagram?: string;
@@ -17,32 +15,36 @@ interface SocialLinks {
   twitter?: string;
 }
 
+interface FormData {
+  handle: string;
+  displayName: string;
+  bio: string;
+  socialLinks: SocialLinks;
+}
+
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  // Step 1: Handle
-  const [handle, setHandle] = useState('');
+  // Form data
+  const [formData, setFormData] = useState<FormData>({
+    handle: '',
+    displayName: '',
+    bio: '',
+    socialLinks: {}
+  });
+  
+  // Handle validation
   const [handleAvailable, setHandleAvailable] = useState<boolean | null>(null);
   const [checkingHandle, setCheckingHandle] = useState(false);
   
-  // Step 2: Profile details
-  const [displayName, setDisplayName] = useState('');
-  const [bio, setBio] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  
-  // Step 3: Social links
-  const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
-  
   const router = useRouter();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, loading: authLoading } = useAuth();
 
   // Redirect if not authenticated or already onboarded
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/login');
       return;
     }
@@ -51,10 +53,11 @@ export default function OnboardingPage() {
       router.push('/dashboard');
       return;
     }
-  }, [user, profile, router]);
+  }, [user, profile, router, authLoading]);
 
   // Handle validation with debounce
   useEffect(() => {
+    const { handle } = formData;
     if (!handle || handle.length < 3) {
       setHandleAvailable(null);
       return;
@@ -73,71 +76,26 @@ export default function OnboardingPage() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [handle]);
+  }, [formData.handle]);
 
-  // Avatar file handler
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('please select a valid image file');
-      return;
-    }
-
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('image must be smaller than 5MB');
-      return;
-    }
-
-    setAvatarFile(file);
+  // Update form data
+  const updateFormData = (field: keyof FormData, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
     setError('');
-    
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setAvatarPreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
-  // Upload avatar to Supabase storage
-  const uploadAvatar = async (): Promise<string | null> => {
-    if (!avatarFile || !user) return null;
-
-    setUploadingAvatar(true);
-    
-    try {
-      const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, avatarFile, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (error) {
-        console.error('Upload error:', error);
-        setError('failed to upload avatar');
-        return null;
+  // Update social link
+  const updateSocialLink = (platform: keyof SocialLinks, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: {
+        ...prev.socialLinks,
+        [platform]: value
       }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(data.path);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Upload error:', error);
-      setError('failed to upload avatar');
-      return null;
-    } finally {
-      setUploadingAvatar(false);
-    }
+    }));
   };
 
   // Step navigation
@@ -147,113 +105,47 @@ export default function OnboardingPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
       setError('');
     }
   };
 
-  // Step 1: Handle validation and save
-  const saveHandle = async () => {
-    if (!handle || !handleAvailable) {
+  // Step 1: Handle + display name validation
+  const validateStep1 = () => {
+    if (!formData.handle || !handleAvailable) {
       setError('please enter a valid, available handle');
-      return;
+      return false;
     }
-
-    if (!user) return;
-
-    setLoading(true);
-    
-    try {
-      const { data, error } = await createCreatorProfile({
-        user_id: user.id,
-        handle: handle.toLowerCase(),
-        display_name: displayName || handle,
-      });
-
-      if (error) {
-        setError(error);
-        setLoading(false);
-        return;
-      }
-
-      await refreshProfile();
-      nextStep();
-    } catch (error) {
-      setError('failed to save handle');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 2: Save profile details
-  const saveProfile = async () => {
-    if (!displayName.trim()) {
+    if (!formData.displayName.trim()) {
       setError('display name is required');
-      return;
+      return false;
     }
-
-    if (!user) return;
-
-    setLoading(true);
-    
-    try {
-      let avatarUrl = null;
-      if (avatarFile) {
-        avatarUrl = await uploadAvatar();
-        if (!avatarUrl && avatarFile) {
-          setLoading(false);
-          return; // Error already set in uploadAvatar
-        }
-      }
-
-      const updates: any = {
-        display_name: displayName.trim(),
-      };
-
-      if (bio.trim()) {
-        updates.bio = bio.trim();
-      }
-
-      if (avatarUrl) {
-        updates.avatar_url = avatarUrl;
-      }
-
-      const { error } = await updateCreatorProfile(user.id, updates);
-
-      if (error) {
-        setError(error);
-        setLoading(false);
-        return;
-      }
-
-      await refreshProfile();
-      nextStep();
-    } catch (error) {
-      setError('failed to save profile');
-    } finally {
-      setLoading(false);
-    }
+    return true;
   };
 
-  // Step 3: Save social links
-  const saveSocialLinks = async () => {
+  // Complete onboarding
+  const completeOnboarding = async () => {
     if (!user) return;
 
     setLoading(true);
     
     try {
+      // Clean social links
       const cleanedLinks: SocialLinks = {};
-      
-      // Clean and validate social links
-      Object.entries(socialLinks).forEach(([platform, url]) => {
+      Object.entries(formData.socialLinks).forEach(([platform, url]) => {
         if (url && url.trim()) {
           cleanedLinks[platform as keyof SocialLinks] = url.trim();
         }
       });
 
-      const { error } = await updateCreatorProfile(user.id, {
-        social_links: cleanedLinks
+      // Create complete profile
+      const { data, error } = await createCreatorProfile({
+        user_id: user.id,
+        handle: formData.handle.toLowerCase(),
+        display_name: formData.displayName.trim(),
+        bio: formData.bio.trim() || undefined,
+        social_links: cleanedLinks,
       });
 
       if (error) {
@@ -263,30 +155,20 @@ export default function OnboardingPage() {
       }
 
       await refreshProfile();
-      nextStep();
+      router.push('/dashboard');
     } catch (error) {
-      setError('failed to save social links');
+      setError('failed to create profile');
     } finally {
       setLoading(false);
     }
   };
 
-  // Update social link
-  const updateSocialLink = (platform: keyof SocialLinks, value: string) => {
-    setSocialLinks(prev => ({
-      ...prev,
-      [platform]: value
-    }));
-  };
-
-  // Complete onboarding
-  const completeOnboarding = () => {
-    router.push('/dashboard');
-  };
-
-  if (!user) {
+  if (authLoading || !user) {
     return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-      <div className="text-white">Loading...</div>
+      <div className="text-center">
+        <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <div className="text-white/60">loading...</div>
+      </div>
     </div>;
   }
 
@@ -298,11 +180,11 @@ export default function OnboardingPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-semibold text-white">setup your profile</h1>
-            <span className="text-white/60 text-sm">step {currentStep} of 4</span>
+            <span className="text-white/60 text-sm">step {currentStep} of 3</span>
           </div>
           
           <div className="flex space-x-2">
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3].map((step) => (
               <div
                 key={step}
                 className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
@@ -322,12 +204,12 @@ export default function OnboardingPage() {
 
         <div className="bg-[#111] border border-white/5 rounded-lg p-8 shadow-2xl">
           
-          {/* Step 1: Handle */}
+          {/* Step 1: Handle + Display Name */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div className="text-center mb-8">
-                <h2 className="text-xl font-semibold text-white mb-2">pick your handle</h2>
-                <p className="text-white/60 text-sm">this will be your unique url: gymsignal.co/@yourhandle</p>
+                <h2 className="text-xl font-semibold text-white mb-2">choose your handle & name</h2>
+                <p className="text-white/60 text-sm">this will be your unique url: loadout.fit/@yourhandle</p>
               </div>
 
               <div>
@@ -338,15 +220,15 @@ export default function OnboardingPage() {
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40">@</div>
                   <input
                     type="text"
-                    value={handle}
-                    onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                    value={formData.handle}
+                    onChange={(e) => updateFormData('handle', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                     className="w-full pl-8 pr-3 py-3 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
                     placeholder="yourhandle"
                     maxLength={30}
                   />
                 </div>
                 
-                {handle && (
+                {formData.handle && (
                   <div className="mt-2 text-xs">
                     {checkingHandle ? (
                       <span className="text-white/60">checking availability...</span>
@@ -363,65 +245,36 @@ export default function OnboardingPage() {
                 </p>
               </div>
 
-              <button
-                onClick={saveHandle}
-                disabled={!handle || !handleAvailable || loading || checkingHandle}
-                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-medium rounded transition-colors duration-200"
-              >
-                {loading ? 'saving...' : 'continue'}
-              </button>
-            </div>
-          )}
-
-          {/* Step 2: Profile details */}
-          {currentStep === 2 && (
-            <div className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="text-xl font-semibold text-white mb-2">tell us about yourself</h2>
-                <p className="text-white/60 text-sm">add your photo, name, and bio</p>
-              </div>
-
-              {/* Avatar upload */}
-              <div className="text-center">
-                <div className="inline-block">
-                  {avatarPreview ? (
-                    <img
-                      src={avatarPreview}
-                      alt="Avatar preview"
-                      className="w-24 h-24 rounded-full object-cover border-4 border-white/10"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-white/10 border-4 border-white/10 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-white/40" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                      </svg>
-                    </div>
-                  )}
-                  
-                  <label className="mt-3 block text-sm text-emerald-400 hover:text-emerald-300 cursor-pointer">
-                    {avatarFile ? 'change photo' : 'add photo'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              </div>
-
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
                   display name *
                 </label>
                 <input
                   type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
+                  value={formData.displayName}
+                  onChange={(e) => updateFormData('displayName', e.target.value)}
                   className="w-full px-3 py-3 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
                   placeholder="your name or brand"
                   maxLength={50}
                 />
+              </div>
+
+              <button
+                onClick={() => validateStep1() && nextStep()}
+                disabled={!formData.handle || !handleAvailable || !formData.displayName.trim() || checkingHandle}
+                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-medium rounded transition-colors duration-200"
+              >
+                {checkingHandle ? 'checking...' : 'continue'}
+              </button>
+            </div>
+          )}
+
+          {/* Step 2: Bio + Social Links */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="text-center mb-8">
+                <h2 className="text-xl font-semibold text-white mb-2">tell us about yourself</h2>
+                <p className="text-white/60 text-sm">add your bio and social links (all optional)</p>
               </div>
 
               <div>
@@ -429,14 +282,37 @@ export default function OnboardingPage() {
                   bio
                 </label>
                 <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  value={formData.bio}
+                  onChange={(e) => updateFormData('bio', e.target.value)}
                   rows={4}
                   className="w-full px-3 py-3 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40 resize-none"
                   placeholder="tell your audience what you're about..."
                   maxLength={160}
                 />
-                <p className="mt-1 text-xs text-white/50">{bio.length}/160 characters</p>
+                <p className="mt-1 text-xs text-white/50">{formData.bio.length}/160 characters</p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-white/80 text-sm font-medium">social links</h3>
+                {[
+                  { key: 'instagram', label: 'instagram', placeholder: 'https://instagram.com/yourusername' },
+                  { key: 'tiktok', label: 'tiktok', placeholder: 'https://tiktok.com/@yourusername' },
+                  { key: 'youtube', label: 'youtube', placeholder: 'https://youtube.com/@yourusername' },
+                  { key: 'twitter', label: 'twitter/x', placeholder: 'https://twitter.com/yourusername' },
+                ].map((social) => (
+                  <div key={social.key}>
+                    <label className="block text-white/70 text-sm mb-1">
+                      {social.label}
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.socialLinks[social.key as keyof SocialLinks] || ''}
+                      onChange={(e) => updateSocialLink(social.key as keyof SocialLinks, e.target.value)}
+                      className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
+                      placeholder={social.placeholder}
+                    />
+                  </div>
+                ))}
               </div>
 
               <div className="flex space-x-3">
@@ -447,66 +323,17 @@ export default function OnboardingPage() {
                   back
                 </button>
                 <button
-                  onClick={saveProfile}
-                  disabled={!displayName.trim() || loading || uploadingAvatar}
-                  className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-medium rounded transition-colors duration-200"
+                  onClick={nextStep}
+                  className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded transition-colors duration-200"
                 >
-                  {loading || uploadingAvatar ? 'saving...' : 'continue'}
+                  continue
                 </button>
               </div>
             </div>
           )}
 
-          {/* Step 3: Social links */}
+          {/* Step 3: Complete */}
           {currentStep === 3 && (
-            <div className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="text-xl font-semibold text-white mb-2">connect your socials</h2>
-                <p className="text-white/60 text-sm">help your audience find you everywhere</p>
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  { key: 'instagram', label: 'instagram', placeholder: 'https://instagram.com/yourusername' },
-                  { key: 'tiktok', label: 'tiktok', placeholder: 'https://tiktok.com/@yourusername' },
-                  { key: 'youtube', label: 'youtube', placeholder: 'https://youtube.com/@yourusername' },
-                  { key: 'twitter', label: 'twitter/x', placeholder: 'https://twitter.com/yourusername' },
-                ].map((social) => (
-                  <div key={social.key}>
-                    <label className="block text-white/80 text-sm font-medium mb-2">
-                      {social.label}
-                    </label>
-                    <input
-                      type="url"
-                      value={socialLinks[social.key as keyof SocialLinks] || ''}
-                      onChange={(e) => updateSocialLink(social.key as keyof SocialLinks, e.target.value)}
-                      className="w-full px-3 py-3 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
-                      placeholder={social.placeholder}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => goToStep(2)}
-                  className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white font-medium rounded transition-colors duration-200"
-                >
-                  back
-                </button>
-                <button
-                  onClick={saveSocialLinks}
-                  disabled={loading}
-                  className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-medium rounded transition-colors duration-200"
-                >
-                  {loading ? 'saving...' : 'continue'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Complete */}
-          {currentStep === 4 && (
             <div className="text-center space-y-6">
               <div className="mb-8">
                 <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -519,18 +346,28 @@ export default function OnboardingPage() {
               </div>
 
               <div className="bg-black/30 border border-white/10 rounded-lg p-6">
-                <p className="text-white/80 mb-2">your page is now live at:</p>
+                <p className="text-white/80 mb-2">your page will be live at:</p>
                 <p className="text-emerald-400 font-mono text-lg">
-                  gymsignal.co/@{profile?.handle}
+                  loadout.fit/@{formData.handle}
                 </p>
               </div>
 
-              <button
-                onClick={completeOnboarding}
-                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded transition-colors duration-200"
-              >
-                go to dashboard
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => goToStep(2)}
+                  disabled={loading}
+                  className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white font-medium rounded transition-colors duration-200"
+                >
+                  back
+                </button>
+                <button
+                  onClick={completeOnboarding}
+                  disabled={loading}
+                  className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-medium rounded transition-colors duration-200"
+                >
+                  {loading ? 'creating profile...' : 'go to dashboard'}
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { createSupabaseClient } from '@/lib/supabase';
@@ -18,10 +18,25 @@ import {
 type ProductType = 'digital' | 'coaching' | 'service' | 'subscription';
 
 export default function NewProductPage() {
-  const { user } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Auth guards
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      
+      if (!profile) {
+        router.push('/onboarding');
+        return;
+      }
+    }
+  }, [user, profile, authLoading, router]);
   
   // Form state
   const [title, setTitle] = useState('');
@@ -35,20 +50,10 @@ export default function NewProductPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !title || !price) return;
+    if (!user || !profile || !title || !price) return;
 
     setLoading(true);
     try {
-      // Get creator ID
-      const { data: creator } = await supabase
-        .from('creators')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!creator) {
-        throw new Error('Creator not found');
-      }
 
       const priceCents = Math.round(parseFloat(price) * 100);
       let fileUrl: string | null = null;
@@ -93,7 +98,7 @@ export default function NewProductPage() {
       const { error } = await supabase
         .from('products')
         .insert({
-          creator_id: creator.id,
+          creator_id: profile.id,
           title,
           description,
           price_cents: priceCents,
@@ -119,6 +124,17 @@ export default function NewProductPage() {
   const formatPrice = (cents: number) => {
     return `$${(cents / 100).toFixed(2)}`;
   };
+
+  if (authLoading || !profile) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-white/60 lowercase">loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-6 py-8 lg:px-8">

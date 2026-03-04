@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { createSupabaseClient, type Creator, type Product, type Order } from '@/lib/supabase';
+import { createSupabaseClient, type Product, type Order } from '@/lib/supabase';
 import StatsCard from '@/components/dashboard/StatsCard';
 import Link from 'next/link';
 import { 
@@ -25,8 +26,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  const [creator, setCreator] = useState<Creator | null>(null);
+  const { user, profile, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalRevenue: 0,
     totalProducts: 0,
@@ -35,34 +35,37 @@ export default function DashboardPage() {
   });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const supabase = createSupabaseClient();
 
+  // Auth guards
   useEffect(() => {
-    if (user) {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      
+      if (!profile) {
+        router.push('/onboarding');
+        return;
+      }
+
+      // Load dashboard data once we have a profile
       loadDashboardData();
     }
-  }, [user]);
+  }, [user, profile, authLoading, router]);
 
   async function loadDashboardData() {
-    if (!user) return;
+    if (!profile) return;
 
     try {
       setLoading(true);
       
-      // Get creator profile
-      const { data: creatorData } = await supabase
-        .from('creators')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (creatorData) {
-        setCreator(creatorData);
-        await Promise.all([
-          loadStats(creatorData.id),
-          loadRecentOrders(creatorData.id),
-        ]);
-      }
+      await Promise.all([
+        loadStats(profile.id),
+        loadRecentOrders(profile.id),
+      ]);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -72,17 +75,6 @@ export default function DashboardPage() {
 
   async function loadStats(creatorId: string) {
     try {
-      // Get revenue and total sold from completed orders
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('amount_cents, platform_fee_cents')
-        .eq('creator_id', creatorId)
-        .eq('status', 'completed');
-
-      const totalRevenue = orders?.reduce((sum, order) => 
-        sum + (order.amount_cents - order.platform_fee_cents), 0) || 0;
-      const totalSold = orders?.length || 0;
-
       // Get product count
       const { count: productCount } = await supabase
         .from('products')
@@ -90,17 +82,22 @@ export default function DashboardPage() {
         .eq('creator_id', creatorId)
         .eq('is_active', true);
 
-      // Get page views (placeholder for now)
-      const pageViews = Math.floor(Math.random() * 1000) + 500;
-
+      // For Phase 1, use placeholder stats since orders/revenue may not be implemented yet
       setStats({
-        totalRevenue,
+        totalRevenue: 0, // Placeholder - will be real when orders are implemented
         totalProducts: productCount || 0,
-        totalSold,
-        pageViews,
+        totalSold: 0, // Placeholder - will be real when orders are implemented
+        pageViews: 0, // Placeholder - will be real when analytics are implemented
       });
     } catch (error) {
       console.error('Error loading stats:', error);
+      // Fallback to placeholder stats
+      setStats({
+        totalRevenue: 0,
+        totalProducts: 0,
+        totalSold: 0,
+        pageViews: 0,
+      });
     }
   }
 
@@ -119,6 +116,8 @@ export default function DashboardPage() {
       setRecentOrders(data || []);
     } catch (error) {
       console.error('Error loading recent orders:', error);
+      // Ignore error since orders table might not exist yet in Phase 1
+      setRecentOrders([]);
     }
   }
 
@@ -133,18 +132,9 @@ export default function DashboardPage() {
     });
   };
 
-  const revenueChartData = [
-    { month: 'jan', amount: 1200 },
-    { month: 'feb', amount: 1800 },
-    { month: 'mar', amount: 2400 },
-    { month: 'apr', amount: 2100 },
-    { month: 'may', amount: 3200 },
-    { month: 'jun', amount: 2800 },
-  ];
+  // Revenue chart data removed for Phase 1 - will be added when real analytics are implemented
 
-  const maxAmount = Math.max(...revenueChartData.map(d => d.amount));
-
-  if (loading) {
+  if (authLoading || loading || !profile) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -160,10 +150,10 @@ export default function DashboardPage() {
       {/* Welcome section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2 lowercase">
-          welcome back, {creator?.display_name}
+          welcome back, {profile.display_name}
         </h1>
         <p className="text-white/60 lowercase">
-          here's how your page is performing
+          @{profile.handle} • here's how your page is performing
         </p>
       </div>
 
@@ -183,7 +173,7 @@ export default function DashboardPage() {
         </Link>
 
         <Link
-          href={`/${creator?.handle}`}
+          href={`/${profile.handle}`}
           target="_blank"
           className="bg-[#111] border border-white/5 rounded-lg p-6 hover:border-white/10 transition-all duration-200 group"
         >
@@ -232,27 +222,25 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Revenue chart */}
-        <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-6 lowercase">revenue over time</h2>
-          
-          <div className="space-y-4">
-            {revenueChartData.map((data, index) => (
-              <div key={data.month} className="flex items-center space-x-4">
-                <div className="w-8 text-xs text-white/60 lowercase">{data.month}</div>
-                <div className="flex-1 bg-white/5 rounded-full h-2 relative overflow-hidden">
-                  <div 
-                    className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full transition-all duration-500"
-                    style={{ width: `${(data.amount / maxAmount) * 100}%` }}
-                  />
-                </div>
-                <div className="text-xs text-white/80 font-medium w-12 text-right">
-                  ${data.amount}
-                </div>
-              </div>
-            ))}
+        {/* Empty state for products */}
+        {stats.totalProducts === 0 && (
+          <div className="bg-[#111] border border-white/5 rounded-lg p-8">
+            <div className="text-center">
+              <Package className="h-12 w-12 text-white/20 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2 lowercase">start selling</h3>
+              <p className="text-white/60 text-sm mb-6 lowercase">
+                create your first product to start earning
+              </p>
+              <Link 
+                href="/dashboard/products/new"
+                className="inline-flex items-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded transition-colors duration-200 lowercase"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                add your first product
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* AI suggestion + Recent orders */}
         <div className="space-y-8">
