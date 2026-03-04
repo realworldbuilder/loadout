@@ -4,39 +4,84 @@ import Link from 'next/link';
 import { 
   ArrowRight,
   Check,
+  X,
 } from 'lucide-react';
 
-const features = [
+const toolComparison = [
   {
     emoji: '🔗',
-    title: 'link-in-bio',
-    desc: 'loadout.fit/@you — one link for everything. optimized for ig and tiktok traffic.',
+    tool: 'Link-in-Bio Storefront',
+    replaces: 'Linktree + Squarespace',
+    replaceCost: '$29',
+    loadoutVersion: 'loadout.fit/@you — mobile-first, dark theme, built for gym traffic',
   },
   {
-    emoji: '💰',
-    title: 'sell anything',
-    desc: 'workout plans, meal preps, coaching templates, training programs. instant delivery.',
+    emoji: '📅',
+    tool: 'Coaching Calendar',
+    replaces: 'Calendly + Acuity',
+    replaceCost: '$15',
+    loadoutVersion: 'built for training sessions, not dentist appointments. recurring clients, program phases',
   },
   {
-    emoji: '⚡',
-    title: 'instant payouts',
-    desc: 'stripe-powered checkout. money hits your account same day. no invoicing bs.',
+    emoji: '🏋️',
+    tool: 'Program Builder',
+    replaces: 'Kajabi',
+    replaceCost: '$119',
+    loadoutVersion: 'AI generates workout programs from a description. periodized blocks, not generic "courses"',
   },
   {
     emoji: '📊',
-    title: 'know your numbers',
-    desc: 'see who clicks, what sells, where traffic comes from. powered by gymsignal intel.',
+    tool: 'Audience Intelligence',
+    replaces: 'Google Analytics',
+    replaceCost: '$10',
+    loadoutVersion: 'not just page views — trending topics, optimal posting times, what content drives sales',
+  },
+  {
+    emoji: '💬',
+    tool: 'DM Funnels',
+    replaces: 'ManyChat',
+    replaceCost: '$15',
+    loadoutVersion: '"comment SHRED for the link" automation with fitness-specific templates',
+  },
+  {
+    emoji: '📧',
+    tool: 'Client Pipeline',
+    replaces: 'ConvertKit + Mailchimp',
+    replaceCost: '$29',
+    loadoutVersion: 'not a newsletter — a sales funnel. free PDF → email sequence → coaching upsell',
   },
   {
     emoji: '🎨',
-    title: 'your brand, your page',
-    desc: 'custom colors, layout, and style. no generic templates. looks like you built it.',
+    tool: 'AI Content Lab',
+    replaces: 'Canva Pro + Later',
+    replaceCost: '$30',
+    loadoutVersion: 'AI generates posts, carousels, and captions using real-time trend data. not static templates.',
+  },
+  {
+    emoji: '🤝',
+    tool: 'Engagement Pods',
+    replaces: 'Facebook Groups',
+    replaceCost: '$97',
+    loadoutVersion: 'matchmade by niche + follower count. accountability tracking. not random DM groups.',
   },
   {
     emoji: '🤖',
-    title: 'ai-powered',
-    desc: 'gymsignal tells you what to post and when. loadout is where you send them to buy.',
+    tool: 'AI Growth Coach',
+    replaces: '1:1 Strategy Coaching',
+    replaceCost: '$99',
+    loadoutVersion: 'AI analyzes your content performance and tells you exactly what to do next. 24/7.',
   },
+];
+
+const totalReplaceCost = toolComparison.reduce((a, t) => a + parseInt(t.replaceCost.replace('$', '')), 0);
+
+const onlyOnLoadout = [
+  { emoji: '🤖', title: 'AI Product Writer', desc: 'describe your program in 2 sentences → full listing in 10 seconds' },
+  { emoji: '💰', title: 'Trend-Powered Pricing', desc: '"creators in your niche charge $24-34 for shred programs. you\'re undercharging."' },
+  { emoji: '🎯', title: 'Smart Promote Alerts', desc: '"cutting season trending 92% — push your shred program NOW"' },
+  { emoji: '📐', title: 'Workout Plan Builder', desc: 'drag-and-drop program design. export as PDF or deliver in-app via M2M' },
+  { emoji: '📈', title: 'Competitor Intel', desc: 'see what similar creators sell, at what price, and what\'s working' },
+  { emoji: '🧠', title: 'M2M Voice Delivery', desc: 'clients get your programs delivered to their wrist. train by voice, not screenshots' },
 ];
 
 export default function HomePage() {
@@ -65,9 +110,8 @@ export default function HomePage() {
       </nav>
 
       {/* Hero */}
-      <section className="pt-28 pb-20 px-6">
+      <section className="pt-28 pb-16 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-3 py-1.5 rounded-full mb-8">
             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
             powered by gymsignal intelligence
@@ -82,9 +126,9 @@ export default function HomePage() {
           </h1>
           
           <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            the all-in-one storefront for fitness creators. 
-            link-in-bio, digital products, instant payments. 
-            built for people who live in the gym.
+            the all-in-one creator OS for fitness. 
+            storefront, AI tools, coaching calendar, content lab, analytics — 
+            all in one place. built for people who live in the gym.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-12">
@@ -101,7 +145,7 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
             <span className="flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-emerald-500" />
-              free to start
+              free tier available
             </span>
             <span className="flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-emerald-500" />
@@ -109,7 +153,7 @@ export default function HomePage() {
             </span>
             <span className="flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5 text-emerald-500" />
-              instant payouts
+              ai-powered everything
             </span>
           </div>
         </div>
@@ -119,7 +163,6 @@ export default function HomePage() {
       <section className="pb-20 px-6">
         <div className="max-w-md mx-auto">
           <div className="bg-[#111] rounded-2xl border border-white/10 p-6 shadow-2xl shadow-emerald-500/5">
-            {/* Fake profile card */}
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-2xl">
                 💪
@@ -130,36 +173,26 @@ export default function HomePage() {
               </div>
             </div>
             
-            {/* Fake product cards */}
             <div className="space-y-3">
-              <div className="bg-[#1a1a1a] rounded-xl p-4 border border-white/5 flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-sm">12-Week Shred Program</p>
-                  <p className="text-xs text-gray-500">PDF · 847 sold</p>
+              {[
+                { name: '12-Week Shred Program', meta: 'PDF · 847 sold', price: '$29' },
+                { name: 'Meal Prep Masterclass', meta: 'PDF · 412 sold', price: '$19' },
+                { name: '1:1 Coaching (Monthly)', meta: 'coaching · 23 active', price: '$149' },
+              ].map((p) => (
+                <div key={p.name} className="bg-[#1a1a1a] rounded-xl p-4 border border-white/5 flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-sm">{p.name}</p>
+                    <p className="text-xs text-gray-500">{p.meta}</p>
+                  </div>
+                  <span className="text-emerald-400 font-bold text-sm">{p.price}</span>
                 </div>
-                <span className="text-emerald-400 font-bold text-sm">$29</span>
-              </div>
-              <div className="bg-[#1a1a1a] rounded-xl p-4 border border-white/5 flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-sm">Meal Prep Masterclass</p>
-                  <p className="text-xs text-gray-500">PDF · 412 sold</p>
-                </div>
-                <span className="text-emerald-400 font-bold text-sm">$19</span>
-              </div>
-              <div className="bg-[#1a1a1a] rounded-xl p-4 border border-white/5 flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-sm">1:1 Coaching (Monthly)</p>
-                  <p className="text-xs text-gray-500">coaching · 23 active</p>
-                </div>
-                <span className="text-emerald-400 font-bold text-sm">$149</span>
-              </div>
+              ))}
             </div>
 
-            {/* Fake social links */}
             <div className="flex justify-center gap-3 mt-6">
-              {['instagram', 'tiktok', 'youtube', 'twitter'].map((s) => (
+              {['I', 'T', 'Y', 'X'].map((s) => (
                 <div key={s} className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-gray-500 text-xs font-mono">
-                  {s[0].toUpperCase()}
+                  {s}
                 </div>
               ))}
             </div>
@@ -169,19 +202,76 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* ========== REPLACES SECTION ========== */}
       <section className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">everything you need to get paid</h2>
-            <p className="text-gray-400 text-lg">no code. no hassle. just your content and a checkout button.</p>
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
+              stop paying for 9 different tools
+            </h2>
+            <p className="text-gray-400 text-lg">loadout replaces your entire stack — and it actually knows fitness.</p>
           </div>
-          
+
+          {/* Tool comparison list */}
+          <div className="bg-[#111] rounded-2xl border border-white/5 overflow-hidden">
+            {toolComparison.map((tool, i) => (
+              <div
+                key={tool.tool}
+                className={`p-5 ${i !== toolComparison.length - 1 ? 'border-b border-white/5' : ''} hover:bg-white/[0.02] transition-colors`}
+              >
+                <div className="flex items-start gap-4">
+                  <span className="text-2xl shrink-0 mt-0.5">{tool.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-semibold text-white">{tool.tool}</h3>
+                      <span className="text-red-400/60 text-sm font-mono line-through shrink-0 ml-2">{tool.replaceCost}</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">
+                      replaces <span className="text-gray-500">{tool.replaces}</span>
+                    </p>
+                    <p className="text-sm text-gray-400 leading-relaxed">{tool.loadoutVersion}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Total */}
+            <div className="p-5 bg-[#0a0a0a] border-t border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <X className="h-4 w-4 text-red-400" />
+                  <span className="text-gray-500">what you&apos;d spend otherwise</span>
+                </div>
+                <span className="text-red-400 font-bold text-lg font-mono">${totalReplaceCost}/mo</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🏋️</span>
+                  <span className="font-bold text-white text-lg">loadout pro</span>
+                </div>
+                <span className="text-emerald-400 font-bold text-2xl">$19/mo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========== ONLY ON LOADOUT ========== */}
+      <section className="py-20 px-6 border-t border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-emerald-400 text-xs font-mono uppercase tracking-widest mb-3">loadout exclusive</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
+              stuff stan can&apos;t do
+            </h2>
+            <p className="text-gray-400 text-lg">because generic creator tools don&apos;t understand the gym.</p>
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {features.map((f) => (
+            {onlyOnLoadout.map((f) => (
               <div key={f.title} className="bg-[#111] rounded-xl border border-white/5 p-6 hover:border-emerald-500/20 transition-colors">
                 <span className="text-2xl mb-3 block">{f.emoji}</span>
-                <h3 className="font-semibold mb-2">{f.title}</h3>
+                <h3 className="font-semibold mb-2 text-white">{f.title}</h3>
                 <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
               </div>
             ))}
@@ -189,65 +279,77 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* ========== PRICING ========== */}
       <section className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">simple pricing</h2>
-            <p className="text-gray-400">start free. upgrade when you need more.</p>
+            <p className="text-gray-400">stan charges $29/mo with no free tier. we do better.</p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             {/* Free */}
-            <div className="bg-[#111] rounded-xl border border-white/5 p-8">
+            <div className="bg-[#111] rounded-xl border border-white/5 p-7">
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-1 text-gray-300">starter</h3>
+                <h3 className="text-base font-semibold mb-1 text-gray-400">starter</h3>
                 <div className="text-4xl font-bold">$0</div>
-                <p className="text-sm text-gray-500 mt-1">forever free</p>
+                <p className="text-sm text-gray-600 mt-1">forever free</p>
               </div>
               
-              <ul className="space-y-3 mb-8 text-sm">
-                {['custom @handle page', 'up to 3 products', 'basic analytics', '5% + stripe fees'].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-gray-300">
-                    <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+              <ul className="space-y-2.5 mb-8 text-sm">
+                {[
+                  'custom @handle page',
+                  'up to 3 products',
+                  'basic analytics',
+                  'stripe payments',
+                  '5% platform fee',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-gray-400">
+                    <Check className="h-3.5 w-3.5 text-emerald-500/60 shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
               
-              <Link href="/signup" className="block text-center text-sm font-medium py-2.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-colors">
+              <Link href="/signup" className="block text-center text-sm font-medium py-2.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-colors">
                 start free
               </Link>
             </div>
             
             {/* Pro */}
-            <div className="bg-[#111] rounded-xl border border-emerald-500/30 p-8 relative">
+            <div className="bg-[#111] rounded-xl border border-emerald-500/30 p-7 relative">
               <div className="absolute -top-3 left-6">
                 <span className="bg-emerald-500 text-black text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  pro
+                  most popular
                 </span>
               </div>
               
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-1 text-white">creator pro</h3>
+                <h3 className="text-base font-semibold mb-1 text-white">pro</h3>
                 <div className="text-4xl font-bold">
-                  $9.99
+                  $19
                   <span className="text-base font-normal text-gray-500">/mo</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">for serious creators</p>
+                <p className="text-sm text-gray-600 mt-1">everything you need</p>
               </div>
               
-              <ul className="space-y-3 mb-8 text-sm">
+              <ul className="space-y-2.5 mb-8 text-sm">
                 {[
                   'everything in starter',
-                  'unlimited products', 
-                  'custom themes & colors',
+                  'unlimited products',
+                  'AI product writer',
+                  'AI content lab',
+                  'coaching calendar',
+                  'DM funnels',
+                  'client pipeline (email)',
+                  'engagement pods',
                   'advanced analytics',
-                  'remove loadout branding',
-                  'priority support',
+                  'custom themes',
+                  'remove branding',
+                  'smart promote alerts',
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2 text-gray-300">
-                    <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -256,6 +358,57 @@ export default function HomePage() {
               <Link href="/signup?plan=pro" className="block text-center text-sm font-semibold py-2.5 rounded-lg bg-emerald-500 text-black hover:bg-emerald-400 transition-colors">
                 start pro trial
               </Link>
+            </div>
+
+            {/* Compare */}
+            <div className="bg-[#111] rounded-xl border border-red-500/10 p-7 relative opacity-60">
+              <div className="absolute -top-3 left-6">
+                <span className="bg-red-500/20 text-red-400 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  the other guys
+                </span>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-base font-semibold mb-1 text-gray-400">stan.store</h3>
+                <div className="text-4xl font-bold text-gray-400">
+                  $29
+                  <span className="text-base font-normal text-gray-600">/mo</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">no free tier</p>
+              </div>
+              
+              <ul className="space-y-2.5 mb-8 text-sm">
+                {[
+                  'link-in-bio page',
+                  'digital products',
+                  'calendar bookings',
+                  'course builder',
+                  'email list',
+                  'analytics',
+                  'social templates',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-gray-500">
+                    <Check className="h-3.5 w-3.5 text-gray-600 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+                {[
+                  'no AI tools',
+                  'no trend intelligence',
+                  'no fitness focus',
+                  'no engagement pods',
+                  'no voice delivery',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-gray-600">
+                    <X className="h-3.5 w-3.5 text-red-500/40 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="block text-center text-sm font-medium py-2.5 rounded-lg border border-white/5 text-gray-600 cursor-not-allowed">
+                $10 more for less
+              </div>
             </div>
           </div>
         </div>
@@ -281,9 +434,25 @@ export default function HomePage() {
             <div className="flex items-center gap-2 text-white">
               <span className="text-lg">🏋️</span>
               <span className="text-sm font-medium">Loadout</span>
-              <span className="text-[10px] text-emerald-500">storefronts</span>
+              <span className="text-[10px] text-emerald-500">creator OS</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 px-6 border-t border-white/5">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+            ready to build your loadout?
+          </h2>
+          <p className="text-gray-400 text-lg mb-8">
+            free to start. no credit card. your storefront live in 5 minutes.
+          </p>
+          <Link href="/signup" className="group inline-flex items-center gap-2 bg-white text-black font-semibold px-10 py-4 rounded-xl hover:bg-gray-100 transition-all text-lg">
+            get started free
+            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </section>
 
