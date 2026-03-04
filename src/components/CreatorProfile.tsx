@@ -127,7 +127,7 @@ export default function CreatorProfile({ handle }: { handle: string }) {
         <div className="max-w-2xl mx-auto px-4 py-10">
           {/* Header */}
           <div className="text-center mb-10">
-            <Link href="/loadout" className="inline-flex items-center gap-2 mb-6 text-gray-500 hover:text-white transition-colors text-sm">
+            <Link href="/" className="inline-flex items-center gap-2 mb-6 text-gray-500 hover:text-white transition-colors text-sm">
               ← back to loadout
             </Link>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
@@ -143,7 +143,7 @@ export default function CreatorProfile({ handle }: { handle: string }) {
             {DEMO_LIST.map((c: any) => (
               <Link
                 key={c.handle}
-                href={`/loadout/${c.handle}`}
+                href={`/${c.handle}`}
                 className="block bg-[#111] rounded-xl border border-white/5 p-5 hover:border-emerald-500/20 transition-all group"
               >
                 <div className="flex items-center gap-4">
@@ -173,7 +173,7 @@ export default function CreatorProfile({ handle }: { handle: string }) {
           {/* CTA */}
           <div className="text-center mt-12">
             <p className="text-gray-600 text-sm mb-4">these are examples. yours will look even better.</p>
-            <Link href="/loadout" className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
+            <Link href="/" className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
               build your loadout →
             </Link>
           </div>
@@ -194,7 +194,7 @@ export default function CreatorProfile({ handle }: { handle: string }) {
           <p className="text-6xl mb-4">🏋️</p>
           <h1 className="text-2xl font-bold mb-2">@{handle}</h1>
           <p className="text-gray-500 mb-6">this creator hasn&apos;t set up their loadout yet</p>
-          <Link href="/loadout/demo" className="text-emerald-400 text-sm hover:underline">
+          <Link href="/demo" className="text-emerald-400 text-sm hover:underline">
             see example loadouts →
           </Link>
         </div>
@@ -207,7 +207,7 @@ export default function CreatorProfile({ handle }: { handle: string }) {
     <div className="min-h-screen bg-[#0a0a0a]">
       <div className="max-w-lg mx-auto px-4 py-10">
         {/* Back to demos */}
-        <Link href="/loadout/demo" className="inline-flex items-center gap-1 text-gray-600 hover:text-white transition-colors text-xs mb-6">
+        <Link href="/demo" className="inline-flex items-center gap-1 text-gray-600 hover:text-white transition-colors text-xs mb-6">
           ← all examples
         </Link>
 
@@ -290,14 +290,14 @@ export default function CreatorProfile({ handle }: { handle: string }) {
         {/* CTA */}
         <div className="text-center mt-10 p-6 bg-[#111] rounded-xl border border-white/5">
           <p className="text-sm text-gray-400 mb-3">want a page like this?</p>
-          <Link href="/loadout" className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
+          <Link href="/" className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
             build your loadout →
           </Link>
         </div>
 
         {/* Footer */}
         <div className="text-center mt-8">
-          <Link href="/loadout" className="text-[11px] font-mono text-gray-600 hover:text-emerald-500 transition-colors">
+          <Link href="/" className="text-[11px] font-mono text-gray-600 hover:text-emerald-500 transition-colors">
             ⚡ powered by loadout.fit
           </Link>
         </div>

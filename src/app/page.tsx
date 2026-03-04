@@ -137,7 +137,7 @@ export default function HomePage() {
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             
-            <Link href="/loadout/demo" className="flex items-center gap-2 text-gray-400 font-medium px-8 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:text-white transition-all text-base">
+            <Link href="/demo" className="flex items-center gap-2 text-gray-400 font-medium px-8 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:text-white transition-all text-base">
               see example loadouts
             </Link>
           </div>
