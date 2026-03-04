@@ -3,6 +3,35 @@
 import Link from 'next/link';
 import { Instagram, Youtube, Twitter } from 'lucide-react';
 
+// Database types
+interface DBCreator {
+  id: string;
+  handle: string;
+  display_name: string;
+  bio?: string;
+  avatar_url?: string;
+  social_links?: {
+    instagram?: string;
+    youtube?: string;
+    twitter?: string;
+  };
+}
+
+interface DBProduct {
+  id: string;
+  creator_id: string;
+  title: string;
+  description?: string;
+  price: number;
+  product_type: string;
+  external_url?: string;
+  file_url?: string;
+  thumbnail_url?: string;
+  cta_text?: string;
+  is_active: boolean;
+  sort_order: number;
+}
+
 // Demo loadouts — different creator archetypes
 const DEMO_CREATORS: Record<string, any> = {
   demo: {
@@ -136,8 +165,19 @@ const DEMO_LIST = Object.entries(DEMO_CREATORS)
   .filter(([k, v]) => !v.isDirectory)
   .map(([k, v]) => v);
 
-export default function CreatorProfile({ handle }: { handle: string }) {
-  const creator = DEMO_CREATORS[handle];
+interface CreatorProfileProps {
+  handle: string;
+  dbData?: {
+    creator: DBCreator;
+    products: DBProduct[];
+  } | null;
+}
+
+export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) {
+  // If we have database data, use it; otherwise fall back to demo data
+  const isFromDB = dbData !== null && dbData !== undefined;
+  const creator = isFromDB ? dbData?.creator : DEMO_CREATORS[handle];
+  const products = isFromDB ? dbData?.products || [] : creator?.products || [];
 
   // Demo directory page
   if (handle === 'demo') {
@@ -221,6 +261,53 @@ export default function CreatorProfile({ handle }: { handle: string }) {
     );
   }
 
+  // Helper functions for data formatting
+  const formatPrice = (price: number | string) => {
+    if (typeof price === 'string') return price;
+    return `$${price}`;
+  };
+
+  const getProductEmoji = (productType: string, demoEmoji?: string) => {
+    if (demoEmoji) return demoEmoji;
+    
+    switch (productType) {
+      case 'digital_product':
+      case 'PDF':
+        return '📚';
+      case 'coaching':
+      case 'Coaching':
+        return '🎯';
+      case 'affiliate_link':
+      case 'Link':
+        return '🔗';
+      case 'subscription':
+      case 'Subscription':
+        return '📅';
+      default:
+        return '📦';
+    }
+  };
+
+  const getCtaText = (product: any) => {
+    if (product.cta_text) return product.cta_text;
+    if (product.external_url) return 'Visit';
+    if (product.type === 'Link' || product.product_type === 'affiliate_link') return 'Visit';
+    if (product.type === 'Booking') return 'Book';
+    if (product.price === 'Free') return 'Get free';
+    if (!product.external_url && product.product_type === 'digital_product') return 'coming soon';
+    return 'Get it';
+  };
+
+  const getAvatarDisplay = (creator: any) => {
+    if (isFromDB) {
+      if (creator.avatar_url) {
+        return <img src={creator.avatar_url} alt={creator.display_name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4" />;
+      }
+      return <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-3xl mx-auto mb-4">💪</div>;
+    }
+    return <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${creator.color} flex items-center justify-center text-3xl mx-auto mb-4`}>{creator.avatar_emoji}</div>;
+  };
+
   // Individual creator profile
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -232,79 +319,113 @@ export default function CreatorProfile({ handle }: { handle: string }) {
 
         {/* Profile header */}
         <div className="text-center mb-8">
-          <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${creator.color} flex items-center justify-center text-3xl mx-auto mb-4`}>
-            {creator.avatar_emoji}
-          </div>
+          {getAvatarDisplay(creator)}
           <h1 className="text-2xl font-bold">{creator.display_name}</h1>
-          <p className="text-sm text-gray-500 mb-1">@{creator.handle} · {creator.followers} followers</p>
-          <span className="inline-block text-[10px] font-mono bg-white/5 text-gray-500 px-2.5 py-0.5 rounded-full mb-3">{creator.tag}</span>
-          <p className="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto">{creator.bio}</p>
+          <p className="text-sm text-gray-500 mb-1">@{creator.handle}{!isFromDB && creator.followers ? ` · ${creator.followers} followers` : ''}</p>
+          {!isFromDB && creator.tag && (
+            <span className="inline-block text-[10px] font-mono bg-white/5 text-gray-500 px-2.5 py-0.5 rounded-full mb-3">{creator.tag}</span>
+          )}
+          {creator.bio && (
+            <p className="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto">{creator.bio}</p>
+          )}
 
           {/* Socials */}
-          <div className="flex justify-center gap-3 mt-4">
-            {creator.social_links.instagram && (
-              <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
-                <Instagram className="h-4 w-4 text-gray-400" />
-              </div>
-            )}
-            {creator.social_links.youtube && (
-              <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
-                <Youtube className="h-4 w-4 text-gray-400" />
-              </div>
-            )}
-            {creator.social_links.twitter && (
-              <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
-                <Twitter className="h-4 w-4 text-gray-400" />
-              </div>
-            )}
-          </div>
+          {creator.social_links && (
+            <div className="flex justify-center gap-3 mt-4">
+              {creator.social_links.instagram && (
+                <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
+                  <Instagram className="h-4 w-4 text-gray-400" />
+                </div>
+              )}
+              {creator.social_links.youtube && (
+                <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
+                  <Youtube className="h-4 w-4 text-gray-400" />
+                </div>
+              )}
+              {creator.social_links.twitter && (
+                <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
+                  <Twitter className="h-4 w-4 text-gray-400" />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Stats bar */}
         <div className="flex justify-center gap-6 mb-6">
           <div className="text-center">
-            <p className="text-lg font-bold">{creator.products.length}</p>
+            <p className="text-lg font-bold">{products.length}</p>
             <p className="text-[10px] text-gray-600 font-mono">products</p>
           </div>
-          <div className="text-center">
-            <p className="text-lg font-bold">{creator.products.reduce((a: number, p: any) => a + p.sold, 0).toLocaleString()}</p>
-            <p className="text-[10px] text-gray-600 font-mono">total sold</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-bold text-emerald-400">
-              ${creator.products.reduce((a: number, p: any) => {
-                const price = parseFloat(p.price.replace(/[^0-9.]/g, '')) || 0;
-                return a + (price * p.sold);
-              }, 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            </p>
-            <p className="text-[10px] text-gray-600 font-mono">est. revenue</p>
-          </div>
+          {!isFromDB && (
+            <>
+              <div className="text-center">
+                <p className="text-lg font-bold">{products.reduce((a: number, p: any) => a + (p.sold || 0), 0).toLocaleString()}</p>
+                <p className="text-[10px] text-gray-600 font-mono">total sold</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-emerald-400">
+                  ${products.reduce((a: number, p: any) => {
+                    const price = parseFloat(p.price?.toString().replace(/[^0-9.]/g, '') || '0') || 0;
+                    return a + (price * (p.sold || 0));
+                  }, 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
+                <p className="text-[10px] text-gray-600 font-mono">est. revenue</p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Products */}
         <div className="space-y-3">
-          {creator.products.map((p: any, i: number) => (
-            <div
-              key={i}
-              className="bg-[#111] rounded-xl border border-white/5 p-5 hover:border-emerald-500/20 transition-all cursor-pointer group"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{p.emoji}</span>
-                  <h3 className="font-semibold group-hover:text-emerald-400 transition-colors">{p.title}</h3>
+          {products.map((p: any, i: number) => {
+            const productComponent = (
+              <div className="bg-[#111] rounded-xl border border-white/5 p-5 hover:border-emerald-500/20 transition-all cursor-pointer group">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{getProductEmoji(p.product_type || p.type, p.emoji)}</span>
+                    <h3 className="font-semibold group-hover:text-emerald-400 transition-colors">{p.title}</h3>
+                  </div>
+                  <span className="text-emerald-400 font-bold text-sm shrink-0 ml-3">{formatPrice(p.price)}</span>
                 </div>
-                <span className="text-emerald-400 font-bold text-sm shrink-0 ml-3">{p.price}</span>
+                <p className="text-sm text-gray-500 leading-relaxed mb-3 pl-8">{p.description || p.desc}</p>
+                <div className="flex items-center justify-between pl-8">
+                  <span className="text-[11px] font-mono text-gray-600">
+                    {p.product_type || p.type}{!isFromDB && p.sold > 0 ? ` · ${p.sold.toLocaleString()} sold` : ''}
+                  </span>
+                  <button className="text-xs font-medium bg-emerald-500 text-black px-4 py-1.5 rounded-lg hover:bg-emerald-400 transition-colors">
+                    {getCtaText(p)}
+                  </button>
+                </div>
               </div>
-              <p className="text-sm text-gray-500 leading-relaxed mb-3 pl-8">{p.desc}</p>
-              <div className="flex items-center justify-between pl-8">
-                <span className="text-[11px] font-mono text-gray-600">{p.type}{p.sold > 0 ? ` · ${p.sold.toLocaleString()} sold` : ''}</span>
-                <button className="text-xs font-medium bg-emerald-500 text-black px-4 py-1.5 rounded-lg hover:bg-emerald-400 transition-colors">
-                  {p.type === 'Link' ? 'Visit' : p.type === 'Booking' ? 'Book' : p.price === 'Free' ? 'Get free' : 'Get it'}
-                </button>
+            );
+
+            if (p.external_url && (p.product_type === 'affiliate_link' || p.type === 'Link')) {
+              return (
+                <Link key={i} href={p.external_url} target="_blank" rel="noopener noreferrer">
+                  {productComponent}
+                </Link>
+              );
+            }
+
+            return (
+              <div key={i}>
+                {productComponent}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+
+        {/* No products message for DB creators */}
+        {isFromDB && products.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">📦</span>
+            </div>
+            <p className="text-gray-500 mb-2">no products yet</p>
+            <p className="text-sm text-gray-600">this creator hasn't added any products to their loadout</p>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="text-center mt-10 p-6 bg-[#111] rounded-xl border border-white/5">
