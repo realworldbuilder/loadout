@@ -12,7 +12,9 @@ import {
   Users,
   Dumbbell,
   LogOut,
-  Wand2
+  Wand2,
+  Calendar,
+  Mail
 } from 'lucide-react';
 import { createSupabaseClient } from '@/lib/supabase';
 
@@ -44,6 +46,16 @@ export default function CreatorNav({ creatorHandle }: CreatorNavProps) {
       label: 'Orders',
       href: '/dashboard/orders',
       icon: CreditCard,
+    },
+    {
+      label: 'Calendar',
+      href: '/dashboard/calendar',
+      icon: Calendar,
+    },
+    {
+      label: 'Pipeline',
+      href: '/dashboard/pipeline',
+      icon: Mail,
     },
     {
       label: 'Analytics',
