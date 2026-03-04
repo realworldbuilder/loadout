@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { createProduct } from '@/lib/products';
-import type { ProductType } from '@/lib/products';
+import { getProduct, updateProduct, deleteProduct } from '@/lib/products';
+import type { Product, ProductType } from '@/lib/products';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -12,13 +12,19 @@ import {
   Package,
   Eye,
   DollarSign,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from 'lucide-react';
 
-export default function NewProductPage() {
+export default function EditProductPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
+  const params = useParams();
+  const productId = params.id as string;
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loadingProduct, setLoadingProduct] = useState(true);
 
   // Auth guards
   useEffect(() => {
@@ -34,6 +40,13 @@ export default function NewProductPage() {
       }
     }
   }, [user, profile, authLoading, router]);
+
+  // Load product data
+  useEffect(() => {
+    if (profile && productId) {
+      loadProduct();
+    }
+  }, [profile, productId]);
   
   // Form state
   const [title, setTitle] = useState('');
@@ -43,10 +56,49 @@ export default function NewProductPage() {
   const [externalUrl, setExternalUrl] = useState('');
   const [ctaText, setCtaText] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+
+  async function loadProduct() {
+    try {
+      setLoadingProduct(true);
+      const { data, error } = await getProduct(productId);
+      
+      if (error) {
+        console.error('Error loading product:', error);
+        router.push('/dashboard/products');
+        return;
+      }
+
+      if (!data) {
+        router.push('/dashboard/products');
+        return;
+      }
+
+      // Check if this product belongs to the current user
+      if (data.creator_id !== profile?.id) {
+        router.push('/dashboard/products');
+        return;
+      }
+
+      setProduct(data);
+      
+      // Populate form
+      setTitle(data.title);
+      setDescription(data.description || '');
+      setPrice(data.price.toString());
+      setProductType(data.product_type);
+      setExternalUrl(data.external_url || '');
+      setCtaText(data.cta_text || '');
+    } catch (error) {
+      console.error('Error loading product:', error);
+      router.push('/dashboard/products');
+    } finally {
+      setLoadingProduct(false);
+    }
+  }
   
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !profile || !title || !price) return;
+    if (!user || !profile || !title || !price || !product) return;
 
     setLoading(true);
     try {
@@ -59,36 +111,56 @@ export default function NewProductPage() {
       }
 
       // TODO: Handle file uploads in Phase 4
-      // For now, we'll just create the product without file uploads
-      let thumbnailUrl: string | null = null;
-
-      const productData = {
-        creator_id: profile.id,
+      
+      const updateData = {
         title,
         description: description || undefined,
         price: priceNum,
         product_type: productType,
         external_url: externalUrl || undefined,
         cta_text: ctaText || undefined,
-        thumbnail_url: thumbnailUrl || undefined,
-        is_active: true,
-        sort_order: 0,
       };
 
-      const { data, error } = await createProduct(productData);
+      const { error } = await updateProduct(product.id, updateData);
 
       if (error) {
-        console.error('Error creating product:', error);
-        alert('Failed to create product. Please try again.');
+        console.error('Error updating product:', error);
+        alert('Failed to update product. Please try again.');
         return;
       }
 
       router.push('/dashboard/products');
     } catch (error) {
-      console.error('Error creating product:', error);
-      alert('Failed to create product. Please try again.');
+      console.error('Error updating product:', error);
+      alert('Failed to update product. Please try again.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!product) return;
+    
+    if (!window.confirm('are you sure you want to delete this product? this action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const { error } = await deleteProduct(product.id);
+
+      if (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product. Please try again.');
+        return;
+      }
+
+      router.push('/dashboard/products');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Failed to delete product. Please try again.');
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -107,7 +179,7 @@ export default function NewProductPage() {
     }
   };
 
-  if (authLoading || !profile) {
+  if (authLoading || !profile || loadingProduct) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -118,20 +190,41 @@ export default function NewProductPage() {
     );
   }
 
+  if (!product) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <p className="text-white/60 lowercase">product not found</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="px-6 py-8 lg:px-8">
       {/* Header */}
-      <div className="flex items-center space-x-4 mb-8">
-        <Link
-          href="/dashboard/products"
-          className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5 text-white/70" />
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-white lowercase">create product</h1>
-          <p className="text-white/60 lowercase">add a new product to your storefront</p>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-4">
+          <Link
+            href="/dashboard/products"
+            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 text-white/70" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-white lowercase">edit product</h1>
+            <p className="text-white/60 lowercase">update your product details</p>
+          </div>
         </div>
+
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50 lowercase"
+        >
+          <Trash2 className="h-4 w-4" />
+          <span>{deleting ? 'deleting...' : 'delete'}</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -262,12 +355,20 @@ export default function NewProductPage() {
               
               <div className="border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-white/20 transition-colors">
                 <div className="text-white/40 mb-4">
-                  <div className="w-full h-32 bg-gray-600 rounded-lg flex items-center justify-center">
-                    <Package className="h-8 w-8 text-white/40" />
-                  </div>
+                  {product.thumbnail_url ? (
+                    <img 
+                      src={product.thumbnail_url} 
+                      alt={product.title}
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-32 bg-gray-600 rounded-lg flex items-center justify-center">
+                      <Package className="h-8 w-8 text-white/40" />
+                    </div>
+                  )}
                 </div>
                 <p className="text-white/80 mb-2 lowercase">file upload coming in phase 4</p>
-                <p className="text-sm text-white/40 lowercase">for now, thumbnails will be a gray placeholder</p>
+                <p className="text-sm text-white/40 lowercase">for now, thumbnails cannot be changed</p>
               </div>
             </div>
 
@@ -284,7 +385,7 @@ export default function NewProductPage() {
                 disabled={loading || !title || !price}
                 className="flex-1 px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed lowercase"
               >
-                {loading ? 'creating...' : 'create product'}
+                {loading ? 'saving...' : 'save changes'}
               </button>
             </div>
           </form>
@@ -301,7 +402,15 @@ export default function NewProductPage() {
             <div className="bg-[#161616] border border-white/5 rounded-lg overflow-hidden">
               {/* Preview thumbnail */}
               <div className="aspect-video bg-gray-600 flex items-center justify-center">
-                <Package className="h-12 w-12 text-white/20" />
+                {product.thumbnail_url ? (
+                  <img 
+                    src={product.thumbnail_url} 
+                    alt={title || product.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Package className="h-12 w-12 text-white/20" />
+                )}
               </div>
               
               {/* Preview content */}
@@ -331,7 +440,7 @@ export default function NewProductPage() {
 
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
             <p className="text-sm text-emerald-100 lowercase">
-              💡 tip: add a compelling description to increase sales
+              💡 tip: update your description to keep customers engaged
             </p>
           </div>
         </div>
