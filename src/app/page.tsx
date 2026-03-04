@@ -262,9 +262,9 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <p className="text-emerald-400 text-xs font-mono uppercase tracking-widest mb-3">loadout exclusive</p>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              stuff stan can&apos;t do
+              built different
             </h2>
-            <p className="text-gray-400 text-lg">because generic creator tools don&apos;t understand the gym.</p>
+            <p className="text-gray-400 text-lg">generic creator tools don&apos;t understand the gym. we do.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -284,10 +284,10 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">simple pricing</h2>
-            <p className="text-gray-400">stan charges $29/mo with no free tier. we do better.</p>
+            <p className="text-gray-400">start free. scale when you're ready.</p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             {/* Free */}
             <div className="bg-[#111] rounded-xl border border-white/5 p-7">
               <div className="mb-6">
@@ -320,17 +320,17 @@ export default function HomePage() {
             <div className="bg-[#111] rounded-xl border border-emerald-500/30 p-7 relative">
               <div className="absolute -top-3 left-6">
                 <span className="bg-emerald-500 text-black text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  most popular
+                  pro
                 </span>
               </div>
               
               <div className="mb-6">
-                <h3 className="text-base font-semibold mb-1 text-white">pro</h3>
+                <h3 className="text-base font-semibold mb-1 text-white">creator pro</h3>
                 <div className="text-4xl font-bold">
                   $19
                   <span className="text-base font-normal text-gray-500">/mo</span>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">everything you need</p>
+                <p className="text-sm text-gray-600 mt-1">the full loadout</p>
               </div>
               
               <ul className="space-y-2.5 mb-8 text-sm">
@@ -358,57 +358,6 @@ export default function HomePage() {
               <Link href="/signup?plan=pro" className="block text-center text-sm font-semibold py-2.5 rounded-lg bg-emerald-500 text-black hover:bg-emerald-400 transition-colors">
                 start pro trial
               </Link>
-            </div>
-
-            {/* Compare */}
-            <div className="bg-[#111] rounded-xl border border-red-500/10 p-7 relative opacity-60">
-              <div className="absolute -top-3 left-6">
-                <span className="bg-red-500/20 text-red-400 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  the other guys
-                </span>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-base font-semibold mb-1 text-gray-400">stan.store</h3>
-                <div className="text-4xl font-bold text-gray-400">
-                  $29
-                  <span className="text-base font-normal text-gray-600">/mo</span>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">no free tier</p>
-              </div>
-              
-              <ul className="space-y-2.5 mb-8 text-sm">
-                {[
-                  'link-in-bio page',
-                  'digital products',
-                  'calendar bookings',
-                  'course builder',
-                  'email list',
-                  'analytics',
-                  'social templates',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-gray-500">
-                    <Check className="h-3.5 w-3.5 text-gray-600 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-                {[
-                  'no AI tools',
-                  'no trend intelligence',
-                  'no fitness focus',
-                  'no engagement pods',
-                  'no voice delivery',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-gray-600">
-                    <X className="h-3.5 w-3.5 text-red-500/40 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              
-              <div className="block text-center text-sm font-medium py-2.5 rounded-lg border border-white/5 text-gray-600 cursor-not-allowed">
-                $10 more for less
-              </div>
             </div>
           </div>
         </div>
