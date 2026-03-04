@@ -46,13 +46,8 @@ export default function SignUpPage() {
     if (error) {
       setError(error);
     } else if (data?.user) {
-      if (data.user.email_confirmed_at) {
-        // Email already confirmed, redirect to onboarding
-        router.push('/onboarding');
-      } else {
-        // Email confirmation required
-        setMessage('check your email for a confirmation link');
-      }
+      // Auto-confirmed or confirmed, go to onboarding
+      router.push('/onboarding');
     }
     
     setLoading(false);
