@@ -73,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 z-50 h-screen
+        fixed lg:sticky top-0 left-0 z-50 h-screen shrink-0 overflow-y-auto
         ${sidebarCollapsed ? 'w-16' : 'w-64'}
         bg-[#111] border-r border-white/5
         flex flex-col
