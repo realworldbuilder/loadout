@@ -11,6 +11,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Creator | null | undefined;
   loading: boolean;
+  initializing: boolean; // New: true until first auth check completes
   refreshProfile: () => Promise<void>;
 }
 
@@ -20,7 +21,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Creator | null | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // For profile updates
+  const [initializing, setInitializing] = useState(true); // For initial auth check
   const initializedRef = useRef(false);
 
   const refreshProfile = useCallback(async () => {
@@ -52,36 +54,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
 
+      // Set loading true while fetching profile
       if (initialSession?.user) {
+        setLoading(true);
         const { data } = await getCreatorProfile(initialSession.user.id);
         setProfile(data);
+        setLoading(false);
       } else {
         setProfile(null);
       }
 
-      setLoading(false);
+      // Mark as initialized - auth check complete
+      setInitializing(false);
       initializedRef.current = true;
     });
 
     // Listen for changes (sign in, sign out, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      console.log('Auth state change:', event, !!newSession);
+      
       // Skip the initial event — we handle it above
       if (!initializedRef.current) return;
       
-      // Token refresh — just update session, don't reset user/profile
+      // Token refresh — just update session, don't refetch everything
       if (event === 'TOKEN_REFRESHED') {
         setSession(newSession);
         return;
       }
 
+      // For other events (SIGNED_IN, SIGNED_OUT), update everything
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
       if (newSession?.user) {
+        setLoading(true);
         const { data } = await getCreatorProfile(newSession.user.id);
         setProfile(data);
+        setLoading(false);
       } else {
         setProfile(null);
+        setLoading(false);
       }
     });
 
@@ -91,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, initializing, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

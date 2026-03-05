@@ -23,7 +23,7 @@ type SortOption = 'newest' | 'price_low' | 'price_high' | 'title';
 type FilterOption = 'all' | 'active' | 'inactive';
 
 export default function ProductsPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, initializing } = useAuth();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);

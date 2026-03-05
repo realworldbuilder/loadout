@@ -26,7 +26,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, initializing } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalRevenue: 0,
     totalProducts: 0,
@@ -40,6 +40,10 @@ export default function DashboardPage() {
 
   // Auth guards
   useEffect(() => {
+    // Wait for initial auth check to complete
+    if (initializing) return;
+    
+    // If still loading profile updates, wait
     if (authLoading) return;
     
     if (!user) {
@@ -57,7 +61,7 @@ export default function DashboardPage() {
 
     // Load dashboard data once we have a profile
     loadDashboardData();
-  }, [user, profile, authLoading, router]);
+  }, [user, profile, authLoading, initializing, router]);
 
   async function loadDashboardData() {
     if (!profile) return;
@@ -137,12 +141,14 @@ export default function DashboardPage() {
 
   // Revenue chart data removed for Phase 1 - will be added when real analytics are implemented
 
-  if (authLoading || loading || !profile) {
+  if (initializing || authLoading || loading || !profile) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-white/60 lowercase">loading dashboard...</p>
+          <p className="text-white/60 lowercase">
+            {initializing ? 'checking auth...' : authLoading ? 'loading profile...' : 'loading dashboard...'}
+          </p>
         </div>
       </div>
     );
