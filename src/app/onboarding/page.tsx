@@ -49,7 +49,8 @@ export default function OnboardingPage() {
       return;
     }
     
-    if (profile && profile.handle) {
+    // profile === undefined means still loading, don't redirect yet
+    if (profile !== undefined && profile !== null && profile.handle) {
       router.push('/dashboard');
       return;
     }

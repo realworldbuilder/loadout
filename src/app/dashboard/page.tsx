@@ -40,20 +40,23 @@ export default function DashboardPage() {
 
   // Auth guards
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      
-      if (!profile) {
-        router.push('/onboarding');
-        return;
-      }
-
-      // Load dashboard data once we have a profile
-      loadDashboardData();
+    if (authLoading) return;
+    
+    if (!user) {
+      router.push('/login');
+      return;
     }
+    
+    // undefined = still loading profile, null = no profile exists
+    if (profile === undefined) return;
+    
+    if (profile === null) {
+      router.push('/onboarding');
+      return;
+    }
+
+    // Load dashboard data once we have a profile
+    loadDashboardData();
   }, [user, profile, authLoading, router]);
 
   async function loadDashboardData() {

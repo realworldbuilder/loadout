@@ -8,7 +8,7 @@ import type { Creator } from '@/lib/supabase';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: Creator | null;
+  profile: Creator | null | undefined; // undefined = not loaded yet, null = no profile exists
   loading: boolean;
   refreshProfile: () => Promise<void>;
 }
@@ -18,7 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Creator | null>(null);
+  const [profile, setProfile] = useState<Creator | null | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   const refreshProfile = async () => {
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(data);
       } else {
         // User signed out
-        setProfile(null);
+        setProfile(undefined);
       }
 
       setLoading(false);
