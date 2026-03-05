@@ -25,8 +25,7 @@ export default function AILayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
@@ -64,7 +63,6 @@ export default function AILayout({
 
         {/* Content */}
         {children}
-      </div>
     </div>
   );
 }
