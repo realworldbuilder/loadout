@@ -73,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 z-50 h-screen shrink-0
+        fixed top-0 left-0 z-50 h-screen
         ${sidebarCollapsed ? 'w-16' : 'w-64'}
         bg-[#111] border-r border-white/5
         flex flex-col
@@ -172,7 +172,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className={`flex-1 flex flex-col min-h-screen ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} transition-all duration-200`}>
         {/* Mobile header */}
         <header className="lg:hidden sticky top-0 z-30 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
           <button 
