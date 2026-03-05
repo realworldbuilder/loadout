@@ -57,9 +57,13 @@ export default function SettingsPage() {
     
     setLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/profile', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify(formData),
       });
       
@@ -94,9 +98,13 @@ export default function SettingsPage() {
       const { url, error } = await uploadAvatar(file, user.id);
       if (error) { alert('Upload failed: ' + error); return; }
       if (url) {
+        const { data: { session } } = await supabase.auth.getSession();
         await fetch('/api/profile', {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+          },
           body: JSON.stringify({ avatar_url: url }),
         });
         await refreshProfile();

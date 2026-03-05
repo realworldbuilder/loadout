@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 
 function getServiceSupabase() {
   return createClient(
@@ -10,20 +8,66 @@ function getServiceSupabase() {
   );
 }
 
+async function getUser(request: NextRequest) {
+  // Get the access token from the sb-access-token cookie or Authorization header
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  // Try to find the access token from cookies
+  const allCookies = request.cookies.getAll();
+  let accessToken: string | null = null;
+  
+  // Supabase stores tokens in cookies like sb-<ref>-auth-token
+  for (const cookie of allCookies) {
+    if (cookie.name.includes('auth-token')) {
+      try {
+        // Could be a JSON array with [access_token, refresh_token, ...]
+        const parsed = JSON.parse(decodeURIComponent(cookie.value));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          accessToken = parsed[0];
+        } else if (typeof parsed === 'string') {
+          accessToken = parsed;
+        }
+      } catch {
+        // Maybe it's stored as base64 or direct token
+        accessToken = cookie.value;
+      }
+      break;
+    }
+  }
+  
+  if (!accessToken) {
+    // Try Authorization header
+    const authHeader = request.headers.get('Authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      accessToken = authHeader.slice(7);
+    }
+  }
+  
+  if (!accessToken) {
+    return null;
+  }
+  
+  // Verify the token
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+  });
+  
+  const { data: { user }, error } = await client.auth.getUser(accessToken);
+  if (error || !user) return null;
+  return user;
+}
+
 export async function PATCH(request: NextRequest) {
   try {
-    // Verify the user is authenticated
-    const cookieStore = cookies();
-    const authClient = createRouteHandlerClient({ cookies: () => cookieStore });
-    const { data: { user }, error: authError } = await authClient.auth.getUser();
-
-    if (authError || !user) {
+    const user = await getUser(request);
+    
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const updates = await request.json();
 
-    // Use service role to bypass RLS
     const supabase = getServiceSupabase();
     const { data, error } = await supabase
       .from('creators')
