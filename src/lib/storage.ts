@@ -1,30 +1,26 @@
-import { createSupabaseClient } from './supabase';
-
 export async function uploadFile(
   bucket: 'avatars' | 'thumbnails' | 'products',
   file: File,
   path: string
 ): Promise<{ url: string | null; error: string | null }> {
   try {
-    const supabase = createSupabaseClient();
-    
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, {
-        cacheControl: '3600',
-        upsert: true,
-      });
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('bucket', bucket);
+    formData.append('path', path);
 
-    if (error) {
-      console.error('Upload error:', error);
-      return { url: null, error: error.message };
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { url: null, error: data.error || 'Upload failed' };
     }
 
-    const { data: urlData } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(data.path);
-
-    return { url: urlData.publicUrl, error: null };
+    return { url: data.url, error: null };
   } catch (err) {
     console.error('Upload error:', err);
     return { url: null, error: 'Failed to upload file' };
