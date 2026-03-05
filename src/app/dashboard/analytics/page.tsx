@@ -278,7 +278,7 @@ export default function AnalyticsPage() {
         <div className="flex justify-center">
           <div className="flex items-center space-x-2 px-4 py-2 bg-[#111] rounded-lg border border-white/5">
             <Globe className="h-4 w-4 text-[#10a37f]" />
-            <span className="text-gray-400 text-sm">powered by gymsignal intelligence</span>
+            <span className="text-gray-400 text-sm">powered by loadout</span>
           </div>
         </div>
       </div>

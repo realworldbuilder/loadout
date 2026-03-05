@@ -1,10 +1,10 @@
-# GymSignal Creator Platform
+# Loadout Platform
 
 The all-in-one storefront platform for fitness creators, coaches, and gymfluencers. Built with Next.js, Supabase, and Stripe.
 
 ## 🏋️ Features
 
-- **Link-in-Bio Pages**: Beautiful, mobile-optimized profiles at `gymsignal.app/@handle`
+- **Link-in-Bio Pages**: Beautiful, mobile-optimized profiles at `loadout.app/@handle`
 - **Digital Product Sales**: Sell workout plans, coaching templates, meal prep guides
 - **Secure Payments**: Stripe Connect integration with instant payouts to creators
 - **Analytics Dashboard**: Track sales, views, and conversion rates
@@ -32,7 +32,7 @@ The all-in-one storefront platform for fitness creators, coaches, and gymfluence
 
 ```bash
 git clone <repository-url>
-cd gymsignal-creator
+cd loadout-creator
 npm install
 ```
 
@@ -146,9 +146,9 @@ All tables use RLS policies to ensure:
 
 ### Domain Setup
 
-- Main app: `gymsignal.app/create` (dashboard)
-- Creator profiles: `gymsignal.app/@handle`
-- Landing: `gymsignal.app`
+- Main app: `loadout.app/create` (dashboard)
+- Creator profiles: `loadout.app/@handle`
+- Landing: `loadout.app`
 
 ## 📊 Analytics & Monitoring
 
@@ -206,10 +206,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🤝 Support
 
-For support, email [support@gymsignal.app](mailto:support@gymsignal.app) or join our [Discord community](https://discord.gg/gymsignal).
+For support, email [support@loadout.app](mailto:support@loadout.app) or join our [Discord community](https://discord.gg/loadout).
 
 ---
 
 **Built with 💪 by the GymSignal team**
 
-Turn your fitness influence into sustainable income with GymSignal Creator.
+Turn your fitness influence into sustainable income with Loadout.

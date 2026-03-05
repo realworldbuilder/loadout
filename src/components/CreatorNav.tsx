@@ -84,7 +84,7 @@ export default function CreatorNav({ creatorHandle }: CreatorNavProps) {
       <div className="p-6 border-b border-gray-800">
         <Link href="/dashboard" className="flex items-center space-x-2">
           <Dumbbell className="h-8 w-8 text-primary-600" />
-          <span className="text-lg font-bold text-gradient">GymSignal Creator</span>
+          <span className="text-lg font-bold text-gradient">loadout</span>
         </Link>
       </div>
 

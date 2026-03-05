@@ -6,7 +6,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'GymSignal Creator - All-in-One Fitness Creator Storefront',
+  title: 'loadout — fitness creator storefront',
   description: 'The Stan.store for fitness creators. Sell workout plans, coaching, and digital products with your custom link-in-bio page.',
   keywords: [
     'fitness creator',
@@ -17,17 +17,17 @@ export const metadata: Metadata = {
     'gym influencer',
     'fitness coaching',
   ],
-  authors: [{ name: 'GymSignal' }],
+  authors: [{ name: 'loadout' }],
   openGraph: {
-    title: 'GymSignal Creator - Fitness Creator Storefront',
+    title: 'loadout — fitness creator storefront',
     description: 'The all-in-one platform for fitness creators to sell digital products and grow their business.',
     type: 'website',
     locale: 'en_US',
-    siteName: 'GymSignal Creator',
+    siteName: 'loadout',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GymSignal Creator - Fitness Creator Storefront',
+    title: 'loadout — fitness creator storefront',
     description: 'The all-in-one platform for fitness creators to sell digital products and grow their business.',
   },
   robots: {

@@ -245,7 +245,7 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
               AI tools that actually get fitness.
             </h2>
-            <p className="text-gray-400 text-lg">powered by gymsignal intelligence.</p>
+            <p className="text-gray-400 text-lg">powered by loadout.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

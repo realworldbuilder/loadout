@@ -26,7 +26,7 @@ export function validateHandle(handle: string): string | null {
   // Reserved handles
   const reserved = [
     'admin', 'api', 'www', 'app', 'dashboard', 'create', 'signup', 'login',
-    'about', 'help', 'support', 'terms', 'privacy', 'blog', 'gymsignal'
+    'about', 'help', 'support', 'terms', 'privacy', 'blog', 'loadout'
   ];
   
   if (reserved.includes(handle.toLowerCase())) {
