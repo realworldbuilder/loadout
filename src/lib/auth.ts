@@ -251,15 +251,27 @@ export const updateCreatorProfile = async (userId: string, updates: Partial<{
       .from('creators')
       .update(updates)
       .eq('user_id', userId)
-      .select()
-      .single();
+      .select();
 
     if (error) {
       console.error('Update profile error:', error);
       return { data: null, error: error.message };
     }
 
-    return { data, error: null };
+    if (!data || data.length === 0) {
+      // RLS may have blocked the return — try fetching to confirm
+      const { data: check } = await client
+        .from('creators')
+        .select()
+        .eq('user_id', userId)
+        .single();
+      if (check) {
+        return { data: check, error: null };
+      }
+      return { data: null, error: 'Profile not found or update blocked by permissions' };
+    }
+
+    return { data: data[0], error: null };
   } catch (error) {
     console.error('Update profile error:', error);
     return { 

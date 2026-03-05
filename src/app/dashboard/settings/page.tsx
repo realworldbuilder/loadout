@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Camera, Check, ExternalLink, CreditCard, AlertTriangle, Save, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { updateCreatorProfile, signOut } from '@/lib/auth';
+import { signOut } from '@/lib/auth';
 import { uploadAvatar } from '@/lib/storage';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -57,10 +57,16 @@ export default function SettingsPage() {
     
     setLoading(true);
     try {
-      const { error } = await updateCreatorProfile(user.id, formData);
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
       
-      if (error) {
-        alert(`failed to save: ${error}`);
+      const result = await res.json();
+      
+      if (!res.ok) {
+        alert(`failed to save: ${result.error}`);
         return;
       }
       
@@ -88,7 +94,11 @@ export default function SettingsPage() {
       const { url, error } = await uploadAvatar(file, user.id);
       if (error) { alert('Upload failed: ' + error); return; }
       if (url) {
-        await updateCreatorProfile(user.id, { avatar_url: url });
+        await fetch('/api/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avatar_url: url }),
+        });
         await refreshProfile();
       }
     } catch (err) {
