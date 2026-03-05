@@ -29,8 +29,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!currentUser) return;
     
     try {
-      const { data } = await getCreatorProfile(currentUser.id);
-      setProfile(data);
+      // Use API route to bypass any RLS issues
+      const res = await fetch(`/api/profile?user_id=${currentUser.id}`);
+      if (res.ok) {
+        const { data } = await res.json();
+        setProfile(data);
+      } else {
+        // Fallback to direct query
+        const { data } = await getCreatorProfile(currentUser.id);
+        setProfile(data);
+      }
     } catch (error) {
       console.error('Error refreshing profile:', error);
     }

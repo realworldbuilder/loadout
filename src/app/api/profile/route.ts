@@ -8,6 +8,30 @@ function getServiceSupabase() {
   );
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const userId = request.nextUrl.searchParams.get('user_id');
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing user_id' }, { status: 400 });
+    }
+
+    const supabase = getServiceSupabase();
+    const { data, error } = await supabase
+      .from('creators')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const { user_id, ...updates } = await request.json();
