@@ -161,7 +161,8 @@ export const checkHandleAvailability = async (handle: string): Promise<{ availab
       };
     }
 
-    const { data, error } = await supabase
+    const client = createSupabaseClient();
+    const { data, error } = await client
       .from('creators')
       .select('handle')
       .eq('handle', handle)
@@ -200,7 +201,8 @@ export const createCreatorProfile = async (profileData: {
   };
 }) => {
   try {
-    const { data, error } = await supabase
+    const client = createSupabaseClient();
+    const { data, error } = await client
       .from('creators')
       .insert([{
         ...profileData,
@@ -244,7 +246,8 @@ export const updateCreatorProfile = async (userId: string, updates: Partial<{
   };
 }>) => {
   try {
-    const { data, error } = await supabase
+    const client = createSupabaseClient();
+    const { data, error } = await client
       .from('creators')
       .update(updates)
       .eq('user_id', userId)
@@ -269,7 +272,9 @@ export const updateCreatorProfile = async (userId: string, updates: Partial<{
 // Get creator profile by user ID
 export const getCreatorProfile = async (userId: string) => {
   try {
-    const { data, error } = await supabase
+    // Use the auth-aware client so RLS can see auth.uid()
+    const client = createSupabaseClient();
+    const { data, error } = await client
       .from('creators')
       .select('*')
       .eq('user_id', userId)
