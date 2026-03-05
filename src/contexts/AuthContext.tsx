@@ -63,6 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       
+      // Skip INITIAL_SESSION events since initializeAuth already handles the first load
+      if (event === 'INITIAL_SESSION') {
+        return;
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
 
@@ -82,11 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
-
-  // Refresh profile when user changes
-  useEffect(() => {
-    refreshProfile();
-  }, [user]);
 
   return (
     <AuthContext.Provider 
