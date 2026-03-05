@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Instagram, Youtube, Twitter } from 'lucide-react';
+import TrackClick from '@/components/TrackClick';
 
 // Database types
 interface DBCreator {
@@ -400,6 +401,26 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               </div>
             );
 
+            // Only track clicks for real database products
+            if (isFromDB && creator?.id && p.id) {
+              if (p.external_url && (p.product_type === 'affiliate_link' || p.type === 'Link')) {
+                return (
+                  <TrackClick key={i} creatorId={creator.id} productId={p.id}>
+                    <Link href={p.external_url} target="_blank" rel="noopener noreferrer">
+                      {productComponent}
+                    </Link>
+                  </TrackClick>
+                );
+              }
+
+              return (
+                <TrackClick key={i} creatorId={creator.id} productId={p.id}>
+                  {productComponent}
+                </TrackClick>
+              );
+            }
+
+            // Demo products - no tracking
             if (p.external_url && (p.product_type === 'affiliate_link' || p.type === 'Link')) {
               return (
                 <Link key={i} href={p.external_url} target="_blank" rel="noopener noreferrer">

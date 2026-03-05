@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import CreatorProfile from '@/components/CreatorProfile';
+import TrackPageView from '@/components/TrackPageView';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -55,5 +56,12 @@ async function getCreatorData(handle: string) {
 export default async function CreatorProfilePage({ params }: { params: { handle: string } }) {
   const dbData = await getCreatorData(params.handle);
   
-  return <CreatorProfile handle={params.handle} dbData={dbData} />;
+  return (
+    <>
+      <CreatorProfile handle={params.handle} dbData={dbData} />
+      {dbData?.creator?.id && (
+        <TrackPageView creatorId={dbData.creator.id} />
+      )}
+    </>
+  );
 }
