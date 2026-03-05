@@ -1,13 +1,13 @@
 import { createSupabaseClient } from './supabase';
 
-const supabase = createSupabaseClient();
-
 export async function uploadFile(
   bucket: 'avatars' | 'thumbnails' | 'products',
   file: File,
   path: string
 ): Promise<{ url: string | null; error: string | null }> {
   try {
+    const supabase = createSupabaseClient();
+    
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(path, file, {
