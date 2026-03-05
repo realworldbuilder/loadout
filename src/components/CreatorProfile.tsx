@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Instagram, Youtube, Twitter } from 'lucide-react';
+import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
 
-// Database types
 interface DBCreator {
   id: string;
   handle: string;
@@ -15,6 +14,7 @@ interface DBCreator {
     instagram?: string;
     youtube?: string;
     twitter?: string;
+    tiktok?: string;
   };
 }
 
@@ -33,7 +33,6 @@ interface DBProduct {
   sort_order: number;
 }
 
-// Demo loadouts — different creator archetypes
 const DEMO_CREATORS: Record<string, any> = {
   demo: {
     handle: 'demo',
@@ -140,28 +139,8 @@ const DEMO_CREATORS: Record<string, any> = {
       { title: 'Grocery Store Guide', desc: 'My exact shopping list for a week of macro-friendly meals. Budget and bougie versions.', price: '$5', type: 'PDF', sold: 12400, emoji: '🛒' },
     ],
   },
-  aline_tdn: {
-    handle: 'aline_tdn',
-    display_name: 'Aline Taddonio',
-    bio: 'mom · fitness & nutrition coach · creator of BBFIT · helping women stop starting over 💪',
-    avatar_emoji: '✨',
-    followers: '~10k',
-    tag: "women's fitness",
-    color: 'from-fuchsia-400 to-pink-600',
-    social_links: { instagram: true },
-    products: [
-      { title: 'BBFIT Digital Program', desc: 'Complete fitness and nutrition program designed for busy moms. Simple, high-protein strategies that actually fit into real life.', price: '$49', type: 'Program', sold: 0, emoji: '🔥' },
-      { title: 'High-Protein Meal Guide', desc: 'Easy meal prep strategies, grocery lists, and recipes for women who dont have time to overthink food.', price: '$24', type: 'PDF', sold: 0, emoji: '🥗' },
-      { title: 'Free 10-Min 1:1 Consult', desc: 'Book a quick call with me to talk about your goals. No pressure, just real advice from someone who gets it.', price: 'Free', type: 'Booking', sold: 0, emoji: '📞' },
-      { title: '1st Phorm Supplements', desc: 'The supplements I actually use and recommend. Elevate your nutrition game 💪', price: 'Affiliate', type: 'Link', sold: 0, emoji: '💊', link: 'https://1stphorm.com/Aline_tdn' },
-      { title: 'SqueezMeSkinny Waist Trainer', desc: 'Everyday waist trainer I wear during workouts. Use code "ALINE" for a discount.', price: 'Code: ALINE', type: 'Link', sold: 0, emoji: '💋', link: 'https://squeezmeskinny.com/?aff=1885' },
-      { title: 'My Amazon Recommendations', desc: 'Fitness gear, kitchen essentials, and mom life must-haves I swear by.', price: 'Shop', type: 'Link', sold: 0, emoji: '🛒' },
-      { title: 'Glute Lab Classes — Ft. Lauderdale', desc: 'Book in-person glute lab classes at our Fort Lauderdale location.', price: 'Book', type: 'Link', sold: 0, emoji: '🍑', link: 'https://apps.apple.com/us/app/glute-lab-fort-lauderdale/id6752358317' },
-    ],
-  },
 };
 
-// Directory of all demo creators
 const DEMO_LIST = Object.entries(DEMO_CREATORS)
   .filter(([k, v]) => !v.isDirectory)
   .map(([k, v]) => v);
@@ -175,8 +154,8 @@ interface CreatorProfileProps {
 }
 
 export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) {
-  // If we have database data, use it; otherwise fall back to demo data
   const isFromDB = dbData !== null && dbData !== undefined;
+  const isDemo = !isFromDB && DEMO_CREATORS[handle];
   const creator = isFromDB ? dbData?.creator : DEMO_CREATORS[handle];
   const products = isFromDB ? dbData?.products || [] : creator?.products || [];
 
@@ -185,31 +164,18 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
         <div className="max-w-2xl mx-auto px-4 py-10">
-          {/* Header */}
           <div className="text-center mb-10">
             <Link href="/" className="inline-flex items-center gap-2 mb-6 text-gray-500 hover:text-white transition-colors text-sm">
               ← back to loadout
             </Link>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              example loadouts
-            </h1>
-            <p className="text-gray-400 text-lg">
-              see what different fitness creators can build
-            </p>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">example loadouts</h1>
+            <p className="text-gray-400 text-lg">see what different fitness creators can build</p>
           </div>
-
-          {/* Creator cards */}
           <div className="space-y-3">
             {DEMO_LIST.map((c: any) => (
-              <Link
-                key={c.handle}
-                href={`/${c.handle}`}
-                className="block bg-[#111] rounded-xl border border-white/5 p-5 hover:border-emerald-500/20 transition-all group"
-              >
+              <Link key={c.handle} href={`/${c.handle}`} className="block bg-[#111] rounded-xl border border-white/5 p-5 hover:border-emerald-500/20 transition-all group">
                 <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-2xl shrink-0`}>
-                    {c.avatar_emoji}
-                  </div>
+                  <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-2xl shrink-0`}>{c.avatar_emoji}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <h3 className="font-semibold group-hover:text-emerald-400 transition-colors">{c.display_name}</h3>
@@ -220,8 +186,6 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                       <span className="text-[11px] font-mono text-gray-600">{c.followers} followers</span>
                       <span className="text-[11px] font-mono text-gray-600">·</span>
                       <span className="text-[11px] font-mono text-emerald-500/70">{c.products.length} products</span>
-                      <span className="text-[11px] font-mono text-gray-600">·</span>
-                      <span className="text-[11px] font-mono text-gray-600">{c.products.reduce((a: number, p: any) => a + p.sold, 0).toLocaleString()} sold</span>
                     </div>
                   </div>
                   <span className="text-gray-600 group-hover:text-emerald-400 transition-colors text-lg">→</span>
@@ -229,15 +193,12 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               </Link>
             ))}
           </div>
-
-          {/* CTA */}
           <div className="text-center mt-12">
             <p className="text-gray-600 text-sm mb-4">these are examples. yours will look even better.</p>
             <Link href="/" className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
               build your loadout →
             </Link>
           </div>
-
           <div className="text-center mt-8">
             <span className="text-[11px] font-mono text-gray-700">⚡ powered by loadout.fit</span>
           </div>
@@ -254,211 +215,214 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           <p className="text-6xl mb-4">🏋️</p>
           <h1 className="text-2xl font-bold mb-2">@{handle}</h1>
           <p className="text-gray-500 mb-6">this creator hasn&apos;t set up their loadout yet</p>
-          <Link href="/demo" className="text-emerald-400 text-sm hover:underline">
-            see example loadouts →
-          </Link>
+          <Link href="/" className="text-emerald-400 text-sm hover:underline">create your own loadout →</Link>
         </div>
       </div>
     );
   }
 
-  // Helper functions for data formatting
   const formatPrice = (price: number | string) => {
     if (typeof price === 'string') return price;
+    if (price === 0) return 'Free';
     return `$${price}`;
   };
 
   const getProductEmoji = (productType: string, demoEmoji?: string) => {
     if (demoEmoji) return demoEmoji;
-    
     switch (productType) {
-      case 'digital_product':
-      case 'PDF':
-        return '📚';
-      case 'coaching':
-      case 'Coaching':
-        return '🎯';
-      case 'affiliate_link':
-      case 'Link':
-        return '🔗';
-      case 'subscription':
-      case 'Subscription':
-        return '📅';
-      default:
-        return '📦';
+      case 'digital_product': case 'PDF': return '📚';
+      case 'coaching': case 'Coaching': return '🎯';
+      case 'affiliate_link': case 'Link': return '🔗';
+      case 'subscription': case 'Subscription': return '📅';
+      default: return '📦';
     }
   };
 
   const getCtaText = (product: any) => {
     if (product.cta_text) return product.cta_text;
-    if (product.external_url) return 'Visit';
-    if (product.type === 'Link' || product.product_type === 'affiliate_link') return 'Visit';
-    if (product.type === 'Booking') return 'Book';
-    if (product.price === 'Free') return 'Get free';
-    if (!product.external_url && product.product_type === 'digital_product') return 'coming soon';
-    return 'Get it';
+    if (product.type === 'Link' || product.product_type === 'affiliate_link') return 'visit';
+    if (product.type === 'Booking') return 'book';
+    if (product.price === 'Free' || product.price === 0) return 'get free';
+    if (product.external_url) return 'get it';
+    if (!product.external_url && product.product_type === 'digital_product') return 'get it';
+    return 'get it';
   };
 
-  const getAvatarDisplay = (creator: any) => {
+  const gradientColor = isDemo ? creator.color : 'from-emerald-400 to-teal-600';
+
+  // Build social links for DB creators
+  const socialLinks: { platform: string; url: string; icon: any }[] = [];
+  if (creator.social_links) {
     if (isFromDB) {
-      if (creator.avatar_url) {
-        return <img src={creator.avatar_url} alt={creator.display_name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4" />;
-      }
-      return <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-3xl mx-auto mb-4">💪</div>;
+      if (creator.social_links.instagram) socialLinks.push({ platform: 'instagram', url: creator.social_links.instagram, icon: Instagram });
+      if (creator.social_links.youtube) socialLinks.push({ platform: 'youtube', url: creator.social_links.youtube, icon: Youtube });
+      if (creator.social_links.twitter) socialLinks.push({ platform: 'twitter', url: creator.social_links.twitter, icon: Twitter });
+    } else {
+      if (creator.social_links.instagram) socialLinks.push({ platform: 'instagram', url: '#', icon: Instagram });
+      if (creator.social_links.youtube) socialLinks.push({ platform: 'youtube', url: '#', icon: Youtube });
+      if (creator.social_links.twitter) socialLinks.push({ platform: 'twitter', url: '#', icon: Twitter });
     }
-    return <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${creator.color} flex items-center justify-center text-3xl mx-auto mb-4`}>{creator.avatar_emoji}</div>;
-  };
+  }
 
-  // Individual creator profile
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <div className="max-w-lg mx-auto px-4 py-10">
-        {/* Back to demos */}
-        <Link href="/demo" className="inline-flex items-center gap-1 text-gray-600 hover:text-white transition-colors text-xs mb-6">
-          ← all examples
-        </Link>
+      {/* Gradient header accent */}
+      <div className={`h-32 bg-gradient-to-br ${gradientColor} opacity-20`} />
+      
+      <div className="max-w-lg mx-auto px-4 -mt-16 pb-12">
+        {/* Only show back link on demo profiles */}
+        {isDemo && (
+          <Link href="/demo" className="inline-flex items-center gap-1 text-gray-600 hover:text-white transition-colors text-xs mb-4">
+            ← all examples
+          </Link>
+        )}
 
-        {/* Profile header */}
-        <div className="text-center mb-8">
-          {getAvatarDisplay(creator)}
-          <h1 className="text-2xl font-bold">{creator.display_name}</h1>
-          <p className="text-sm text-gray-500 mb-1">@{creator.handle}{!isFromDB && creator.followers ? ` · ${creator.followers} followers` : ''}</p>
-          {!isFromDB && creator.tag && (
-            <span className="inline-block text-[10px] font-mono bg-white/5 text-gray-500 px-2.5 py-0.5 rounded-full mb-3">{creator.tag}</span>
-          )}
-          {creator.bio && (
-            <p className="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto">{creator.bio}</p>
-          )}
-
-          {/* Socials */}
-          {creator.social_links && (
-            <div className="flex justify-center gap-3 mt-4">
-              {creator.social_links.instagram && (
-                <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
-                  <Instagram className="h-4 w-4 text-gray-400" />
-                </div>
-              )}
-              {creator.social_links.youtube && (
-                <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
-                  <Youtube className="h-4 w-4 text-gray-400" />
-                </div>
-              )}
-              {creator.social_links.twitter && (
-                <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
-                  <Twitter className="h-4 w-4 text-gray-400" />
-                </div>
-              )}
+        {/* Profile card */}
+        <div className="bg-[#111] rounded-2xl border border-white/5 p-6 mb-6 text-center relative">
+          {/* Avatar */}
+          {isFromDB && creator.avatar_url ? (
+            <img src={creator.avatar_url} alt={creator.display_name} className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-2 border-white/10" />
+          ) : (
+            <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${gradientColor} flex items-center justify-center text-4xl mx-auto mb-4 border-2 border-white/10 shadow-lg`}>
+              {isDemo ? creator.avatar_emoji : '💪'}
             </div>
           )}
-        </div>
 
-        {/* Stats bar */}
-        <div className="flex justify-center gap-6 mb-6">
-          <div className="text-center">
-            <p className="text-lg font-bold">{products.length}</p>
-            <p className="text-[10px] text-gray-600 font-mono">products</p>
-          </div>
-          {!isFromDB && (
-            <>
+          <h1 className="text-2xl font-bold text-white">{creator.display_name}</h1>
+          <p className="text-sm text-gray-500 mt-1">@{creator.handle}</p>
+          
+          {isDemo && creator.tag && (
+            <span className="inline-block text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full mt-2">{creator.tag}</span>
+          )}
+          
+          {creator.bio && (
+            <p className="text-gray-400 text-sm leading-relaxed max-w-sm mx-auto mt-3">{creator.bio}</p>
+          )}
+
+          {/* Social links */}
+          {socialLinks.length > 0 && (
+            <div className="flex justify-center gap-2 mt-4">
+              {socialLinks.map(({ platform, url, icon: Icon }) => (
+                <a
+                  key={platform}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                >
+                  <Icon className="h-4 w-4 text-gray-400" />
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* Quick stats for demos */}
+          {isDemo && (
+            <div className="flex justify-center gap-8 mt-5 pt-5 border-t border-white/5">
               <div className="text-center">
-                <p className="text-lg font-bold">{products.reduce((a: number, p: any) => a + (p.sold || 0), 0).toLocaleString()}</p>
-                <p className="text-[10px] text-gray-600 font-mono">total sold</p>
+                <p className="text-lg font-bold text-white">{creator.followers}</p>
+                <p className="text-[10px] text-gray-600 font-mono uppercase tracking-wider">followers</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-white">{products.length}</p>
+                <p className="text-[10px] text-gray-600 font-mono uppercase tracking-wider">products</p>
               </div>
               <div className="text-center">
                 <p className="text-lg font-bold text-emerald-400">
-                  ${products.reduce((a: number, p: any) => {
-                    const price = parseFloat(p.price?.toString().replace(/[^0-9.]/g, '') || '0') || 0;
-                    return a + (price * (p.sold || 0));
-                  }, 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  {products.reduce((a: number, p: any) => a + (p.sold || 0), 0).toLocaleString()}
                 </p>
-                <p className="text-[10px] text-gray-600 font-mono">est. revenue</p>
+                <p className="text-[10px] text-gray-600 font-mono uppercase tracking-wider">sold</p>
               </div>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Products */}
-        <div className="space-y-3">
-          {products.map((p: any, i: number) => {
-            const productComponent = (
-              <div className="bg-[#111] rounded-xl border border-white/5 p-5 hover:border-emerald-500/20 transition-all cursor-pointer group">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{getProductEmoji(p.product_type || p.type, p.emoji)}</span>
-                    <h3 className="font-semibold group-hover:text-emerald-400 transition-colors">{p.title}</h3>
-                  </div>
-                  <span className="text-emerald-400 font-bold text-sm shrink-0 ml-3">{formatPrice(p.price)}</span>
-                </div>
-                <p className="text-sm text-gray-500 leading-relaxed mb-3 pl-8">{p.description || p.desc}</p>
-                <div className="flex items-center justify-between pl-8">
-                  <span className="text-[11px] font-mono text-gray-600">
-                    {p.product_type || p.type}{!isFromDB && p.sold > 0 ? ` · ${p.sold.toLocaleString()} sold` : ''}
-                  </span>
-                  <button className="text-xs font-medium bg-emerald-500 text-black px-4 py-1.5 rounded-lg hover:bg-emerald-400 transition-colors">
-                    {getCtaText(p)}
-                  </button>
-                </div>
-              </div>
-            );
-
-            // Only track clicks for real database products
-            if (isFromDB && creator?.id && p.id) {
-              if (p.external_url && (p.product_type === 'affiliate_link' || p.type === 'Link')) {
-                return (
-                  <TrackClick key={i} creatorId={creator.id} productId={p.id}>
-                    <Link href={p.external_url} target="_blank" rel="noopener noreferrer">
-                      {productComponent}
-                    </Link>
-                  </TrackClick>
-                );
-              }
-
-              return (
-                <TrackClick key={i} creatorId={creator.id} productId={p.id}>
-                  {productComponent}
-                </TrackClick>
-              );
-            }
-
-            // Demo products - no tracking
-            if (p.external_url && (p.product_type === 'affiliate_link' || p.type === 'Link')) {
-              return (
-                <Link key={i} href={p.external_url} target="_blank" rel="noopener noreferrer">
-                  {productComponent}
-                </Link>
-              );
-            }
-
-            return (
-              <div key={i}>
-                {productComponent}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* No products message for DB creators */}
-        {isFromDB && products.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">📦</span>
+        {/* Products section */}
+        {products.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4 px-1">
+              <ShoppingBag className="h-4 w-4 text-gray-500" />
+              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">products</h2>
             </div>
-            <p className="text-gray-500 mb-2">no products yet</p>
-            <p className="text-sm text-gray-600">this creator hasn't added any products to their loadout</p>
+
+            <div className="space-y-3">
+              {products.map((p: any, i: number) => {
+                const productCard = (
+                  <div className="bg-[#111] rounded-xl border border-white/5 p-5 hover:border-emerald-500/30 hover:bg-[#151515] transition-all cursor-pointer group">
+                    <div className="flex items-start gap-4">
+                      {/* Product emoji/icon */}
+                      <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-xl shrink-0 group-hover:bg-emerald-500/10 transition-colors">
+                        {getProductEmoji(p.product_type || p.type, p.emoji)}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="font-semibold text-white group-hover:text-emerald-400 transition-colors leading-tight">{p.title}</h3>
+                          <span className="text-emerald-400 font-bold text-sm shrink-0 bg-emerald-500/10 px-2.5 py-1 rounded-lg">{formatPrice(p.price)}</span>
+                        </div>
+                        
+                        {(p.description || p.desc) && (
+                          <p className="text-sm text-gray-500 leading-relaxed mt-1.5 line-clamp-2">{p.description || p.desc}</p>
+                        )}
+                        
+                        <div className="flex items-center justify-between mt-3">
+                          <span className="text-[11px] font-mono text-gray-600">
+                            {p.product_type || p.type}
+                            {isDemo && p.sold > 0 ? ` · ${p.sold.toLocaleString()} sold` : ''}
+                          </span>
+                          <span className="text-xs font-semibold bg-emerald-500 text-black px-4 py-1.5 rounded-lg group-hover:bg-emerald-400 transition-colors">
+                            {getCtaText(p)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+
+                if (isFromDB && creator?.id && p.id) {
+                  const url = p.external_url || p.file_url;
+                  if (url) {
+                    return (
+                      <TrackClick key={i} creatorId={creator.id} productId={p.id}>
+                        <Link href={url} target="_blank" rel="noopener noreferrer">{productCard}</Link>
+                      </TrackClick>
+                    );
+                  }
+                  return <TrackClick key={i} creatorId={creator.id} productId={p.id}>{productCard}</TrackClick>;
+                }
+
+                if (p.link || p.external_url) {
+                  return <Link key={i} href={p.link || p.external_url} target="_blank" rel="noopener noreferrer">{productCard}</Link>;
+                }
+
+                return <div key={i}>{productCard}</div>;
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* No products for DB creators */}
+        {isFromDB && products.length === 0 && (
+          <div className="bg-[#111] rounded-xl border border-white/5 p-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <ShoppingBag className="h-7 w-7 text-gray-600" />
+            </div>
+            <p className="text-gray-400 font-medium mb-1">no products yet</p>
+            <p className="text-sm text-gray-600">check back soon</p>
           </div>
         )}
 
         {/* CTA */}
-        <div className="text-center mt-10 p-6 bg-[#111] rounded-xl border border-white/5">
-          <p className="text-sm text-gray-400 mb-3">want a page like this?</p>
-          <Link href="/" className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
-            build your loadout →
+        <div className="text-center mt-8 p-5 bg-[#111] rounded-xl border border-white/5">
+          <p className="text-sm text-gray-500 mb-3">want a page like this?</p>
+          <Link href="/signup" className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-200 transition-colors text-sm">
+            create your loadout →
           </Link>
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8">
-          <Link href="/" className="text-[11px] font-mono text-gray-600 hover:text-emerald-500 transition-colors">
+        <div className="text-center mt-6">
+          <Link href="/" className="text-[11px] font-mono text-gray-700 hover:text-emerald-500 transition-colors">
             ⚡ powered by loadout.fit
           </Link>
         </div>

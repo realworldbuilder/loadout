@@ -14,7 +14,6 @@ export function generateStaticParams() {
     { handle: 'zenlifts' },
     { handle: 'coachdre' },
     { handle: 'macrosbymel' },
-    { handle: 'aline_tdn' },
   ];
 }
 
