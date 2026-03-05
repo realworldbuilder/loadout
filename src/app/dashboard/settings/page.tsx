@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera, Check, ExternalLink, CreditCard, AlertTriangle, Save, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { updateCreatorProfile, signOut } from '@/lib/auth';
+import { uploadAvatar } from '@/lib/storage';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 const accentColors = [
@@ -32,6 +33,8 @@ export default function SettingsPage() {
   
   const [saveStatus, setSaveStatus] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Load profile data when component mounts or profile changes
   useEffect(() => {
@@ -75,6 +78,26 @@ export default function SettingsPage() {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB'); return; }
+    
+    setAvatarUploading(true);
+    try {
+      const { url, error } = await uploadAvatar(file, user.id);
+      if (error) { alert('Upload failed: ' + error); return; }
+      if (url) {
+        await updateCreatorProfile(user.id, { avatar_url: url });
+        await refreshProfile();
+      }
+    } catch (err) {
+      alert('Upload failed');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     window.location.href = '/';
@@ -84,9 +107,13 @@ export default function SettingsPage() {
     return (
       <div className="bg-[#0d0d0d] p-6 rounded-lg border border-white/10">
         <div className="flex items-center space-x-4 mb-4">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xl">
-            <User size={24} />
-          </div>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="avatar" className="w-16 h-16 rounded-full object-cover border border-white/10" />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xl">
+              <User size={24} />
+            </div>
+          )}
           <div>
             <h3 className="text-white font-bold text-lg">{formData.display_name || 'creator'}</h3>
             <p className="text-gray-400 text-sm">@{profile?.handle || '...'}</p>
@@ -171,10 +198,21 @@ export default function SettingsPage() {
                 
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">avatar</label>
-                  <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-[#1a1a1a] border border-white/5 rounded-lg text-gray-300 hover:text-white hover:bg-[#262626] transition-colors">
+                  <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={avatarUploading}
+                    className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-[#1a1a1a] border border-white/5 rounded-lg text-gray-300 hover:text-white hover:bg-[#262626] transition-colors disabled:opacity-50"
+                  >
                     <Camera className="h-4 w-4" />
-                    <span>upload coming soon</span>
+                    <span>{avatarUploading ? 'uploading...' : profile?.avatar_url ? 'change avatar' : 'upload avatar'}</span>
                   </button>
+                  {profile?.avatar_url && (
+                    <div className="mt-2">
+                      <img src={profile.avatar_url} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-white/10" />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
