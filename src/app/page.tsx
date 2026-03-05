@@ -348,12 +348,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Stan comparison */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-600">
-              stan.store charges $29/mo with no free tier and no fitness features. just saying.
-            </p>
-          </div>
         </div>
       </section>
 
