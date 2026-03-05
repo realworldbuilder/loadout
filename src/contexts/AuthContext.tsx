@@ -1,14 +1,15 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
-import { onAuthStateChange, getUser, getSession, getCreatorProfile } from '@/lib/auth';
+import { onAuthStateChange, getCreatorProfile } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
 import type { Creator } from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: Creator | null | undefined; // undefined = not loaded yet, null = no profile exists
+  profile: Creator | null | undefined;
   loading: boolean;
   refreshProfile: () => Promise<void>;
 }
@@ -20,67 +21,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Creator | null | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
 
-  const refreshProfile = async () => {
-    if (!user) return;
+  const refreshProfile = useCallback(async () => {
+    const supabase = createSupabaseClient();
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) return;
     
     try {
-      const { data } = await getCreatorProfile(user.id);
+      const { data } = await getCreatorProfile(currentUser.id);
       setProfile(data);
     } catch (error) {
       console.error('Error refreshing profile:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    // Initialize auth state
-    const initializeAuth = async () => {
-      try {
-        const [currentSession, currentUser] = await Promise.all([
-          getSession(),
-          getUser()
-        ]);
+    const supabase = createSupabaseClient();
 
-        setSession(currentSession);
-        setUser(currentUser);
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
 
-        if (currentUser) {
-          const { data } = await getCreatorProfile(currentUser.id);
-          setProfile(data);
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeAuth();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
-      
-      // Skip INITIAL_SESSION events since initializeAuth already handles the first load
-      if (event === 'INITIAL_SESSION') {
-        return;
-      }
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        // User signed in, fetch their profile
-        const { data } = await getCreatorProfile(session.user.id);
+      if (initialSession?.user) {
+        const { data } = await getCreatorProfile(initialSession.user.id);
         setProfile(data);
       } else {
-        // User signed out
-        setProfile(undefined);
+        setProfile(null);
       }
 
       setLoading(false);
+      initializedRef.current = true;
+    });
+
+    // Listen for changes (sign in, sign out, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      // Skip the initial event — we handle it above
+      if (!initializedRef.current) return;
+      
+      // Token refresh — just update session, don't reset user/profile
+      if (event === 'TOKEN_REFRESHED') {
+        setSession(newSession);
+        return;
+      }
+
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+
+      if (newSession?.user) {
+        const { data } = await getCreatorProfile(newSession.user.id);
+        setProfile(data);
+      } else {
+        setProfile(null);
+      }
     });
 
     return () => {
@@ -89,15 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        session, 
-        profile, 
-        loading, 
-        refreshProfile 
-      }}
-    >
+    <AuthContext.Provider value={{ user, session, profile, loading, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
