@@ -26,7 +26,7 @@ import {
   Check,
   Palette
 } from 'lucide-react';
-import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES } from '@/types/theme';
+import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES, PRESET_GRADIENTS } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
 
 // Product types
@@ -863,6 +863,236 @@ export default function PageBuilder() {
                       />
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* FEATURE 1: Button Styles */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-white mb-4 lowercase">buttons</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {['fill', 'outline', 'soft', 'pill', 'hard', 'shadow'].map((style) => (
+                    <button
+                      key={style}
+                      onClick={() => setTheme({ ...theme, buttonStyle: style as CreatorTheme['buttonStyle'] })}
+                      className={`p-3 rounded-lg border transition-all ${
+                        theme.buttonStyle === style 
+                          ? 'border-emerald-500 bg-emerald-500/10' 
+                          : 'border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="mb-2">
+                        <div 
+                          className={`text-xs px-2 py-1 text-white ${
+                            style === 'outline' ? 'bg-transparent border border-emerald-500' :
+                            style === 'soft' ? 'bg-emerald-500/20' :
+                            style === 'pill' ? 'bg-emerald-500 rounded-full' :
+                            style === 'hard' ? 'bg-emerald-500 rounded-none' :
+                            style === 'shadow' ? 'bg-emerald-500 shadow-lg' :
+                            'bg-emerald-500'
+                          } ${style === 'pill' ? 'rounded-full' : style === 'hard' ? 'rounded-none' : 'rounded'}`}
+                        >
+                          {style}
+                        </div>
+                      </div>
+                      <p className="text-white/60 text-xs lowercase">{style}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* FEATURE 2: Background Wallpaper/Gradient */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-white mb-4 lowercase">background</h2>
+                
+                {/* Background Type Toggle */}
+                <div className="flex gap-1 p-1 bg-white/5 rounded-lg mb-4">
+                  {['solid', 'gradient', 'image'].map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setTheme({ ...theme, backgroundType: type as CreatorTheme['backgroundType'] })}
+                      className={`flex-1 px-3 py-2 rounded text-sm transition-all lowercase ${
+                        theme.backgroundType === type 
+                          ? 'bg-emerald-500 text-black font-medium' 
+                          : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Solid Background - use existing color picker */}
+                {theme.backgroundType === 'solid' && (
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={theme.background}
+                      onChange={(e) => setTheme({ ...theme, background: e.target.value })}
+                      className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.background}
+                      onChange={(e) => setTheme({ ...theme, background: e.target.value })}
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      placeholder="#ffffff"
+                    />
+                  </div>
+                )}
+
+                {/* Gradient Presets */}
+                {theme.backgroundType === 'gradient' && (
+                  <div>
+                    <label className="block text-white/60 text-sm mb-3 lowercase">preset gradients</label>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      {Object.entries({
+                        midnight: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+                        ember: 'linear-gradient(135deg, #0a0a0a, #1a0000, #2d0000)',
+                        ocean: 'linear-gradient(135deg, #0f172a, #0c2a4a, #0f172a)',
+                        sunset: 'linear-gradient(135deg, #ffecd2, #fcb69f)',
+                        aurora: 'linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e)',
+                        cotton: 'linear-gradient(135deg, #fdfcfb, #e2d1c3)',
+                        neon: 'linear-gradient(135deg, #0a0a0a, #1b0a2e, #0a1628)',
+                        forest: 'linear-gradient(135deg, #0a1a0a, #1a2e1a, #0a1a0a)'
+                      }).map(([name, gradient]) => (
+                        <button
+                          key={name}
+                          onClick={() => setTheme({ ...theme, backgroundGradient: gradient })}
+                          className={`h-12 rounded-lg border transition-all ${
+                            theme.backgroundGradient === gradient 
+                              ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
+                              : 'border-white/10 hover:border-white/20'
+                          }`}
+                          style={{ background: gradient }}
+                        >
+                          <span className="sr-only">{name}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      value={theme.backgroundGradient || ''}
+                      onChange={(e) => setTheme({ ...theme, backgroundGradient: e.target.value })}
+                      placeholder="custom gradient (e.g. linear-gradient(135deg, #000, #fff))"
+                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                    />
+                  </div>
+                )}
+
+                {/* Image URL */}
+                {theme.backgroundType === 'image' && (
+                  <div>
+                    <input
+                      type="url"
+                      value={theme.backgroundImage || ''}
+                      onChange={(e) => setTheme({ ...theme, backgroundImage: e.target.value })}
+                      placeholder="image url"
+                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* FEATURE 3: Header Layout */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-white mb-4 lowercase">header</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    { style: 'classic', label: 'classic', desc: 'centered circle avatar + name + bio' },
+                    { style: 'banner', label: 'banner', desc: 'wide banner image, overlapping avatar' },
+                    { style: 'minimal', label: 'minimal', desc: 'no avatar, just name + bio text' }
+                  ].map(({ style, label, desc }) => (
+                    <button
+                      key={style}
+                      onClick={() => setTheme({ ...theme, headerStyle: style as CreatorTheme['headerStyle'] })}
+                      className={`p-3 rounded-lg border text-left transition-all ${
+                        theme.headerStyle === style 
+                          ? 'border-emerald-500 bg-emerald-500/10' 
+                          : 'border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="mb-2">
+                        <div className="h-8 bg-white/10 rounded mb-1 flex items-center justify-center">
+                          {style === 'classic' && <div className="w-4 h-4 rounded-full bg-white/30"></div>}
+                          {style === 'banner' && <div className="w-full h-2 bg-white/30 rounded"></div>}
+                          {style === 'minimal' && <div className="text-[8px] text-white/40">Name</div>}
+                        </div>
+                      </div>
+                      <p className="text-white text-xs font-medium lowercase">{label}</p>
+                      <p className="text-white/40 text-[10px] mt-1">{desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* FEATURE 4: Card Transparency/Blur */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-white mb-4 lowercase">cards</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    { style: 'solid', label: 'solid', desc: 'opaque cards' },
+                    { style: 'glass', label: 'glass', desc: 'glassmorphism blur' },
+                    { style: 'transparent', label: 'transparent', desc: 'no background' }
+                  ].map(({ style, label, desc }) => (
+                    <button
+                      key={style}
+                      onClick={() => setTheme({ ...theme, cardStyle: style as CreatorTheme['cardStyle'] })}
+                      className={`p-3 rounded-lg border text-left transition-all ${
+                        theme.cardStyle === style 
+                          ? 'border-emerald-500 bg-emerald-500/10' 
+                          : 'border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="mb-2">
+                        <div className={`h-8 rounded border text-center flex items-center justify-center text-[8px] ${
+                          style === 'solid' ? 'bg-white/20 border-white/30' :
+                          style === 'glass' ? 'bg-white/5 border-white/20 backdrop-blur' :
+                          'bg-transparent border-b border-white/20'
+                        }`}>
+                          {style === 'transparent' ? 'text' : 'card'}
+                        </div>
+                      </div>
+                      <p className="text-white text-xs font-medium lowercase">{label}</p>
+                      <p className="text-white/40 text-[10px] mt-1">{desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* FEATURE 5: Social Icon Style */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-white mb-4 lowercase">social icons</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { style: 'filled', label: 'filled', desc: 'solid circles' },
+                    { style: 'outline', label: 'outline', desc: 'circle border only' },
+                    { style: 'minimal', label: 'minimal', desc: 'just icons' },
+                    { style: 'colored', label: 'colored', desc: 'brand colors' }
+                  ].map(({ style, label, desc }) => (
+                    <button
+                      key={style}
+                      onClick={() => setTheme({ ...theme, socialStyle: style as CreatorTheme['socialStyle'] })}
+                      className={`p-3 rounded-lg border text-left transition-all ${
+                        theme.socialStyle === style 
+                          ? 'border-emerald-500 bg-emerald-500/10' 
+                          : 'border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="mb-2 flex justify-center">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[8px] ${
+                          style === 'filled' ? 'bg-white/20' :
+                          style === 'outline' ? 'border border-white/30' :
+                          style === 'minimal' ? '' :
+                          'bg-blue-500' // colored example
+                        }`}>
+                          {style !== 'minimal' && '◯'}
+                          {style === 'minimal' && '○'}
+                        </div>
+                      </div>
+                      <p className="text-white text-xs font-medium lowercase">{label}</p>
+                      <p className="text-white/40 text-[10px] mt-1">{desc}</p>
+                    </button>
+                  ))}
                 </div>
               </div>
 

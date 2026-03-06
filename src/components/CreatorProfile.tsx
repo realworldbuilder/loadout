@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag, Mail, Play } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
 import { CreatorTheme, DEFAULT_THEME } from '@/types/theme';
-import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
+import { getThemeStyles, getThemeFontClass, getButtonClasses, getCardClasses, getSocialIconClasses } from '@/lib/utils';
 
 interface DBCreator {
   id: string;
@@ -504,51 +504,132 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           </Link>
         )}
 
-        {/* Profile header */}
-        <div className="text-center mb-8">
-          {/* Avatar - 96px with shadow */}
-          {isFromDB && creator.avatar_url ? (
-            <img 
-              src={creator.avatar_url} 
-              alt={creator.display_name} 
-              className="w-24 h-24 rounded-full object-cover mx-auto mb-4 shadow-lg" 
-            />
-          ) : (
-            <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${gradientColor} flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg`}>
-              {isDemo ? creator.avatar_emoji : '💪'}
+        {/* FEATURE 3: Profile header with different layouts */}
+        {(creatorTheme.headerStyle || 'classic') === 'banner' ? (
+          // Banner layout
+          <div className="mb-8">
+            {/* Banner image area */}
+            <div className={`h-32 rounded-lg mb-6 relative ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`} style={{ backgroundColor: `${creatorTheme.primary}20` }}>
+              {/* Avatar overlapping bottom edge */}
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
+                {isFromDB && creator.avatar_url ? (
+                  <img 
+                    src={creator.avatar_url} 
+                    alt={creator.display_name} 
+                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg" 
+                    style={{ borderColor: creatorTheme.background }}
+                  />
+                ) : (
+                  <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${gradientColor} flex items-center justify-center text-3xl border-4 shadow-lg`} style={{ borderColor: creatorTheme.background }}>
+                    {isDemo ? creator.avatar_emoji : '💪'}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-
-          {/* Name - large, bold, text-2xl */}
-          <h1 className={`text-2xl font-bold ${textColor} mb-1`}>{creator.display_name}</h1>
-          
-          {/* Handle - @handle in gray */}
-          <p className={`${mutedTextColor} mb-3`}>@{creator.handle}</p>
-          
-          {/* Bio - max 2-3 lines, centered */}
-          {creator.bio && (
-            <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
-              {creator.bio}
-            </p>
-          )}
-
-          {/* Social icons - 40x40 circles */}
-          {socialLinks.length > 0 && (
-            <div className="flex justify-center gap-3 mb-6">
-              {socialLinks.map(({ platform, url, icon: Icon }) => (
-                <a
-                  key={platform}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-10 h-10 rounded-full ${socialIconBg} flex items-center justify-center transition-all duration-200`}
-                >
-                  <Icon className={`h-4 w-4 ${socialIconColor}`} />
-                </a>
-              ))}
+            
+            {/* Name and info below banner */}
+            <div className="text-center pt-6">
+              <h1 className={`text-2xl font-bold ${textColor} mb-1`}>{creator.display_name}</h1>
+              <p className={`${mutedTextColor} mb-3`}>@{creator.handle}</p>
+              {creator.bio && (
+                <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
+                  {creator.bio}
+                </p>
+              )}
+              
+              {/* Social icons */}
+              {socialLinks.length > 0 && (
+                <div className="flex justify-center gap-3">
+                  {socialLinks.map(({ platform, url, icon: Icon }) => (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (creatorTheme.headerStyle || 'classic') === 'minimal' ? (
+          // Minimal layout - no avatar, just text
+          <div className="text-center mb-8">
+            <h1 className={`text-3xl font-bold ${textColor} mb-2`}>{creator.display_name}</h1>
+            <p className={`${mutedTextColor} mb-4`}>@{creator.handle}</p>
+            {creator.bio && (
+              <p className={`${mutedTextColor} leading-relaxed max-w-md mx-auto mb-6 text-center text-lg`}>
+                {creator.bio}
+              </p>
+            )}
+            
+            {/* Social icons */}
+            {socialLinks.length > 0 && (
+              <div className="flex justify-center gap-3">
+                {socialLinks.map(({ platform, url, icon: Icon }) => (
+                  <a
+                    key={platform}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          // Classic layout (default)
+          <div className="text-center mb-8">
+            {/* Avatar - 96px with shadow */}
+            {isFromDB && creator.avatar_url ? (
+              <img 
+                src={creator.avatar_url} 
+                alt={creator.display_name} 
+                className="w-24 h-24 rounded-full object-cover mx-auto mb-4 shadow-lg" 
+              />
+            ) : (
+              <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${gradientColor} flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg`}>
+                {isDemo ? creator.avatar_emoji : '💪'}
+              </div>
+            )}
+
+            {/* Name - large, bold, text-2xl */}
+            <h1 className={`text-2xl font-bold ${textColor} mb-1`}>{creator.display_name}</h1>
+            
+            {/* Handle - @handle in gray */}
+            <p className={`${mutedTextColor} mb-3`}>@{creator.handle}</p>
+            
+            {/* Bio - max 2-3 lines, centered */}
+            {creator.bio && (
+              <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
+                {creator.bio}
+              </p>
+            )}
+
+            {/* Social icons - 40x40 circles */}
+            {socialLinks.length > 0 && (
+              <div className="flex justify-center gap-3 mb-6">
+                {socialLinks.map(({ platform, url, icon: Icon }) => (
+                  <a
+                    key={platform}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Items section - mixed links and products */}
         {products.length > 0 && (
@@ -646,7 +727,10 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               // Link style - Linktree pill buttons (only for classic layout)
               if (isLink && layout !== 'featured') {
                 const linkCard = (
-                  <div className={`${linkCardBg} ${linkCardBorder} rounded-xl p-4 transition-all duration-200 cursor-pointer group hover:scale-[1.02] hover:shadow-lg border h-14 flex items-center`}>
+                  <div className={`${getCardClasses(creatorTheme.cardStyle, isDark)} rounded-xl p-4 transition-all duration-200 cursor-pointer group hover:scale-[1.02] hover:shadow-lg h-14 flex items-center`}
+                       style={{ 
+                         backgroundColor: creatorTheme.cardStyle === 'transparent' ? 'transparent' : (creatorTheme.cardStyle === 'glass' ? undefined : creatorTheme.cardBg)
+                       }}>
                     <div className="flex items-center gap-3 w-full">
                       {/* Optional small thumbnail */}
                       {p.thumbnail_url && (
@@ -690,8 +774,11 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               // Featured layout - large card with hero image
               if (layout === 'featured') {
                 const featuredCard = (
-                  <div className={`${productCardBg} ${productCardBorder} rounded-2xl border shadow-sm overflow-hidden transition-all duration-200 cursor-pointer group hover:shadow-xl hover:ring-2 hover:ring-opacity-20`}
-                       style={{ ['--tw-ring-color' as any]: primaryColor }}>
+                  <div className={`${getCardClasses(creatorTheme.cardStyle, isDark)} rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer group hover:shadow-xl hover:ring-2 hover:ring-opacity-20`}
+                       style={{ 
+                         ['--tw-ring-color' as any]: primaryColor,
+                         backgroundColor: creatorTheme.cardStyle === 'transparent' ? 'transparent' : (creatorTheme.cardStyle === 'glass' ? undefined : creatorTheme.cardBg)
+                       }}>
                     {/* Hero thumbnail */}
                     {p.thumbnail_url ? (
                       <div className="aspect-video w-full overflow-hidden">
@@ -727,10 +814,15 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                       
                       {/* CTA button - full width, colored */}
                       <button 
-                        className="w-full font-semibold py-3 px-6 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                        className={`w-full ${getButtonClasses(creatorTheme.buttonStyle, primaryColor, isDark)} hover:scale-[1.02]`}
                         style={{ 
-                          backgroundColor: primaryColor,
-                          color: primaryIsLight ? '#000000' : '#ffffff'
+                          backgroundColor: creatorTheme.buttonStyle === 'outline' ? 'transparent' : 
+                                          creatorTheme.buttonStyle === 'soft' ? `${primaryColor}1A` : primaryColor,
+                          color: creatorTheme.buttonStyle === 'outline' ? primaryColor :
+                                creatorTheme.buttonStyle === 'soft' ? primaryColor :
+                                primaryIsLight ? '#000000' : '#ffffff',
+                          borderColor: creatorTheme.buttonStyle === 'outline' ? primaryColor : undefined,
+                          boxShadow: creatorTheme.buttonStyle === 'shadow' ? `0 10px 25px -5px ${primaryColor}40, 0 8px 10px -6px ${primaryColor}40` : undefined
                         }}
                       >
                         {getCtaText(p)}
@@ -760,7 +852,10 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
 
               // Classic layout - compact row style (current default)
               const productCard = (
-                <div className={`${productCardBg} ${productCardBorder} rounded-xl border shadow-sm p-4 transition-all duration-200 cursor-pointer group hover:shadow-xl`}>
+                <div className={`${getCardClasses(creatorTheme.cardStyle, isDark)} rounded-xl p-4 transition-all duration-200 cursor-pointer group hover:shadow-xl`}
+                     style={{ 
+                       backgroundColor: creatorTheme.cardStyle === 'transparent' ? 'transparent' : (creatorTheme.cardStyle === 'glass' ? undefined : creatorTheme.cardBg)
+                     }}>
                   <div className="flex gap-4 mb-4">
                     {/* Thumbnail - 64x64 square */}
                     {p.thumbnail_url ? (
@@ -795,10 +890,15 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                   
                   {/* CTA button - full width, colored */}
                   <button 
-                    className="w-full font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:scale-[1.02]"
+                    className={`w-full ${getButtonClasses(creatorTheme.buttonStyle, primaryColor, isDark)} hover:scale-[1.02]`}
                     style={{ 
-                      backgroundColor: primaryColor,
-                      color: primaryIsLight ? '#000000' : '#ffffff'
+                      backgroundColor: creatorTheme.buttonStyle === 'outline' ? 'transparent' : 
+                                      creatorTheme.buttonStyle === 'soft' ? `${primaryColor}1A` : primaryColor,
+                      color: creatorTheme.buttonStyle === 'outline' ? primaryColor :
+                            creatorTheme.buttonStyle === 'soft' ? primaryColor :
+                            primaryIsLight ? '#000000' : '#ffffff',
+                      borderColor: creatorTheme.buttonStyle === 'outline' ? primaryColor : undefined,
+                      boxShadow: creatorTheme.buttonStyle === 'shadow' ? `0 10px 25px -5px ${primaryColor}40, 0 8px 10px -6px ${primaryColor}40` : undefined
                     }}
                   >
                     {getCtaText(p)}
