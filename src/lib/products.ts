@@ -1,6 +1,6 @@
 import { createSupabaseClient } from './supabase';
 
-export type ProductType = 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link';
+export type ProductType = 'digital' | 'coaching' | 'link' | 'subscription' | 'affiliate_link' | 'header' | 'email_collector' | 'embed';
 
 export interface Product {
   id: string;

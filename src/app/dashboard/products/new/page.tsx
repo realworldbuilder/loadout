@@ -37,16 +37,16 @@ function NewProductInner() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const initialType = (searchParams.get('type') as ProductType) || 'digital_product';
+  const initialType = (searchParams.get('type') as ProductType) || 'digital';
   const [productType, setProductType] = useState<ProductType>(initialType);
   const [externalUrl, setExternalUrl] = useState('');
   const [ctaText, setCtaText] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
-  // Set price to 0 for links
+  // Set price to 0 for links, email collectors, and headers
   useEffect(() => {
-    if (productType === 'link') {
+    if (productType === 'link' || productType === 'email_collector' || productType === 'header') {
       setPrice('0');
     }
   }, [productType]);
@@ -79,7 +79,12 @@ function NewProductInner() {
         alert('Please enter a destination URL for the link');
         return;
       }
-    } else {
+    } else if (productType === 'embed') {
+      if (!externalUrl) {
+        alert('Please enter a URL to embed');
+        return;
+      }
+    } else if (productType !== 'email_collector' && productType !== 'header') {
       if (!price) {
         alert('Please enter a price');
         return;
@@ -88,8 +93,8 @@ function NewProductInner() {
 
     setLoading(true);
     try {
-      const priceNum = productType === 'link' ? 0 : parseFloat(price);
-      if (productType !== 'link' && (isNaN(priceNum) || priceNum < 0)) {
+      const priceNum = (productType === 'link' || productType === 'email_collector' || productType === 'header') ? 0 : parseFloat(price);
+      if (productType !== 'link' && productType !== 'email_collector' && productType !== 'header' && (isNaN(priceNum) || priceNum < 0)) {
         alert('Please enter a valid price');
         setLoading(false);
         return;
@@ -150,11 +155,14 @@ function NewProductInner() {
 
   const getProductTypeLabel = (type: ProductType) => {
     switch (type) {
-      case 'digital_product': return 'digital';
+      case 'digital': return 'digital';
       case 'coaching': return 'coaching';
       case 'affiliate_link': return 'affiliate';
       case 'subscription': return 'subscription';
       case 'link': return 'link';
+      case 'header': return 'header';
+      case 'email_collector': return 'email signup';
+      case 'embed': return 'embed';
     }
   };
 
@@ -202,7 +210,7 @@ function NewProductInner() {
                   <p className="text-xs text-white/40 mt-2 lowercase">tell customers what they'll receive</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {productType !== 'link' && (
+                  {productType !== 'link' && productType !== 'email_collector' && productType !== 'header' && (
                     <div>
                       <label className="block text-sm font-medium text-white/80 mb-2 lowercase">price ($) *</label>
                       <div className="relative">
@@ -213,42 +221,53 @@ function NewProductInner() {
                       </div>
                     </div>
                   )}
-                  <div className={productType === 'link' ? 'col-span-full' : ''}>
+                  <div className={(productType === 'link' || productType === 'email_collector' || productType === 'header') ? 'col-span-full' : ''}>
                     <label className="block text-sm font-medium text-white/80 mb-2 lowercase">type *</label>
                     <select value={productType} onChange={(e) => setProductType(e.target.value as ProductType)}
                       className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white focus:outline-none focus:border-emerald-500/50">
-                      <option value="digital_product">digital product</option>
+                      <option value="digital">digital product</option>
                       <option value="coaching">coaching</option>
                       <option value="affiliate_link">affiliate link</option>
                       <option value="subscription">subscription</option>
                       <option value="link">link</option>
+                      <option value="header">header</option>
+                      <option value="email_collector">email signup</option>
+                      <option value="embed">embed</option>
                     </select>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* External URL - for affiliate links or any product */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">
-                {productType === 'link' ? 'destination url' : 'link'}
-              </h2>
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-2 lowercase">
-                  external url {productType === 'link' ? '*' : ''}
-                </label>
-                <div className="relative">
-                  <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
-                  <input type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
-                    placeholder={productType === 'link' ? 'https://youtube.com/@yourhandle' : 'https://example.com/product'}
-                    required={productType === 'link'} />
+            {/* External URL - for links, embeds, or any product */}
+            {productType !== 'email_collector' && productType !== 'header' && (
+              <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+                <h2 className="text-lg font-semibold text-white mb-6 lowercase">
+                  {productType === 'link' ? 'destination url' : productType === 'embed' ? 'embed url' : 'link'}
+                </h2>
+                <div>
+                  <label className="block text-sm font-medium text-white/80 mb-2 lowercase">
+                    {productType === 'embed' ? 'content url' : 'external url'} {(productType === 'link' || productType === 'embed') ? '*' : ''}
+                  </label>
+                  <div className="relative">
+                    <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
+                    <input type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                      placeholder={
+                        productType === 'link' ? 'https://youtube.com/@yourhandle' :
+                        productType === 'embed' ? 'https://youtube.com/watch?v=... or https://open.spotify.com/...' :
+                        'https://example.com/product'
+                      }
+                      required={productType === 'link' || productType === 'embed'} />
+                  </div>
+                  <p className="text-xs text-white/40 mt-2 lowercase">
+                    {productType === 'link' ? 'where people go when they click this link' : 
+                     productType === 'embed' ? 'youtube, spotify, or other embeddable content url' :
+                     'where customers go when they click "get it"'}
+                  </p>
                 </div>
-                <p className="text-xs text-white/40 mt-2 lowercase">
-                  {productType === 'link' ? 'where people go when they click this link' : 'where customers go when they click "get it"'}
-                </p>
               </div>
-            </div>
+            )}
 
             {/* CTA */}
             <div className="bg-[#111] border border-white/5 rounded-lg p-6">
@@ -310,9 +329,14 @@ function NewProductInner() {
                 className="flex-1 px-6 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center font-medium hover:bg-white/10 transition-colors lowercase">
                 cancel
               </Link>
-              <button type="submit" disabled={loading || !title || (productType === 'link' ? !externalUrl : !price)}
+              <button type="submit" disabled={loading || !title || ((productType === 'link' || productType === 'embed') ? !externalUrl : (productType !== 'email_collector' && productType !== 'header' && !price))}
                 className="flex-1 px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed lowercase">
-                {uploading ? 'uploading...' : loading ? 'creating...' : productType === 'link' ? 'create link' : 'create product'}
+                {uploading ? 'uploading...' : loading ? 'creating...' : 
+                 productType === 'link' ? 'create link' :
+                 productType === 'email_collector' ? 'create email signup' :
+                 productType === 'embed' ? 'create embed' :
+                 productType === 'header' ? 'create header' :
+                 'create product'}
               </button>
             </div>
           </form>
@@ -335,16 +359,37 @@ function NewProductInner() {
                 )}
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-white mb-1">{title || (productType === 'link' ? 'link title' : 'product title')}</h3>
+                <h3 className="font-semibold text-white mb-1">{title || (
+                  productType === 'link' ? 'link title' :
+                  productType === 'email_collector' ? 'join my newsletter' :
+                  productType === 'embed' ? 'embedded content' :
+                  productType === 'header' ? 'section title' :
+                  'product title'
+                )}</h3>
                 {description && <p className="text-sm text-white/60 mb-3 line-clamp-2">{description}</p>}
                 <div className="flex items-center justify-between mb-3">
-                  {productType !== 'link' && <span className="font-semibold text-emerald-500">{formatPrice(price)}</span>}
+                  {productType !== 'link' && productType !== 'email_collector' && productType !== 'header' && <span className="font-semibold text-emerald-500">{formatPrice(price)}</span>}
                   <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-white/60 lowercase ml-auto">{getProductTypeLabel(productType)}</span>
                 </div>
                 {productType === 'link' ? (
                   <div className="flex items-center justify-center py-2 text-white/60">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     <span className="text-sm lowercase">clickable link</span>
+                  </div>
+                ) : productType === 'email_collector' ? (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <input type="email" placeholder="your@email.com" className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded text-xs" disabled />
+                      <button className="px-3 py-2 bg-emerald-500 text-black font-medium rounded text-xs">Subscribe</button>
+                    </div>
+                  </div>
+                ) : productType === 'embed' ? (
+                  <div className="bg-white/5 border border-white/10 rounded p-4 text-center text-white/40">
+                    <span className="text-xs">embed preview</span>
+                  </div>
+                ) : productType === 'header' ? (
+                  <div className="text-center py-2 text-white/40 text-xs uppercase tracking-wider">
+                    section header
                   </div>
                 ) : (
                   <button className="w-full px-4 py-2 bg-emerald-500 text-black font-medium rounded-lg lowercase">

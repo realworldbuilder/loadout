@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag } from 'lucide-react';
+import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag, Mail, Play } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
 
 interface DBCreator {
@@ -10,6 +11,10 @@ interface DBCreator {
   display_name: string;
   bio?: string;
   avatar_url?: string;
+  theme?: {
+    primary?: string;
+    background?: string;
+  };
   social_links?: {
     instagram?: string;
     youtube?: string;
@@ -33,6 +38,17 @@ interface DBProduct {
   sort_order: number;
 }
 
+// Custom TikTok Icon Component
+const TikTokIcon = ({ className }: { className?: string }) => (
+  <svg 
+    className={className} 
+    viewBox="0 0 24 24" 
+    fill="currentColor"
+  >
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+  </svg>
+);
+
 const DEMO_CREATORS: Record<string, any> = {
   demo: {
     handle: 'demo',
@@ -48,12 +64,18 @@ const DEMO_CREATORS: Record<string, any> = {
     followers: '47k',
     tag: 'online coach',
     color: 'from-emerald-400 to-teal-600',
-    social_links: { instagram: true, youtube: true, twitter: true },
+    theme: { primary: '#059669', background: '#ffffff' },
+    social_links: { 
+      instagram: 'https://instagram.com/alexrivera',
+      youtube: 'https://youtube.com/alexrivera',
+      twitter: 'https://twitter.com/alexrivera' 
+    },
     products: [
-      { title: '12-Week Shred Program', desc: 'Complete fat loss program with progressive overload, cardio protocols, and weekly check-in templates.', price: '$29', type: 'PDF', sold: 847, emoji: '🔥' },
-      { title: 'Meal Prep Masterclass', desc: '40+ recipes, grocery lists, and macro breakdowns for bulking and cutting.', price: '$19', type: 'PDF', sold: 412, emoji: '🥗' },
-      { title: '1:1 Online Coaching', desc: 'Monthly coaching with custom programming, weekly check-ins, and unlimited messaging.', price: '$149/mo', type: 'Coaching', sold: 23, emoji: '🎯' },
-      { title: 'Beginner Strength Foundations', desc: '8-week program for complete beginners. Learn the big 5 lifts with video guides.', price: '$14', type: 'PDF', sold: 1203, emoji: '🏗️' },
+      { title: '12-Week Shred Program', desc: 'Complete fat loss program with progressive overload, cardio protocols, and weekly check-in templates.', price: 29, type: 'digital_product', sold: 847, emoji: '🔥' },
+      { title: 'Meal Prep Masterclass', desc: '40+ recipes, grocery lists, and macro breakdowns for bulking and cutting.', price: 19, type: 'digital_product', sold: 412, emoji: '🥗' },
+      { title: 'My Instagram', desc: 'Follow for daily motivation and tips', price: 0, type: 'link', emoji: '📱', link: 'https://instagram.com' },
+      { title: '1:1 Online Coaching', desc: 'Monthly coaching with custom programming, weekly check-ins, and unlimited messaging.', price: 149, type: 'coaching', sold: 23, emoji: '🎯', cta_text: 'Get started' },
+      { title: 'Beginner Strength Foundations', desc: '8-week program for complete beginners. Learn the big 5 lifts with video guides.', price: 14, type: 'digital_product', sold: 1203, emoji: '🏗️' },
     ],
   },
   mayafit: {
@@ -64,13 +86,15 @@ const DEMO_CREATORS: Record<string, any> = {
     followers: '234k',
     tag: 'glute specialist',
     color: 'from-pink-400 to-rose-600',
+    theme: { primary: '#ec4899', background: '#ffffff' },
     social_links: { instagram: true, youtube: true },
     products: [
-      { title: 'Grow Your Glutes Program', desc: '12-week progressive program targeting all 3 glute muscles. Home + gym versions included.', price: '$34', type: 'PDF', sold: 4200, emoji: '🍑' },
-      { title: 'Booty Band Starter Pack', desc: '30-day at-home program using only resistance bands. Perfect for beginners or travel.', price: '$12', type: 'PDF', sold: 8900, emoji: '🏠' },
-      { title: 'Monthly Workout Calendar', desc: 'New workouts every month. Full body focus with glute emphasis. Video demos included.', price: '$9.99/mo', type: 'Subscription', sold: 670, emoji: '📅' },
-      { title: 'Macro Calculator + Guide', desc: 'Custom macro calculator spreadsheet with full nutrition guide for body recomp.', price: '$7', type: 'Spreadsheet', sold: 3100, emoji: '📊' },
-      { title: 'VIP Coaching (3 months)', desc: 'Personalized programming, weekly video check-ins, nutrition coaching, and 24/7 DM access.', price: '$297', type: 'Coaching', sold: 45, emoji: '👑' },
+      { title: 'Grow Your Glutes Program', desc: '12-week progressive program targeting all 3 glute muscles. Home + gym versions included.', price: 34, type: 'digital_product', sold: 4200, emoji: '🍑' },
+      { title: 'Booty Band Starter Pack', desc: '30-day at-home program using only resistance bands. Perfect for beginners or travel.', price: 12, type: 'digital_product', sold: 8900, emoji: '🏠' },
+      { title: 'Resources', desc: '', price: 0, type: 'header' },
+      { title: 'Monthly Workout Calendar', desc: 'New workouts every month. Full body focus with glute emphasis. Video demos included.', price: 9.99, type: 'subscription', sold: 670, emoji: '📅' },
+      { title: 'Macro Calculator + Guide', desc: 'Custom macro calculator spreadsheet with full nutrition guide for body recomp.', price: 7, type: 'digital_product', sold: 3100, emoji: '📊' },
+      { title: 'VIP Coaching (3 months)', desc: 'Personalized programming, weekly video check-ins, nutrition coaching, and 24/7 DM access.', price: 297, type: 'coaching', sold: 45, emoji: '👑' },
     ],
   },
   ironmike: {
@@ -81,12 +105,18 @@ const DEMO_CREATORS: Record<string, any> = {
     followers: '89k',
     tag: 'powerlifting',
     color: 'from-red-500 to-orange-600',
-    social_links: { instagram: true, youtube: true, twitter: true },
+    theme: { primary: '#dc2626', background: '#ffffff' },
+    social_links: { 
+      instagram: 'https://instagram.com/ironmike',
+      youtube: 'https://youtube.com/ironmike',
+      twitter: 'https://twitter.com/ironmike',
+      tiktok: 'https://tiktok.com/@ironmike'
+    },
     products: [
-      { title: 'Conjugate Method Simplified', desc: 'The Westside system broken down for regular humans. Max effort, dynamic effort, accessory templates.', price: '$44', type: 'PDF', sold: 1890, emoji: '⚡' },
-      { title: '16-Week Meet Prep', desc: 'Peak for competition. RPE-based with attempt selection strategy and water cut protocol.', price: '$39', type: 'PDF', sold: 634, emoji: '🏆' },
-      { title: 'Form Check Video Review', desc: 'Send me your squat, bench, or deadlift. 5-10 min detailed video breakdown within 48hrs.', price: '$25', type: 'Service', sold: 312, emoji: '📹' },
-      { title: 'Deadlift Domination', desc: '8-week deadlift specialization block. Added 40lbs to my pull. Will add to yours.', price: '$24', type: 'PDF', sold: 2700, emoji: '💀' },
+      { title: 'Conjugate Method Simplified', desc: 'The Westside system broken down for regular humans. Max effort, dynamic effort, accessory templates.', price: 44, type: 'digital_product', sold: 1890, emoji: '⚡' },
+      { title: '16-Week Meet Prep', desc: 'Peak for competition. RPE-based with attempt selection strategy and water cut protocol.', price: 39, type: 'digital_product', sold: 634, emoji: '🏆' },
+      { title: 'Form Check Video Review', desc: 'Send me your squat, bench, or deadlift. 5-10 min detailed video breakdown within 48hrs.', price: 25, type: 'coaching', sold: 312, emoji: '📹' },
+      { title: 'Deadlift Domination', desc: '8-week deadlift specialization block. Added 40lbs to my pull. Will add to yours.', price: 24, type: 'digital_product', sold: 2700, emoji: '💀' },
     ],
   },
   zenlifts: {
@@ -97,13 +127,14 @@ const DEMO_CREATORS: Record<string, any> = {
     followers: '156k',
     tag: 'yoga + strength',
     color: 'from-purple-400 to-violet-600',
+    theme: { primary: '#8b5cf6', background: '#ffffff' },
     social_links: { instagram: true, youtube: true },
     products: [
-      { title: 'Yoga for Lifters', desc: '20-minute flows designed specifically for people who lift. Fix your squat depth, bench arch, and deadlift setup.', price: '$19', type: 'PDF + Video', sold: 5600, emoji: '🧘' },
-      { title: 'Strength + Flow Hybrid Program', desc: '3 lifting days + 2 yoga days per week. 12 weeks. The best of both worlds.', price: '$29', type: 'PDF', sold: 1800, emoji: '☯️' },
-      { title: 'Morning Mobility Routine', desc: '10-minute daily routine. Follow along video. Zero equipment. Do it before your coffee.', price: '$9', type: 'Video Series', sold: 9200, emoji: '🌅' },
-      { title: 'Breathwork for Performance', desc: 'Breathing techniques for max effort lifts, recovery, and stress. Nasal breathing protocols included.', price: '$14', type: 'PDF + Audio', sold: 2300, emoji: '🌬️' },
-      { title: 'Private Yoga Session (Virtual)', desc: '60-min 1:1 session focused on your specific mobility issues and goals.', price: '$75', type: 'Service', sold: 120, emoji: '💎' },
+      { title: 'Yoga for Lifters', desc: '20-minute flows designed specifically for people who lift. Fix your squat depth, bench arch, and deadlift setup.', price: 19, type: 'digital_product', sold: 5600, emoji: '🧘' },
+      { title: 'Strength + Flow Hybrid Program', desc: '3 lifting days + 2 yoga days per week. 12 weeks. The best of both worlds.', price: 29, type: 'digital_product', sold: 1800, emoji: '☯️' },
+      { title: 'Morning Mobility Routine', desc: '10-minute daily routine. Follow along video. Zero equipment. Do it before your coffee.', price: 9, type: 'digital_product', sold: 9200, emoji: '🌅' },
+      { title: 'Breathwork for Performance', desc: 'Breathing techniques for max effort lifts, recovery, and stress. Nasal breathing protocols included.', price: 14, type: 'digital_product', sold: 2300, emoji: '🌬️' },
+      { title: 'Private Yoga Session (Virtual)', desc: '60-min 1:1 session focused on your specific mobility issues and goals.', price: 75, type: 'coaching', sold: 120, emoji: '💎' },
     ],
   },
   coachdre: {
@@ -114,12 +145,13 @@ const DEMO_CREATORS: Record<string, any> = {
     followers: '67k',
     tag: 'athletic performance',
     color: 'from-yellow-400 to-amber-600',
+    theme: { primary: '#f59e0b', background: '#ffffff' },
     social_links: { instagram: true, twitter: true },
     products: [
-      { title: 'Vertical Jump Bible', desc: 'Add 4-8 inches to your vert in 12 weeks. Plyometrics, strength work, and jump mechanics.', price: '$34', type: 'PDF', sold: 3400, emoji: '🚀' },
-      { title: 'Speed & Agility Program', desc: '8-week sprint mechanics and COD training. Used by actual college athletes.', price: '$29', type: 'PDF + Video', sold: 1900, emoji: '💨' },
-      { title: 'Athlete Meal Plan Template', desc: 'Customizable meal plan for high school and college athletes. Bulking and cutting versions.', price: '$14', type: 'Spreadsheet', sold: 4100, emoji: '🍗' },
-      { title: 'Virtual Speed Assessment', desc: 'Film your sprint. I analyze mechanics and give you a personalized drill program.', price: '$45', type: 'Service', sold: 89, emoji: '📹' },
+      { title: 'Vertical Jump Bible', desc: 'Add 4-8 inches to your vert in 12 weeks. Plyometrics, strength work, and jump mechanics.', price: 34, type: 'digital_product', sold: 3400, emoji: '🚀' },
+      { title: 'Speed & Agility Program', desc: '8-week sprint mechanics and COD training. Used by actual college athletes.', price: 29, type: 'digital_product', sold: 1900, emoji: '💨' },
+      { title: 'Athlete Meal Plan Template', desc: 'Customizable meal plan for high school and college athletes. Bulking and cutting versions.', price: 14, type: 'digital_product', sold: 4100, emoji: '🍗' },
+      { title: 'Virtual Speed Assessment', desc: 'Film your sprint. I analyze mechanics and give you a personalized drill program.', price: 45, type: 'coaching', sold: 89, emoji: '📹' },
     ],
   },
   macrosbymel: {
@@ -130,13 +162,18 @@ const DEMO_CREATORS: Record<string, any> = {
     followers: '198k',
     tag: 'nutrition coach',
     color: 'from-green-400 to-lime-600',
-    social_links: { instagram: true, youtube: true, twitter: true },
+    theme: { primary: '#22c55e', background: '#ffffff' },
+    social_links: { 
+      instagram: 'https://instagram.com/macrosbymel',
+      youtube: 'https://youtube.com/macrosbymel',
+      twitter: 'https://twitter.com/macrosbymel' 
+    },
     products: [
-      { title: 'Macro Mastery Course', desc: 'Learn to count macros without losing your mind. 6-module video course with worksheets.', price: '$49', type: 'Course', sold: 2800, emoji: '🎓' },
-      { title: 'High Protein Recipe Book', desc: '100+ recipes all 30g+ protein. Breakfast, lunch, dinner, snacks, desserts. Macro breakdowns for each.', price: '$24', type: 'PDF', sold: 7600, emoji: '📖' },
-      { title: 'Reverse Diet Protocol', desc: 'Stop yo-yo dieting. Step-by-step guide to increasing calories without gaining fat.', price: '$19', type: 'PDF', sold: 3200, emoji: '📈' },
-      { title: '1:1 Nutrition Coaching', desc: 'Fully customized macro plan, weekly adjustments, and unlimited support. Minimum 3 month commitment.', price: '$199/mo', type: 'Coaching', sold: 34, emoji: '🏅' },
-      { title: 'Grocery Store Guide', desc: 'My exact shopping list for a week of macro-friendly meals. Budget and bougie versions.', price: '$5', type: 'PDF', sold: 12400, emoji: '🛒' },
+      { title: 'Macro Mastery Course', desc: 'Learn to count macros without losing your mind. 6-module video course with worksheets.', price: 49, type: 'digital_product', sold: 2800, emoji: '🎓' },
+      { title: 'High Protein Recipe Book', desc: '100+ recipes all 30g+ protein. Breakfast, lunch, dinner, snacks, desserts. Macro breakdowns for each.', price: 24, type: 'digital_product', sold: 7600, emoji: '📖' },
+      { title: 'Reverse Diet Protocol', desc: 'Stop yo-yo dieting. Step-by-step guide to increasing calories without gaining fat.', price: 19, type: 'digital_product', sold: 3200, emoji: '📈' },
+      { title: '1:1 Nutrition Coaching', desc: 'Fully customized macro plan, weekly adjustments, and unlimited support. Minimum 3 month commitment.', price: 199, type: 'coaching', sold: 34, emoji: '🏅' },
+      { title: 'Grocery Store Guide', desc: 'My exact shopping list for a week of macro-friendly meals. Budget and bougie versions.', price: 5, type: 'digital_product', sold: 12400, emoji: '🛒' },
     ],
   },
 };
@@ -153,13 +190,28 @@ interface CreatorProfileProps {
   } | null;
 }
 
+// Utility function to detect if a color is dark
+const isDarkColor = (color: string): boolean => {
+  return color.startsWith('#0') || color.startsWith('#1') || color.startsWith('#2');
+};
+
+// Utility function to determine if accent color is light for text contrast
+const isLightColor = (color: string): boolean => {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return brightness > 155;
+};
+
 export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) {
   const isFromDB = dbData !== null && dbData !== undefined;
   const isDemo = !isFromDB && DEMO_CREATORS[handle];
   const creator = isFromDB ? dbData?.creator : DEMO_CREATORS[handle];
   const products = isFromDB ? dbData?.products || [] : creator?.products || [];
 
-  // Demo directory page - keep dark for now since it's the directory
+  // Demo directory page - keep existing dark design
   if (handle === 'demo') {
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
@@ -221,62 +273,119 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
     );
   }
 
-  const formatPrice = (price: number | string) => {
+  // Theme handling
+  const theme = creator.theme || { primary: '#1a1a1a', background: '#ffffff' };
+  const isDark = isDarkColor(theme.background || '#ffffff');
+  const primaryColor = theme.primary || '#1a1a1a';
+  const primaryIsLight = isLightColor(primaryColor);
+
+  // Color classes based on theme
+  const bgColor = isDark ? 'bg-gray-900' : 'bg-white';
+  const textColor = isDark ? 'text-white' : 'text-gray-900';
+  const subtleTextColor = isDark ? 'text-gray-300' : 'text-gray-600';
+  const mutedTextColor = isDark ? 'text-gray-400' : 'text-gray-500';
+  const linkCardBg = isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100';
+  const linkCardBorder = isDark ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300';
+  const productCardBg = isDark ? 'bg-gray-800' : 'bg-white';
+  const productCardBorder = isDark ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300';
+  const socialIconBg = isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200';
+  const socialIconColor = isDark ? 'text-gray-300' : 'text-gray-600';
+
+  const formatPrice = (price: number | string): string => {
     if (typeof price === 'string') return price;
     if (price === 0) return 'Free';
-    return `$${price}`;
+    if (price % 1 === 0) return `$${price}`;
+    return `$${price.toFixed(2)}`;
   };
 
-  const getProductEmoji = (productType: string, demoEmoji?: string) => {
+  const getProductEmoji = (productType: string, demoEmoji?: string): string => {
     if (demoEmoji) return demoEmoji;
     switch (productType) {
-      case 'digital_product': case 'PDF': return '📚';
-      case 'coaching': case 'Coaching': return '🎯';
-      case 'affiliate_link': case 'Link': return '🔗';
-      case 'subscription': case 'Subscription': return '📅';
+      case 'digital_product': return '📚';
+      case 'coaching': return '🎯';
+      case 'affiliate_link':
+      case 'link': return '🔗';
+      case 'subscription': return '📅';
       default: return '📦';
     }
   };
 
-  const getCtaText = (product: any) => {
+  const getCtaText = (product: any): string => {
     if (product.cta_text) return product.cta_text;
-    if (product.type === 'Link' || product.product_type === 'affiliate_link') return 'visit';
-    if (product.type === 'Booking') return 'book';
+    if (product.type === 'link' || product.product_type === 'affiliate_link') return 'visit';
+    if (product.type === 'coaching' || product.product_type === 'coaching') return 'book now';
     if (product.price === 'Free' || product.price === 0) return 'get free';
-    if (product.external_url) return 'get it';
-    if (!product.external_url && product.product_type === 'digital_product') return 'get it';
+    if (product.product_type === 'subscription') return 'subscribe';
     return 'get it';
   };
 
   const gradientColor = isDemo ? creator.color : 'from-gray-700 to-gray-800';
 
-  // Build social links for DB creators
+  // Build social links
   const socialLinks: { platform: string; url: string; icon: any }[] = [];
   if (creator.social_links) {
     if (isFromDB) {
-      if (creator.social_links.instagram) socialLinks.push({ platform: 'instagram', url: creator.social_links.instagram, icon: Instagram });
-      if (creator.social_links.youtube) socialLinks.push({ platform: 'youtube', url: creator.social_links.youtube, icon: Youtube });
-      if (creator.social_links.twitter) socialLinks.push({ platform: 'twitter', url: creator.social_links.twitter, icon: Twitter });
+      if (creator.social_links.instagram) socialLinks.push({ 
+        platform: 'instagram', 
+        url: creator.social_links.instagram, 
+        icon: Instagram 
+      });
+      if (creator.social_links.youtube) socialLinks.push({ 
+        platform: 'youtube', 
+        url: creator.social_links.youtube, 
+        icon: Youtube 
+      });
+      if (creator.social_links.twitter) socialLinks.push({ 
+        platform: 'twitter', 
+        url: creator.social_links.twitter, 
+        icon: Twitter 
+      });
+      if (creator.social_links.tiktok) socialLinks.push({ 
+        platform: 'tiktok', 
+        url: creator.social_links.tiktok, 
+        icon: TikTokIcon 
+      });
     } else {
-      if (creator.social_links.instagram) socialLinks.push({ platform: 'instagram', url: '#', icon: Instagram });
-      if (creator.social_links.youtube) socialLinks.push({ platform: 'youtube', url: '#', icon: Youtube });
-      if (creator.social_links.twitter) socialLinks.push({ platform: 'twitter', url: '#', icon: Twitter });
+      // Demo creators
+      if (creator.social_links.instagram) socialLinks.push({ 
+        platform: 'instagram', 
+        url: typeof creator.social_links.instagram === 'string' ? creator.social_links.instagram : '#', 
+        icon: Instagram 
+      });
+      if (creator.social_links.youtube) socialLinks.push({ 
+        platform: 'youtube', 
+        url: typeof creator.social_links.youtube === 'string' ? creator.social_links.youtube : '#', 
+        icon: Youtube 
+      });
+      if (creator.social_links.twitter) socialLinks.push({ 
+        platform: 'twitter', 
+        url: typeof creator.social_links.twitter === 'string' ? creator.social_links.twitter : '#', 
+        icon: Twitter 
+      });
+      if (creator.social_links.tiktok) socialLinks.push({ 
+        platform: 'tiktok', 
+        url: typeof creator.social_links.tiktok === 'string' ? creator.social_links.tiktok : '#', 
+        icon: TikTokIcon 
+      });
     }
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className={`min-h-screen ${bgColor}`}>
       <div className="max-w-[480px] mx-auto px-4 py-8">
         {/* Only show back link on demo profiles */}
         {isDemo && (
-          <Link href="/demo" className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-900 transition-colors text-sm mb-6">
+          <Link 
+            href="/demo" 
+            className={`inline-flex items-center gap-1 ${mutedTextColor} hover:${textColor} transition-colors text-sm mb-6`}
+          >
             ← all examples
           </Link>
         )}
 
-        {/* Profile header - clean and centered */}
+        {/* Profile header */}
         <div className="text-center mb-8">
-          {/* Avatar */}
+          {/* Avatar - 96px with shadow */}
           {isFromDB && creator.avatar_url ? (
             <img 
               src={creator.avatar_url} 
@@ -289,80 +398,75 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
             </div>
           )}
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">{creator.display_name}</h1>
-          <p className="text-gray-500 mb-3">@{creator.handle}</p>
+          {/* Name - large, bold, text-2xl */}
+          <h1 className={`text-2xl font-bold ${textColor} mb-1`}>{creator.display_name}</h1>
           
+          {/* Handle - @handle in gray */}
+          <p className={`${mutedTextColor} mb-3`}>@{creator.handle}</p>
+          
+          {/* Bio - max 2-3 lines, centered */}
           {creator.bio && (
-            <p className="text-gray-600 leading-relaxed max-w-sm mx-auto mb-4">{creator.bio}</p>
+            <p className={`${subtleTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
+              {creator.bio}
+            </p>
           )}
 
-          {/* Social links */}
+          {/* Social icons - 40x40 circles */}
           {socialLinks.length > 0 && (
-            <div className="flex justify-center gap-3 mb-4">
+            <div className="flex justify-center gap-3 mb-6">
               {socialLinks.map(({ platform, url, icon: Icon }) => (
                 <a
                   key={platform}
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                  className={`w-10 h-10 rounded-full ${socialIconBg} flex items-center justify-center transition-all duration-200`}
                 >
-                  <Icon className="h-4 w-4 text-gray-600" />
+                  <Icon className={`h-4 w-4 ${socialIconColor}`} />
                 </a>
               ))}
             </div>
           )}
-
-          {/* Quick stats for demos */}
-          {isDemo && (
-            <div className="flex justify-center gap-8 mt-6 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-900">{creator.followers}</p>
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">followers</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-900">{products.length}</p>
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">products</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-900">
-                  {products.reduce((a: number, p: any) => a + (p.sold || 0), 0).toLocaleString()}
-                </p>
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">sold</p>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Products section */}
+        {/* Items section - mixed links and products */}
         {products.length > 0 && (
-          <div className="space-y-4 mb-8">
+          <div className="space-y-3 mb-8">
             {products.map((p: any, i: number) => {
-              const isLink = p.product_type === 'link' || p.product_type === 'affiliate_link' || p.type === 'Link';
+              // Header type - simple text divider
+              if (p.product_type === 'header' || p.type === 'header') {
+                return (
+                  <div key={i} className="py-4">
+                    <h3 className={`text-xs font-semibold uppercase tracking-wider ${mutedTextColor} text-center`}>
+                      {p.title}
+                    </h3>
+                  </div>
+                );
+              }
+
+              const isLink = p.product_type === 'link' || p.product_type === 'affiliate_link' || p.type === 'link';
               
-              // Link card style - compact single row
+              // Link style - Linktree pill buttons
               if (isLink) {
                 const linkCard = (
-                  <div className="bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition-colors cursor-pointer group border border-gray-100 hover:border-gray-200">
-                    <div className="flex items-center gap-3">
-                      {/* Small circular thumbnail/icon */}
-                      {p.thumbnail_url ? (
+                  <div className={`${linkCardBg} ${linkCardBorder} rounded-xl p-4 transition-all duration-200 cursor-pointer group hover:scale-[1.02] hover:shadow-lg border h-14 flex items-center`}>
+                    <div className="flex items-center gap-3 w-full">
+                      {/* Optional small thumbnail */}
+                      {p.thumbnail_url && (
                         <img 
                           src={p.thumbnail_url} 
                           alt={p.title}
-                          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                          className="w-6 h-6 rounded-full object-cover flex-shrink-0"
                         />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm flex-shrink-0">
-                          {getProductEmoji(p.product_type || p.type, p.emoji)}
-                        </div>
                       )}
                       
-                      {/* Title */}
-                      <span className="font-medium text-gray-900 flex-1 min-w-0 truncate">{p.title}</span>
+                      {/* Title - centered */}
+                      <span className={`font-medium ${textColor} flex-1 text-center`}>
+                        {p.title}
+                      </span>
                       
-                      {/* Arrow icon */}
-                      <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+                      {/* Arrow - subtle */}
+                      <ExternalLink className={`h-4 w-4 ${mutedTextColor} group-hover:${textColor} transition-colors flex-shrink-0`} />
                     </div>
                   </div>
                 );
@@ -386,11 +490,11 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 return <div key={i}>{linkCard}</div>;
               }
 
-              // Full product card style
+              // Product style - Stan.store detailed cards
               const productCard = (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 hover:shadow-md transition-all cursor-pointer group">
-                  <div className="flex gap-4">
-                    {/* Thumbnail/emoji */}
+                <div className={`${productCardBg} ${productCardBorder} rounded-xl border shadow-sm p-4 transition-all duration-200 cursor-pointer group hover:shadow-xl`}>
+                  <div className="flex gap-4 mb-4">
+                    {/* Thumbnail - 64x64 square */}
                     {p.thumbnail_url ? (
                       <img 
                         src={p.thumbnail_url} 
@@ -398,32 +502,39 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                         className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-lg bg-gray-50 flex items-center justify-center text-2xl flex-shrink-0">
+                      <div className={`w-16 h-16 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'} flex items-center justify-center text-2xl flex-shrink-0`}>
                         {getProductEmoji(p.product_type || p.type, p.emoji)}
                       </div>
                     )}
                     
+                    {/* Product info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-gray-900 leading-tight">{p.title}</h3>
-                        <span className="text-gray-900 font-bold text-lg flex-shrink-0">{formatPrice(p.price)}</span>
-                      </div>
-                      
-                      {(p.description || p.desc) && (
-                        <p className="text-sm text-gray-600 leading-relaxed mb-3 line-clamp-2">{p.description || p.desc}</p>
-                      )}
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 font-medium">
-                          {p.product_type || p.type}
-                          {isDemo && p.sold > 0 ? ` · ${p.sold.toLocaleString()} sold` : ''}
+                        <h3 className={`font-bold ${textColor} leading-tight`}>{p.title}</h3>
+                        <span className={`${textColor} font-bold text-lg flex-shrink-0`}>
+                          {formatPrice(p.price)}
                         </span>
-                        <button className="bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-                          {getCtaText(p)}
-                        </button>
                       </div>
+                      
+                      {/* Description - 1-2 lines */}
+                      {(p.description || p.desc) && (
+                        <p className={`text-sm ${subtleTextColor} leading-relaxed line-clamp-2`}>
+                          {p.description || p.desc}
+                        </p>
+                      )}
                     </div>
                   </div>
+                  
+                  {/* CTA button - full width, colored */}
+                  <button 
+                    className="w-full font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:scale-[1.02]"
+                    style={{ 
+                      backgroundColor: primaryColor,
+                      color: primaryIsLight ? '#000000' : '#ffffff'
+                    }}
+                  >
+                    {getCtaText(p)}
+                  </button>
                 </div>
               );
 
@@ -450,27 +561,19 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
 
         {/* No products for DB creators */}
         {isFromDB && products.length === 0 && (
-          <div className="bg-gray-50 rounded-xl p-8 text-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <ShoppingBag className="h-8 w-8 text-gray-400" />
+          <div className={`${isDark ? 'bg-gray-800' : 'bg-gray-50'} rounded-xl p-8 text-center mb-8`}>
+            <div className={`w-16 h-16 rounded-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'} flex items-center justify-center mx-auto mb-4`}>
+              <ShoppingBag className={`h-8 w-8 ${mutedTextColor}`} />
             </div>
-            <p className="text-gray-900 font-semibold mb-1">no products yet</p>
-            <p className="text-sm text-gray-500">check back soon</p>
+            <p className={`${textColor} font-semibold mb-1`}>no products yet</p>
+            <p className={`text-sm ${mutedTextColor}`}>check back soon</p>
           </div>
         )}
 
-        {/* CTA */}
-        <div className="text-center bg-gray-50 rounded-xl p-6 mb-6">
-          <p className="text-gray-600 mb-4">want a page like this?</p>
-          <Link href="/signup" className="inline-flex items-center gap-2 bg-gray-900 text-white font-semibold px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
-            create your loadout →
-          </Link>
-        </div>
-
         {/* Footer */}
         <div className="text-center">
-          <Link href="/" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-            ⚡ powered by loadout.fit
+          <Link href="/" className={`text-xs ${mutedTextColor} hover:${textColor} transition-colors`}>
+            ⚡ loadout.fit
           </Link>
         </div>
       </div>

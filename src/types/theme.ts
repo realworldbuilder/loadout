@@ -1,0 +1,60 @@
+export interface CreatorTheme {
+  primary: string;      // accent/button color (default: #1a1a1a)
+  background: string;   // page background (default: #ffffff)  
+  cardBg: string;       // card/button background (default: #f5f5f5)
+  textColor: string;    // primary text (default: #000000)
+  font: 'default' | 'serif' | 'mono' | 'rounded'; // font family
+}
+
+export const DEFAULT_THEME: CreatorTheme = {
+  primary: '#1a1a1a',
+  background: '#ffffff',
+  cardBg: '#f5f5f5',
+  textColor: '#000000',
+  font: 'default'
+};
+
+export const PRESET_THEMES: Record<string, CreatorTheme> = {
+  clean: {
+    primary: '#1a1a1a',
+    background: '#ffffff',
+    cardBg: '#f5f5f5',
+    textColor: '#000000',
+    font: 'default'
+  },
+  dark: {
+    primary: '#ffffff',
+    background: '#0d0d0d',
+    cardBg: '#1a1a1a',
+    textColor: '#ffffff',
+    font: 'default'
+  },
+  warm: {
+    primary: '#c4703f',
+    background: '#faf5f0',
+    cardBg: '#f0e6d6',
+    textColor: '#3d2b1f',
+    font: 'default'
+  },
+  ocean: {
+    primary: '#2563eb',
+    background: '#f0f7ff',
+    cardBg: '#e0edf7',
+    textColor: '#1a3a5c',
+    font: 'default'
+  },
+  midnight: {
+    primary: '#6366f1',
+    background: '#0f172a',
+    cardBg: '#1e293b',
+    textColor: '#e2e8f0',
+    font: 'default'
+  },
+  forest: {
+    primary: '#16a34a',
+    background: '#f0fdf4',
+    cardBg: '#dcfce7',
+    textColor: '#14532d',
+    font: 'default'
+  }
+};

@@ -52,7 +52,7 @@ export default function EditProductPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [productType, setProductType] = useState<ProductType>('digital_product');
+  const [productType, setProductType] = useState<ProductType>('digital');
   const [externalUrl, setExternalUrl] = useState('');
   const [ctaText, setCtaText] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -172,10 +172,15 @@ export default function EditProductPage() {
 
   const getProductTypeLabel = (type: ProductType) => {
     switch (type) {
-      case 'digital_product': return 'digital';
+      case 'digital': return 'digital';
       case 'coaching': return 'coaching';
       case 'affiliate_link': return 'affiliate';
       case 'subscription': return 'subscription';
+      case 'link': return 'link';
+      case 'header': return 'header';
+      case 'email_collector': return 'email';
+      case 'embed': return 'embed';
+      default: return type;
     }
   };
 

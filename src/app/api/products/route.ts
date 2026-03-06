@@ -36,6 +36,8 @@ function mapToDb(body: any) {
       'link': 'link',
       'subscription': 'subscription',
       'header': 'header',
+      'email_collector': 'email_collector',
+      'embed': 'embed',
     };
     mapped.type = typeMap[body.product_type] || body.product_type;
   }

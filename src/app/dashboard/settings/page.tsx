@@ -1,20 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Camera, Check, ExternalLink, CreditCard, AlertTriangle, Save, User } from 'lucide-react';
+import { Camera, Check, ExternalLink, CreditCard, AlertTriangle, Save, User, Palette } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/lib/auth';
 import { uploadAvatar } from '@/lib/storage';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-
-const accentColors = [
-  { name: 'emerald', value: '#10a37f' },
-  { name: 'blue', value: '#3b82f6' },
-  { name: 'purple', value: '#8b5cf6' },
-  { name: 'pink', value: '#ec4899' },
-  { name: 'orange', value: '#f97316' },
-  { name: 'red', value: '#ef4444' },
-];
+import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES } from '@/types/theme';
+import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
 
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -30,6 +23,8 @@ export default function SettingsPage() {
       twitter: '',
     },
   });
+
+  const [theme, setTheme] = useState<CreatorTheme>(DEFAULT_THEME);
   
   const [saveStatus, setSaveStatus] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(false);
@@ -49,6 +44,13 @@ export default function SettingsPage() {
           twitter: profile.social_links?.twitter || '',
         },
       });
+      
+      // Load theme from profile or use defaults
+      if (profile.theme) {
+        setTheme({ ...DEFAULT_THEME, ...profile.theme });
+      } else {
+        setTheme(DEFAULT_THEME);
+      }
     }
   }, [profile]);
 
@@ -57,10 +59,17 @@ export default function SettingsPage() {
     
     setLoading(true);
     try {
+      let payload;
+      if (section === 'theme') {
+        payload = { user_id: user.id, theme };
+      } else {
+        payload = { user_id: user.id, ...formData };
+      }
+      
       const res = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user.id, ...formData }),
+        body: JSON.stringify(payload),
       });
       
       const result = await res.json();
@@ -114,23 +123,35 @@ export default function SettingsPage() {
   };
 
   const renderPreview = () => {
+    const previewStyle = getThemeStyles(theme);
+    const fontClass = getThemeFontClass(theme.font);
+    
     return (
-      <div className="bg-[#0d0d0d] p-6 rounded-lg border border-white/10">
+      <div 
+        style={previewStyle} 
+        className={`p-6 rounded-lg border ${fontClass}`}
+      >
         <div className="flex items-center space-x-4 mb-4">
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="avatar" className="w-16 h-16 rounded-full object-cover border border-white/10" />
+            <img src={profile.avatar_url} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xl">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl" style={{ backgroundColor: theme.cardBg }}>
               <User size={24} />
             </div>
           )}
           <div>
-            <h3 className="text-white font-bold text-lg">{formData.display_name || 'creator'}</h3>
-            <p className="text-gray-400 text-sm">@{profile?.handle || '...'}</p>
+            <h3 className="font-bold text-lg" style={{ color: theme.textColor }}>{formData.display_name || 'creator'}</h3>
+            <p className="text-sm opacity-70">@{profile?.handle || '...'}</p>
           </div>
         </div>
-        <p className="text-gray-300 text-sm mb-4">{formData.bio || 'no bio yet'}</p>
-        <button className="px-4 py-2 rounded-lg text-black font-medium text-sm bg-emerald-500">
+        <p className="text-sm mb-4 opacity-80">{formData.bio || 'no bio yet'}</p>
+        <button 
+          className="px-4 py-2 rounded-lg font-medium text-sm"
+          style={{ 
+            backgroundColor: theme.primary, 
+            color: theme.background 
+          }}
+        >
           follow
         </button>
       </div>
@@ -312,27 +333,150 @@ export default function SettingsPage() {
 
           {/* Theme Customization */}
           <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-            <h3 className="text-lg font-semibold text-white mb-6">theme customization</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-white">theme customization</h3>
+              <button
+                onClick={() => handleSave('theme')}
+                disabled={loading}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#10a37f] text-black rounded-lg hover:bg-[#0d8b6b] transition-colors disabled:opacity-50"
+              >
+                {saveStatus.theme ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    <span>saved</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    <span>save</span>
+                  </>
+                )}
+              </button>
+            </div>
             
             <div className="space-y-6">
-              <div>
-                <label className="block text-gray-400 text-sm mb-3">accent color</label>
-                <div className="grid grid-cols-6 gap-3">
-                  {accentColors.map((color) => (
-                    <button
-                      key={color.name}
-                      className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                        color.value === '#10a37f' 
-                          ? 'border-white scale-110' 
-                          : 'border-gray-600 hover:border-gray-400'
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      title={`${color.name} - coming soon`}
-                      disabled
+              {/* Color Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">background color</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={theme.background}
+                      onChange={(e) => setTheme({ ...theme, background: e.target.value })}
+                      className="w-12 h-9 rounded border border-white/5 cursor-pointer"
                     />
+                    <input
+                      type="text"
+                      value={theme.background}
+                      onChange={(e) => setTheme({ ...theme, background: e.target.value })}
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      placeholder="#ffffff"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">accent color</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={theme.primary}
+                      onChange={(e) => setTheme({ ...theme, primary: e.target.value })}
+                      className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.primary}
+                      onChange={(e) => setTheme({ ...theme, primary: e.target.value })}
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      placeholder="#1a1a1a"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">card color</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={theme.cardBg}
+                      onChange={(e) => setTheme({ ...theme, cardBg: e.target.value })}
+                      className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.cardBg}
+                      onChange={(e) => setTheme({ ...theme, cardBg: e.target.value })}
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      placeholder="#f5f5f5"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">text color</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={theme.textColor}
+                      onChange={(e) => setTheme({ ...theme, textColor: e.target.value })}
+                      className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.textColor}
+                      onChange={(e) => setTheme({ ...theme, textColor: e.target.value })}
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      placeholder="#000000"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Font Selection */}
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">font</label>
+                <select
+                  value={theme.font}
+                  onChange={(e) => setTheme({ ...theme, font: e.target.value as CreatorTheme['font'] })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                >
+                  <option value="default">default / sans</option>
+                  <option value="serif">serif</option>
+                  <option value="mono">mono</option>
+                  <option value="rounded">rounded</option>
+                </select>
+              </div>
+
+              {/* Preset Themes */}
+              <div>
+                <label className="block text-gray-400 text-sm mb-3">preset themes</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {Object.entries(PRESET_THEMES).map(([name, preset]) => (
+                    <button
+                      key={name}
+                      onClick={() => setTheme(preset)}
+                      className="p-3 rounded-lg border border-white/10 hover:border-white/20 transition-all text-left group"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <div 
+                          className="w-4 h-4 rounded-full border border-white/10" 
+                          style={{ backgroundColor: preset.primary }}
+                        />
+                        <div 
+                          className="w-4 h-4 rounded border border-white/10" 
+                          style={{ backgroundColor: preset.background }}
+                        />
+                        <div 
+                          className="w-4 h-4 rounded border border-white/10" 
+                          style={{ backgroundColor: preset.cardBg }}
+                        />
+                      </div>
+                      <p className="text-white text-xs font-medium">{name}</p>
+                    </button>
                   ))}
                 </div>
-                <p className="text-gray-500 text-xs mt-2">custom themes coming soon</p>
               </div>
             </div>
           </div>

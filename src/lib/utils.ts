@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { CreatorTheme, DEFAULT_THEME } from '@/types/theme';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -73,4 +74,23 @@ export function generateSlug(text: string): string {
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).replace(/\s+\S*$/, '') + '...';
+}
+
+export function getThemeStyles(theme?: Partial<CreatorTheme>) {
+  const finalTheme = { ...DEFAULT_THEME, ...theme };
+  return {
+    backgroundColor: finalTheme.background,
+    color: finalTheme.textColor,
+    '--primary-color': finalTheme.primary,
+    '--card-bg-color': finalTheme.cardBg,
+  } as React.CSSProperties;
+}
+
+export function getThemeFontClass(font: CreatorTheme['font']) {
+  switch (font) {
+    case 'serif': return 'font-theme-serif';
+    case 'mono': return 'font-theme-mono';
+    case 'rounded': return 'font-theme-rounded';
+    default: return 'font-theme-default';
+  }
 }
