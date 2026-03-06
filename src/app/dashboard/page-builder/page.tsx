@@ -38,6 +38,7 @@ interface Product {
   cta_text?: string;
   is_active: boolean;
   sort_order: number;
+  layout?: 'classic' | 'featured';
   created_at: string;
   updated_at: string;
 }
@@ -49,6 +50,7 @@ interface AddFormState {
   description: string;
   price: string;
   external_url: string;
+  layout: 'classic' | 'featured';
 }
 
 // Edit form state
@@ -58,6 +60,7 @@ interface EditFormState {
   description: string;
   price: string;
   external_url: string;
+  layout: 'classic' | 'featured';
 }
 
 export default function PageBuilder() {
@@ -72,7 +75,8 @@ export default function PageBuilder() {
     title: '',
     description: '',
     price: '',
-    external_url: ''
+    external_url: '',
+    layout: 'classic'
   });
   
   // Edit form state
@@ -81,7 +85,8 @@ export default function PageBuilder() {
     title: '',
     description: '',
     price: '',
-    external_url: ''
+    external_url: '',
+    layout: 'classic'
   });
 
   // Fetch products
@@ -154,7 +159,8 @@ export default function PageBuilder() {
         external_url: addForm.external_url || '',
         cta_text: addForm.type === 'product' ? 'Purchase' : 'Visit',
         is_active: true,
-        sort_order: products.length
+        sort_order: products.length,
+        layout: addForm.layout
       };
 
       const res = await fetch('/api/products', {
@@ -170,7 +176,8 @@ export default function PageBuilder() {
           title: '',
           description: '',
           price: '',
-          external_url: ''
+          external_url: '',
+          layout: 'classic'
         });
         
         // Refresh products
@@ -190,7 +197,8 @@ export default function PageBuilder() {
       title: product.title,
       description: product.description || '',
       price: product.price.toString(),
-      external_url: product.external_url || ''
+      external_url: product.external_url || '',
+      layout: product.layout || 'classic'
     });
   };
 
@@ -204,7 +212,8 @@ export default function PageBuilder() {
         title: editForm.title,
         description: editForm.description,
         price: editForm.product.product_type === 'header' ? 0 : Number(editForm.price) || 0,
-        external_url: editForm.external_url
+        external_url: editForm.external_url,
+        layout: editForm.layout
       };
 
       const res = await fetch('/api/products', {
@@ -214,7 +223,7 @@ export default function PageBuilder() {
       });
 
       if (res.ok) {
-        setEditForm({ product: null, title: '', description: '', price: '', external_url: '' });
+        setEditForm({ product: null, title: '', description: '', price: '', external_url: '', layout: 'classic' });
         fetchProducts();
       }
     } catch (error) {
@@ -345,7 +354,7 @@ export default function PageBuilder() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white lowercase">add {addForm.type}</h3>
                 <button
-                  onClick={() => setAddForm({ type: null, title: '', description: '', price: '', external_url: '' })}
+                  onClick={() => setAddForm({ type: null, title: '', description: '', price: '', external_url: '', layout: 'classic' })}
                   className="text-white/60 hover:text-white"
                 >
                   <X size={20} />
@@ -361,6 +370,43 @@ export default function PageBuilder() {
                     className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
                   />
                 </div>
+                {addForm.type !== 'header' && (
+                  <div>
+                    <label className="text-white/60 text-xs mb-2 block lowercase">layout</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAddForm({ ...addForm, layout: 'classic' })}
+                        className={`p-3 rounded-lg border text-left transition-all ${
+                          addForm.layout === 'classic'
+                            ? 'border-emerald-500 bg-emerald-500/10'
+                            : 'border-white/10 bg-white/5 hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className={`w-3 h-3 rounded-full border-2 ${addForm.layout === 'classic' ? 'border-emerald-500 bg-emerald-500' : 'border-white/30'}`} />
+                          <span className="text-white text-sm font-medium">classic</span>
+                        </div>
+                        <p className="text-white/40 text-xs">compact row</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAddForm({ ...addForm, layout: 'featured' })}
+                        className={`p-3 rounded-lg border text-left transition-all ${
+                          addForm.layout === 'featured'
+                            ? 'border-emerald-500 bg-emerald-500/10'
+                            : 'border-white/10 bg-white/5 hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className={`w-3 h-3 rounded-full border-2 ${addForm.layout === 'featured' ? 'border-emerald-500 bg-emerald-500' : 'border-white/30'}`} />
+                          <span className="text-white text-sm font-medium">featured</span>
+                        </div>
+                        <p className="text-white/40 text-xs">large card + thumbnail</p>
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {(addForm.type === 'product' || addForm.type === 'link') && (
                   <div>
                     <input
@@ -474,6 +520,35 @@ export default function PageBuilder() {
                                         />
                                       </div>
                                     )}
+                                    {product.product_type !== 'header' && (
+                                      <div>
+                                        <label className="text-white/50 text-xs mb-1 block">layout</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditForm({ ...editForm, layout: 'classic' })}
+                                            className={`px-2 py-1.5 rounded border text-xs transition-all ${
+                                              editForm.layout === 'classic'
+                                                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+                                                : 'border-white/10 text-white/50 hover:border-white/20'
+                                            }`}
+                                          >
+                                            classic
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditForm({ ...editForm, layout: 'featured' })}
+                                            className={`px-2 py-1.5 rounded border text-xs transition-all ${
+                                              editForm.layout === 'featured'
+                                                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+                                                : 'border-white/10 text-white/50 hover:border-white/20'
+                                            }`}
+                                          >
+                                            featured
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
                                     <div className="flex gap-2">
                                       <button
                                         onClick={handleEdit}
@@ -483,7 +558,7 @@ export default function PageBuilder() {
                                         save
                                       </button>
                                       <button
-                                        onClick={() => setEditForm({ product: null, title: '', description: '', price: '', external_url: '' })}
+                                        onClick={() => setEditForm({ product: null, title: '', description: '', price: '', external_url: '', layout: 'classic' })}
                                         className="flex-1 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-sm"
                                       >
                                         cancel
@@ -505,6 +580,9 @@ export default function PageBuilder() {
                                         <span className={`px-2 py-0.5 rounded text-xs ${getTypeBadge(product.product_type)}`}>
                                           {product.product_type}
                                         </span>
+                                        {product.layout === 'featured' && (
+                                          <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400">★ featured</span>
+                                        )}
                                         {(product.product_type === 'digital_product' || product.product_type === 'coaching') && product.price > 0 && (
                                           <span className="text-emerald-400 text-xs">${product.price}</span>
                                         )}
@@ -588,6 +666,37 @@ export default function PageBuilder() {
                         );
                       }
 
+                      // Featured layout — big card
+                      if (product.layout === 'featured') {
+                        return (
+                          <div key={product.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-emerald-500/30 transition-all">
+                            {product.thumbnail_url ? (
+                              <div className="aspect-video bg-white/5">
+                                <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover" />
+                              </div>
+                            ) : (
+                              <div className="aspect-video bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center">
+                                <Package size={32} className="text-emerald-400/40" />
+                              </div>
+                            )}
+                            <div className="p-4">
+                              <h4 className="text-white font-bold text-lg">{product.title}</h4>
+                              {product.description && (
+                                <p className="text-white/60 text-sm mt-1 line-clamp-2">{product.description}</p>
+                              )}
+                              <div className="flex items-center justify-between mt-3">
+                                {product.price > 0 && (
+                                  <span className="text-emerald-400 font-bold text-lg">${product.price.toFixed(2)}</span>
+                                )}
+                                <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium ml-auto">
+                                  {product.cta_text || (product.product_type === 'link' ? 'Visit' : 'Purchase')}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
                       if (product.product_type === 'link') {
                         return (
                           <a
@@ -606,7 +715,7 @@ export default function PageBuilder() {
                         );
                       }
 
-                      // Product card
+                      // Classic product card
                       return (
                         <div key={product.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
                           <div className="space-y-3">
