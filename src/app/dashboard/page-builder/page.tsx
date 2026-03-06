@@ -795,14 +795,47 @@ export default function PageBuilder() {
                     </div>
                     <div className="p-2 rounded bg-white/5">
                       <button
-                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        className="px-4 py-2 text-sm font-medium"
                         style={{ 
-                          backgroundColor: theme.primary, 
-                          color: theme.background 
+                          backgroundColor: (theme.buttonStyle === 'outline') ? 'transparent' : (theme.buttonStyle === 'soft') ? `${theme.primary}1A` : theme.primary, 
+                          color: (theme.buttonStyle === 'outline' || theme.buttonStyle === 'soft') ? theme.primary : theme.background,
+                          border: theme.buttonStyle === 'outline' ? `2px solid ${theme.primary}` : 'none',
+                          borderRadius: theme.buttonStyle === 'pill' ? '9999px' : theme.buttonStyle === 'hard' ? '0px' : '8px',
+                          boxShadow: theme.buttonStyle === 'shadow' ? `0 8px 20px -4px ${theme.primary}50` : 'none',
                         }}
                       >
                         button preview
                       </button>
+                    </div>
+                    {/* Button style picker */}
+                    <div className="grid grid-cols-3 gap-2 mt-3">
+                      {['fill', 'outline', 'soft', 'pill', 'hard', 'shadow'].map((style) => (
+                        <button
+                          key={style}
+                          onClick={() => setTheme({ ...theme, buttonStyle: style as CreatorTheme['buttonStyle'] })}
+                          className={`p-2 rounded-lg border transition-all ${
+                            (theme.buttonStyle || 'fill') === style 
+                              ? 'border-emerald-500 bg-emerald-500/10' 
+                              : 'border-white/10 hover:border-white/20'
+                          }`}
+                        >
+                          <div 
+                            className={`text-[10px] px-2 py-1 mx-auto w-fit ${
+                              style === 'outline' ? 'bg-transparent border' :
+                              style === 'soft' ? 'bg-emerald-500/20' :
+                              style === 'shadow' ? 'bg-emerald-500 shadow-lg' :
+                              'bg-emerald-500'
+                            } ${style === 'pill' ? 'rounded-full' : style === 'hard' ? 'rounded-none' : 'rounded'}`}
+                            style={{ 
+                              borderColor: style === 'outline' ? theme.primary : undefined,
+                              backgroundColor: style === 'outline' ? 'transparent' : style === 'soft' ? `${theme.primary}30` : theme.primary,
+                              color: (style === 'outline' || style === 'soft') ? theme.primary : theme.background
+                            }}
+                          >
+                            {style}
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
@@ -863,40 +896,6 @@ export default function PageBuilder() {
                       />
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* FEATURE 1: Button Styles */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
-                <h2 className="text-lg font-semibold text-white mb-4 lowercase">buttons</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {['fill', 'outline', 'soft', 'pill', 'hard', 'shadow'].map((style) => (
-                    <button
-                      key={style}
-                      onClick={() => setTheme({ ...theme, buttonStyle: style as CreatorTheme['buttonStyle'] })}
-                      className={`p-3 rounded-lg border transition-all ${
-                        theme.buttonStyle === style 
-                          ? 'border-emerald-500 bg-emerald-500/10' 
-                          : 'border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="mb-2">
-                        <div 
-                          className={`text-xs px-2 py-1 text-white ${
-                            style === 'outline' ? 'bg-transparent border border-emerald-500' :
-                            style === 'soft' ? 'bg-emerald-500/20' :
-                            style === 'pill' ? 'bg-emerald-500 rounded-full' :
-                            style === 'hard' ? 'bg-emerald-500 rounded-none' :
-                            style === 'shadow' ? 'bg-emerald-500 shadow-lg' :
-                            'bg-emerald-500'
-                          } ${style === 'pill' ? 'rounded-full' : style === 'hard' ? 'rounded-none' : 'rounded'}`}
-                        >
-                          {style}
-                        </div>
-                      </div>
-                      <p className="text-white/60 text-xs lowercase">{style}</p>
-                    </button>
-                  ))}
                 </div>
               </div>
 
