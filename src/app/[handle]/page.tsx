@@ -45,7 +45,13 @@ async function getCreatorData(handle: string) {
       return { creator, products: [] };
     }
 
-    return { creator, products: products || [] };
+    // Map DB columns to component field names
+    const mapped = (products || []).map((p: any) => ({
+      ...p,
+      price: (p.price_cents || 0) / 100,
+      product_type: p.type === 'digital' ? 'digital_product' : p.type,
+    }));
+    return { creator, products: mapped };
   } catch (error) {
     console.error('Error fetching creator data:', error);
     return null; // Fall back to demo data
