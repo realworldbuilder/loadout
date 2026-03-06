@@ -49,14 +49,15 @@ export default function ProductsPage() {
 
     try {
       setLoading(true);
-      const { data, error } = await getCreatorProducts(profile.id);
+      const res = await fetch(`/api/products?creator_id=${profile.id}`);
+      const result = await res.json();
       
-      if (error) {
-        console.error('Error loading products:', error);
+      if (!res.ok) {
+        console.error('Error loading products:', result.error);
         return;
       }
 
-      setProducts(data || []);
+      setProducts(result.data || []);
     } catch (error) {
       console.error('Error loading products:', error);
     } finally {
@@ -103,10 +104,14 @@ export default function ProductsPage() {
 
   async function handleToggleActive(productId: string, currentStatus: boolean) {
     try {
-      const { error } = await toggleProductActive(productId, !currentStatus);
+      const res = await fetch('/api/products', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: productId, is_active: !currentStatus }),
+      });
       
-      if (error) {
-        console.error('Error toggling product status:', error);
+      if (!res.ok) {
+        console.error('Error toggling product status');
         return;
       }
 
@@ -127,10 +132,14 @@ export default function ProductsPage() {
     }
 
     try {
-      const { error } = await deleteProduct(productId);
+      const res = await fetch('/api/products', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: productId }),
+      });
       
-      if (error) {
-        console.error('Error deleting product:', error);
+      if (!res.ok) {
+        console.error('Error deleting product');
         return;
       }
 

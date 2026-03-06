@@ -109,22 +109,27 @@ function NewProductInner() {
         thumbnailUrl = url || undefined;
       }
 
-      const { data, error } = await createProduct({
-        creator_id: profile.id,
-        title,
-        description: description || undefined,
-        price: priceNum,
-        product_type: productType,
-        external_url: externalUrl || undefined,
-        cta_text: ctaText || undefined,
-        thumbnail_url: thumbnailUrl,
-        is_active: true,
-        sort_order: 0,
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creator_id: profile.id,
+          title,
+          description: description || undefined,
+          price: priceNum,
+          product_type: productType,
+          external_url: externalUrl || undefined,
+          cta_text: ctaText || undefined,
+          thumbnail_url: thumbnailUrl,
+          is_active: true,
+          sort_order: 0,
+        }),
       });
 
-      if (error) {
-        console.error('Error creating product:', error);
-        alert('Failed to create product. Please try again.');
+      const result = await res.json();
+      if (!res.ok) {
+        console.error('Error creating product:', result.error);
+        alert('Failed to create product: ' + result.error);
         return;
       }
 
