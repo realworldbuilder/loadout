@@ -1130,31 +1130,95 @@ export default function PageBuilder() {
               <div className="bg-black rounded-3xl p-2 border-4 border-gray-800">
                 <div 
                   className={`rounded-2xl overflow-hidden min-h-[600px] max-h-[600px] overflow-y-auto ${getThemeFontClass(theme.font)}`}
-                  style={getThemeStyles(theme)}
+                  style={{
+                    ...getThemeStyles(theme),
+                    background: (theme.backgroundType === 'gradient' && theme.backgroundGradient) 
+                      ? theme.backgroundGradient 
+                      : (theme.backgroundType === 'image' && theme.backgroundImage)
+                        ? `url(${theme.backgroundImage}) center/cover`
+                        : theme.background,
+                  }}
                 >
-                  {/* Profile Header */}
-                  <div className="p-6 text-center border-b" style={{ borderColor: `${theme.textColor}20` }}>
-                    <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: `${theme.primary}20` }}>
-                      {profile?.avatar_url ? (
-                        <img 
-                          src={profile.avatar_url} 
-                          alt={profile.display_name} 
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <User size={32} style={{ color: theme.primary }} />
-                      )}
+                  {/* Profile Header - respects headerStyle */}
+                  {(theme.headerStyle || 'classic') === 'banner' ? (
+                    <div>
+                      <div className="h-24" style={{ backgroundColor: `${theme.primary}30` }} />
+                      <div className="px-6 pb-4 -mt-10 text-center">
+                        <div className="w-20 h-20 rounded-full mx-auto mb-3 border-4 flex items-center justify-center" style={{ borderColor: theme.background, backgroundColor: `${theme.primary}20` }}>
+                          {profile?.avatar_url ? (
+                            <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            <User size={28} style={{ color: theme.primary }} />
+                          )}
+                        </div>
+                        <h3 className="font-semibold text-lg" style={{ color: theme.textColor }}>{profile?.display_name || 'creator'}</h3>
+                        <p className="text-sm" style={{ color: `${theme.textColor}80` }}>@{profile?.handle || 'handle'}</p>
+                        {profile?.bio && <p className="text-sm mt-2" style={{ color: `${theme.textColor}90` }}>{profile.bio}</p>}
+                      </div>
                     </div>
-                    <h3 className="font-semibold text-lg" style={{ color: theme.textColor }}>{profile?.display_name || 'creator'}</h3>
-                    <p className="text-sm" style={{ color: `${theme.textColor}80` }}>@{profile?.handle || 'handle'}</p>
-                    {profile?.bio && (
-                      <p className="text-sm mt-2" style={{ color: `${theme.textColor}90` }}>{profile.bio}</p>
-                    )}
+                  ) : (theme.headerStyle || 'classic') === 'minimal' ? (
+                    <div className="p-6 text-center">
+                      <h3 className="font-bold text-2xl" style={{ color: theme.textColor }}>{profile?.display_name || 'creator'}</h3>
+                      <p className="text-sm mt-1" style={{ color: `${theme.textColor}60` }}>@{profile?.handle || 'handle'}</p>
+                      {profile?.bio && <p className="text-sm mt-3" style={{ color: `${theme.textColor}80` }}>{profile.bio}</p>}
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center border-b" style={{ borderColor: `${theme.textColor}20` }}>
+                      <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: `${theme.primary}20` }}>
+                        {profile?.avatar_url ? (
+                          <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <User size={32} style={{ color: theme.primary }} />
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-lg" style={{ color: theme.textColor }}>{profile?.display_name || 'creator'}</h3>
+                      <p className="text-sm" style={{ color: `${theme.textColor}80` }}>@{profile?.handle || 'handle'}</p>
+                      {profile?.bio && <p className="text-sm mt-2" style={{ color: `${theme.textColor}90` }}>{profile.bio}</p>}
+                    </div>
+                  )}
+
+                  {/* Social Icons Preview */}
+                  <div className="flex justify-center gap-2 py-3">
+                    {['IG', 'TK', 'YT', 'X'].map(p => {
+                      const ss = theme.socialStyle || 'filled';
+                      const brandColors: Record<string, string> = { IG: '#E4405F', TK: '#000000', YT: '#FF0000', X: '#000000' };
+                      return (
+                        <div key={p} className="w-8 h-8 rounded-full flex items-center justify-center text-[9px] font-mono"
+                          style={
+                            ss === 'colored' ? { backgroundColor: brandColors[p], color: '#fff' } :
+                            ss === 'outline' ? { border: `1.5px solid ${theme.textColor}40`, color: `${theme.textColor}80`, backgroundColor: 'transparent' } :
+                            ss === 'minimal' ? { color: `${theme.textColor}60`, backgroundColor: 'transparent' } :
+                            { backgroundColor: `${theme.textColor}10`, color: `${theme.textColor}60` }
+                          }
+                        >{p}</div>
+                      );
+                    })}
                   </div>
 
                   {/* Products */}
                   <div className="p-4 space-y-3">
                     {products.filter(p => p.is_active).map((product) => {
+                      const bs = theme.buttonStyle || 'fill';
+                      const cs = theme.cardStyle || 'solid';
+                      const isDarkBg = (theme.background || '#ffffff').replace('#','').match(/.{2}/g)?.reduce((s,c) => s + parseInt(c,16), 0) || 0;
+                      const isDark = isDarkBg < 382;
+                      
+                      // Card style helpers
+                      const cardBg = cs === 'glass' 
+                        ? (isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)')
+                        : cs === 'transparent' ? 'transparent' : theme.cardBg;
+                      const cardBorder = cs === 'glass' 
+                        ? (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)')
+                        : cs === 'transparent' ? 'transparent' : `${theme.textColor}15`;
+                      const cardBlur = cs === 'glass' ? 'blur(12px)' : undefined;
+                      
+                      // Button style helpers
+                      const btnRadius = bs === 'pill' ? '9999px' : bs === 'hard' ? '0px' : '8px';
+                      const btnBg = (bs === 'outline') ? 'transparent' : (bs === 'soft') ? `${theme.primary}1A` : theme.primary;
+                      const btnColor = (bs === 'outline' || bs === 'soft') ? theme.primary : theme.background;
+                      const btnBorder = bs === 'outline' ? `2px solid ${theme.primary}` : 'none';
+                      const btnShadow = bs === 'shadow' ? `0 8px 20px -4px ${theme.primary}50` : 'none';
+
                       if (product.product_type === 'header') {
                         return (
                           <div key={product.id} className="py-2">
@@ -1165,46 +1229,25 @@ export default function PageBuilder() {
                         );
                       }
 
-                      // Featured layout — big card
+                      // Featured layout
                       if (product.layout === 'featured') {
                         return (
-                          <div 
-                            key={product.id} 
-                            className="border rounded-2xl overflow-hidden transition-all"
-                            style={{ 
-                              backgroundColor: theme.cardBg,
-                              borderColor: `${theme.textColor}20`,
-                            }}
+                          <div key={product.id} className="rounded-2xl overflow-hidden transition-all"
+                            style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}`, backdropFilter: cardBlur }}
                           >
-                            {product.thumbnail_url ? (
-                              <div className="aspect-video" style={{ backgroundColor: `${theme.textColor}10` }}>
-                                <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover" />
-                              </div>
-                            ) : (
-                              <div 
-                                className="aspect-video flex items-center justify-center"
-                                style={{ backgroundColor: `${theme.primary}20` }}
-                              >
-                                <Package size={32} style={{ color: `${theme.primary}60` }} />
-                              </div>
-                            )}
+                            <div className="aspect-video flex items-center justify-center" style={{ backgroundColor: `${theme.primary}15` }}>
+                              {product.thumbnail_url 
+                                ? <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover" />
+                                : <Package size={32} style={{ color: `${theme.primary}50` }} />
+                              }
+                            </div>
                             <div className="p-4">
                               <h4 className="font-bold text-lg" style={{ color: theme.textColor }}>{product.title}</h4>
-                              {product.description && (
-                                <p className="text-sm mt-1 line-clamp-2" style={{ color: `${theme.textColor}80` }}>{product.description}</p>
-                              )}
+                              {product.description && <p className="text-sm mt-1 line-clamp-2" style={{ color: `${theme.textColor}70` }}>{product.description}</p>}
                               <div className="flex items-center justify-between mt-3">
-                                {product.price > 0 && (
-                                  <span className="font-bold text-lg" style={{ color: theme.primary }}>${product.price.toFixed(2)}</span>
-                                )}
-                                <button 
-                                  className="px-4 py-2 rounded-lg text-sm font-medium ml-auto"
-                                  style={{ 
-                                    backgroundColor: theme.primary,
-                                    color: theme.background
-                                  }}
-                                >
-                                  {product.cta_text || (product.product_type === 'link' ? 'Visit' : 'Purchase')}
+                                {product.price > 0 && <span className="font-bold text-lg" style={{ color: theme.primary }}>${product.price.toFixed(2)}</span>}
+                                <button className="px-4 py-2 text-sm font-semibold ml-auto" style={{ borderRadius: btnRadius, backgroundColor: btnBg, color: btnColor, border: btnBorder, boxShadow: btnShadow }}>
+                                  {product.cta_text || 'Purchase'}
                                 </button>
                               </div>
                             </div>
@@ -1214,57 +1257,28 @@ export default function PageBuilder() {
 
                       if (product.product_type === 'link') {
                         return (
-                          <a
-                            key={product.id}
-                            href={product.external_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block p-4 rounded-lg transition-colors"
-                            style={{ 
-                              backgroundColor: theme.cardBg,
-                              borderColor: `${theme.textColor}20`
-                            }}
+                          <div key={product.id} className="p-4 flex items-center gap-3 transition-colors"
+                            style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}`, borderRadius: btnRadius === '9999px' ? '9999px' : '12px', backdropFilter: cardBlur }}
                           >
-                            <div className="flex items-center gap-3">
-                              <LinkIcon size={16} style={{ color: theme.primary }} />
-                              <span className="font-medium" style={{ color: theme.textColor }}>{product.title}</span>
-                              <ExternalLink size={14} style={{ color: `${theme.textColor}40` }} className="ml-auto" />
-                            </div>
-                          </a>
+                            <LinkIcon size={16} style={{ color: theme.primary }} />
+                            <span className="font-medium flex-1" style={{ color: theme.textColor }}>{product.title}</span>
+                            <ExternalLink size={14} style={{ color: `${theme.textColor}40` }} />
+                          </div>
                         );
                       }
 
                       // Classic product card
                       return (
-                        <div 
-                          key={product.id} 
-                          className="border rounded-lg p-4"
-                          style={{ 
-                            backgroundColor: theme.cardBg,
-                            borderColor: `${theme.textColor}20`
-                          }}
+                        <div key={product.id} className="rounded-xl p-4"
+                          style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}`, backdropFilter: cardBlur }}
                         >
-                          <div className="space-y-3">
-                            <div>
-                              <h4 className="font-semibold" style={{ color: theme.textColor }}>{product.title}</h4>
-                              {product.description && (
-                                <p className="text-sm mt-1" style={{ color: `${theme.textColor}80` }}>{product.description}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold" style={{ color: theme.primary }}>
-                                ${product.price > 0 ? product.price.toFixed(2) : 'Free'}
-                              </span>
-                              <button 
-                                className="px-4 py-2 rounded-lg text-sm font-medium"
-                                style={{ 
-                                  backgroundColor: theme.primary,
-                                  color: theme.background
-                                }}
-                              >
-                                {product.cta_text || 'Purchase'}
-                              </button>
-                            </div>
+                          <h4 className="font-semibold" style={{ color: theme.textColor }}>{product.title}</h4>
+                          {product.description && <p className="text-sm mt-1" style={{ color: `${theme.textColor}70` }}>{product.description}</p>}
+                          <div className="flex items-center justify-between mt-3">
+                            <span className="font-bold" style={{ color: theme.primary }}>${product.price > 0 ? product.price.toFixed(2) : 'Free'}</span>
+                            <button className="px-4 py-2 text-sm font-semibold" style={{ borderRadius: btnRadius, backgroundColor: btnBg, color: btnColor, border: btnBorder, boxShadow: btnShadow }}>
+                              {product.cta_text || 'Purchase'}
+                            </button>
                           </div>
                         </div>
                       );
