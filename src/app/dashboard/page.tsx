@@ -253,27 +253,6 @@ export default function DashboardPage() {
 
         {/* AI suggestion + Recent orders */}
         <div className="space-y-8">
-          {/* AI suggestion */}
-          <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 rounded-lg p-6">
-            <div className="flex items-start space-x-3">
-              <div className="p-2 bg-emerald-500/20 rounded-lg">
-                <Bot className="h-5 w-5 text-emerald-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-white mb-2 lowercase">ai suggestion</h3>
-                <p className="text-emerald-100 text-sm mb-4 lowercase">
-                  cutting season is trending — promote your shred program
-                </p>
-                <Link 
-                  href="/dashboard/ai/writer"
-                  className="inline-flex items-center text-sm text-emerald-400 hover:text-emerald-300 transition-colors lowercase"
-                >
-                  use ai writer <TrendingUp className="h-4 w-4 ml-1" />
-                </Link>
-              </div>
-            </div>
-          </div>
-
           {/* Recent orders */}
           <div className="bg-[#111] border border-white/5 rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">

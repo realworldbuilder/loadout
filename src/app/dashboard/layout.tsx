@@ -28,7 +28,6 @@ const navItems = [
   { href: '/dashboard', label: 'overview', icon: LayoutDashboard },
   { href: '/dashboard/products', label: 'products', icon: Package },
   { href: '/dashboard/analytics', label: 'analytics', icon: BarChart3 },
-  { href: '/dashboard/ai', label: 'ai tools', icon: Bot },
   { href: '/dashboard/settings', label: 'settings', icon: Settings },
 ];
 
