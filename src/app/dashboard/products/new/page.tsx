@@ -42,6 +42,13 @@ export default function NewProductPage() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
+  // Set price to 0 for links
+  useEffect(() => {
+    if (productType === 'link') {
+      setPrice('0');
+    }
+  }, [productType]);
+
   function handleThumbnailSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -61,12 +68,26 @@ export default function NewProductPage() {
   
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !profile || !title || !price) return;
+    
+    // Validation based on product type
+    if (!user || !profile || !title) return;
+    
+    if (productType === 'link') {
+      if (!externalUrl) {
+        alert('Please enter a destination URL for the link');
+        return;
+      }
+    } else {
+      if (!price) {
+        alert('Please enter a price');
+        return;
+      }
+    }
 
     setLoading(true);
     try {
-      const priceNum = parseFloat(price);
-      if (isNaN(priceNum) || priceNum < 0) {
+      const priceNum = productType === 'link' ? 0 : parseFloat(price);
+      if (productType !== 'link' && (isNaN(priceNum) || priceNum < 0)) {
         alert('Please enter a valid price');
         setLoading(false);
         return;
@@ -126,6 +147,7 @@ export default function NewProductPage() {
       case 'coaching': return 'coaching';
       case 'affiliate_link': return 'affiliate';
       case 'subscription': return 'subscription';
+      case 'link': return 'link';
     }
   };
 
@@ -173,16 +195,18 @@ export default function NewProductPage() {
                   <p className="text-xs text-white/40 mt-2 lowercase">tell customers what they'll receive</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2 lowercase">price ($) *</label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
-                      <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
-                        placeholder="29.99" step="0.01" min="0" required />
+                  {productType !== 'link' && (
+                    <div>
+                      <label className="block text-sm font-medium text-white/80 mb-2 lowercase">price ($) *</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
+                        <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                          placeholder="29.99" step="0.01" min="0" required />
+                      </div>
                     </div>
-                  </div>
-                  <div>
+                  )}
+                  <div className={productType === 'link' ? 'col-span-full' : ''}>
                     <label className="block text-sm font-medium text-white/80 mb-2 lowercase">type *</label>
                     <select value={productType} onChange={(e) => setProductType(e.target.value as ProductType)}
                       className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white focus:outline-none focus:border-emerald-500/50">
@@ -190,6 +214,7 @@ export default function NewProductPage() {
                       <option value="coaching">coaching</option>
                       <option value="affiliate_link">affiliate link</option>
                       <option value="subscription">subscription</option>
+                      <option value="link">link</option>
                     </select>
                   </div>
                 </div>
@@ -198,16 +223,23 @@ export default function NewProductPage() {
 
             {/* External URL - for affiliate links or any product */}
             <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">link</h2>
+              <h2 className="text-lg font-semibold text-white mb-6 lowercase">
+                {productType === 'link' ? 'destination url' : 'link'}
+              </h2>
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2 lowercase">external url</label>
+                <label className="block text-sm font-medium text-white/80 mb-2 lowercase">
+                  external url {productType === 'link' ? '*' : ''}
+                </label>
                 <div className="relative">
                   <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
                   <input type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
-                    placeholder="https://example.com/product" />
+                    placeholder={productType === 'link' ? 'https://youtube.com/@yourhandle' : 'https://example.com/product'}
+                    required={productType === 'link'} />
                 </div>
-                <p className="text-xs text-white/40 mt-2 lowercase">where customers go when they click "get it"</p>
+                <p className="text-xs text-white/40 mt-2 lowercase">
+                  {productType === 'link' ? 'where people go when they click this link' : 'where customers go when they click "get it"'}
+                </p>
               </div>
             </div>
 
@@ -271,9 +303,9 @@ export default function NewProductPage() {
                 className="flex-1 px-6 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center font-medium hover:bg-white/10 transition-colors lowercase">
                 cancel
               </Link>
-              <button type="submit" disabled={loading || !title || !price}
+              <button type="submit" disabled={loading || !title || (productType === 'link' ? !externalUrl : !price)}
                 className="flex-1 px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed lowercase">
-                {uploading ? 'uploading...' : loading ? 'creating...' : 'create product'}
+                {uploading ? 'uploading...' : loading ? 'creating...' : productType === 'link' ? 'create link' : 'create product'}
               </button>
             </div>
           </form>
@@ -296,15 +328,22 @@ export default function NewProductPage() {
                 )}
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-white mb-1">{title || 'product title'}</h3>
+                <h3 className="font-semibold text-white mb-1">{title || (productType === 'link' ? 'link title' : 'product title')}</h3>
                 {description && <p className="text-sm text-white/60 mb-3 line-clamp-2">{description}</p>}
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-emerald-500">{formatPrice(price)}</span>
-                  <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-white/60 lowercase">{getProductTypeLabel(productType)}</span>
+                  {productType !== 'link' && <span className="font-semibold text-emerald-500">{formatPrice(price)}</span>}
+                  <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-white/60 lowercase ml-auto">{getProductTypeLabel(productType)}</span>
                 </div>
-                <button className="w-full px-4 py-2 bg-emerald-500 text-black font-medium rounded-lg lowercase">
-                  {ctaText || 'get this'}
-                </button>
+                {productType === 'link' ? (
+                  <div className="flex items-center justify-center py-2 text-white/60">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    <span className="text-sm lowercase">clickable link</span>
+                  </div>
+                ) : (
+                  <button className="w-full px-4 py-2 bg-emerald-500 text-black font-medium rounded-lg lowercase">
+                    {ctaText || 'get this'}
+                  </button>
+                )}
               </div>
             </div>
           </div>

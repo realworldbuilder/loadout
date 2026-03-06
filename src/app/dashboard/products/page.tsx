@@ -167,6 +167,7 @@ export default function ProductsPage() {
       case 'coaching': return 'coaching';
       case 'affiliate_link': return 'affiliate';
       case 'subscription': return 'subscription';
+      case 'link': return 'link';
       default: return type;
     }
   };
@@ -384,15 +385,21 @@ export default function ProductsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <span className="font-semibold text-emerald-500">
-                          ${product.price.toFixed(2)}
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-white/60 lowercase">
+                        {product.product_type !== 'link' && (
+                          <span className="font-semibold text-emerald-500">
+                            ${product.price.toFixed(2)}
+                          </span>
+                        )}
+                        <span className={`text-xs px-2 py-1 rounded-full lowercase ${
+                          product.product_type === 'link' 
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/20' 
+                            : 'bg-white/10 text-white/60'
+                        }`}>
                           {getProductTypeLabel(product.product_type)}
                         </span>
                       </div>
 
-                      {product.product_type === 'affiliate_link' && product.external_url && (
+                      {(product.product_type === 'affiliate_link' || product.product_type === 'link') && product.external_url && (
                         <ExternalLink className="h-4 w-4 text-white/40" />
                       )}
                     </div>

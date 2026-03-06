@@ -338,6 +338,55 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
         {products.length > 0 && (
           <div className="space-y-4 mb-8">
             {products.map((p: any, i: number) => {
+              const isLink = p.product_type === 'link' || p.product_type === 'affiliate_link' || p.type === 'Link';
+              
+              // Link card style - compact single row
+              if (isLink) {
+                const linkCard = (
+                  <div className="bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition-colors cursor-pointer group border border-gray-100 hover:border-gray-200">
+                    <div className="flex items-center gap-3">
+                      {/* Small circular thumbnail/icon */}
+                      {p.thumbnail_url ? (
+                        <img 
+                          src={p.thumbnail_url} 
+                          alt={p.title}
+                          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm flex-shrink-0">
+                          {getProductEmoji(p.product_type || p.type, p.emoji)}
+                        </div>
+                      )}
+                      
+                      {/* Title */}
+                      <span className="font-medium text-gray-900 flex-1 min-w-0 truncate">{p.title}</span>
+                      
+                      {/* Arrow icon */}
+                      <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+                    </div>
+                  </div>
+                );
+
+                if (isFromDB && creator?.id && p.id) {
+                  const url = p.external_url || p.file_url;
+                  if (url) {
+                    return (
+                      <TrackClick key={i} creatorId={creator.id} productId={p.id}>
+                        <Link href={url} target="_blank" rel="noopener noreferrer">{linkCard}</Link>
+                      </TrackClick>
+                    );
+                  }
+                  return <TrackClick key={i} creatorId={creator.id} productId={p.id}>{linkCard}</TrackClick>;
+                }
+
+                if (p.link || p.external_url) {
+                  return <Link key={i} href={p.link || p.external_url} target="_blank" rel="noopener noreferrer">{linkCard}</Link>;
+                }
+
+                return <div key={i}>{linkCard}</div>;
+              }
+
+              // Full product card style
               const productCard = (
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 hover:shadow-md transition-all cursor-pointer group">
                   <div className="flex gap-4">
