@@ -38,6 +38,7 @@ interface DBProduct {
   cta_text?: string;
   is_active: boolean;
   sort_order: number;
+  layout?: 'classic' | 'featured';
 }
 
 // Custom TikTok Icon Component
@@ -637,10 +638,13 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 );
               }
 
+              // Check layout preference FIRST - featured overrides type-based rendering
+              const layout = p.layout || 'classic';
+              
               const isLink = p.product_type === 'link' || p.product_type === 'affiliate_link' || p.type === 'link';
               
-              // Link style - Linktree pill buttons
-              if (isLink) {
+              // Link style - Linktree pill buttons (only for classic layout)
+              if (isLink && layout !== 'featured') {
                 const linkCard = (
                   <div className={`${linkCardBg} ${linkCardBorder} rounded-xl p-4 transition-all duration-200 cursor-pointer group hover:scale-[1.02] hover:shadow-lg border h-14 flex items-center`}>
                     <div className="flex items-center gap-3 w-full">
@@ -683,9 +687,6 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 return <div key={i}>{linkCard}</div>;
               }
 
-              // Check layout preference - default to classic
-              const layout = p.layout || 'classic';
-              
               // Featured layout - large card with hero image
               if (layout === 'featured') {
                 const featuredCard = (
