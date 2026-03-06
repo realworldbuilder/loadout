@@ -21,8 +21,13 @@ import {
   ExternalLink,
   User,
   Save,
-  X
+  X,
+  Shuffle,
+  Check,
+  Palette
 } from 'lucide-react';
+import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES } from '@/types/theme';
+import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
 
 // Product types
 interface Product {
@@ -64,10 +69,17 @@ interface EditFormState {
 }
 
 export default function PageBuilder() {
-  const { user, profile, initializing } = useAuth();
+  const { user, profile, initializing, refreshProfile } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+  
+  // Theme state
+  const [theme, setTheme] = useState<CreatorTheme>(DEFAULT_THEME);
+  const [themeSaving, setThemeSaving] = useState(false);
   
   // Add form state
   const [addForm, setAddForm] = useState<AddFormState>({
@@ -109,6 +121,15 @@ export default function PageBuilder() {
       fetchProducts();
     }
   }, [initializing, fetchProducts]);
+
+  // Load theme when profile changes
+  useEffect(() => {
+    if (profile?.theme) {
+      setTheme({ ...DEFAULT_THEME, ...profile.theme });
+    } else {
+      setTheme(DEFAULT_THEME);
+    }
+  }, [profile]);
 
   // Handle drag and drop reordering
   const handleDragEnd = async (result: DropResult) => {
@@ -296,6 +317,41 @@ export default function PageBuilder() {
     }
   };
 
+  // Save theme
+  const handleThemeSave = async () => {
+    if (!user) return;
+    
+    setThemeSaving(true);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id, theme }),
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        alert(`failed to save theme: ${result.error}`);
+        return;
+      }
+      
+      await refreshProfile();
+    } catch (error) {
+      console.error('Theme save error:', error);
+      alert('failed to save theme');
+    } finally {
+      setThemeSaving(false);
+    }
+  };
+
+  // Shuffle theme (pick random preset)
+  const shuffleTheme = () => {
+    const presetKeys = Object.keys(PRESET_THEMES);
+    const randomPreset = presetKeys[Math.floor(Math.random() * presetKeys.length)];
+    setTheme(PRESET_THEMES[randomPreset]);
+  };
+
   if (initializing || loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -314,9 +370,37 @@ export default function PageBuilder() {
         <p className="text-white/60">drag and drop to build your public page</p>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="mb-8">
+        <div className="flex space-x-1 p-1 bg-[#111] rounded-lg border border-white/5 inline-flex">
+          <button
+            onClick={() => setActiveTab('content')}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-all lowercase ${
+              activeTab === 'content'
+                ? 'bg-[#10a37f] text-black'
+                : 'text-white/60 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            content
+          </button>
+          <button
+            onClick={() => setActiveTab('design')}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-all lowercase ${
+              activeTab === 'design'
+                ? 'bg-[#10a37f] text-black'
+                : 'text-white/60 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            design
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Panel - Block List + Controls */}
+        {/* Left Panel - Content or Design Controls */}
         <div className="space-y-6">
+          {activeTab === 'content' && (
+            <>
           {/* Add Buttons */}
           <div className="bg-[#111] rounded-lg border border-white/5 p-4">
             <h2 className="text-lg font-semibold text-white mb-4 lowercase">add blocks</h2>
@@ -622,6 +706,188 @@ export default function PageBuilder() {
               </Droppable>
             </DragDropContext>
           </div>
+            </>
+          )}
+
+          {activeTab === 'design' && (
+            <>
+              {/* Preset Themes */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-white lowercase">preset themes</h2>
+                  <button
+                    onClick={shuffleTheme}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/60 hover:text-white text-sm transition-colors"
+                  >
+                    <Shuffle size={14} />
+                    <span className="lowercase">shuffle</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {Object.entries(PRESET_THEMES).map(([name, preset]) => (
+                    <button
+                      key={name}
+                      onClick={() => setTheme(preset)}
+                      className="p-3 rounded-lg border border-white/10 hover:border-white/20 transition-all text-left group"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <div 
+                          className="w-3 h-3 rounded-full border border-white/10" 
+                          style={{ backgroundColor: preset.primary }}
+                        />
+                        <div 
+                          className="w-3 h-3 rounded border border-white/10" 
+                          style={{ backgroundColor: preset.background }}
+                        />
+                        <div 
+                          className="w-3 h-3 rounded border border-white/10" 
+                          style={{ backgroundColor: preset.cardBg }}
+                        />
+                      </div>
+                      <p className="text-white text-xs font-medium lowercase">{name}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Customize Theme */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-white mb-4 lowercase">customize theme</h2>
+                
+                <div className="space-y-6">
+                  {/* Background */}
+                  <div>
+                    <label className="block text-white/60 text-sm mb-3 lowercase">background</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={theme.background}
+                        onChange={(e) => setTheme({ ...theme, background: e.target.value })}
+                        className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={theme.background}
+                        onChange={(e) => setTheme({ ...theme, background: e.target.value })}
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        placeholder="#ffffff"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div>
+                    <label className="block text-white/60 text-sm mb-3 lowercase">buttons</label>
+                    <div className="flex gap-2 mb-2">
+                      <input
+                        type="color"
+                        value={theme.primary}
+                        onChange={(e) => setTheme({ ...theme, primary: e.target.value })}
+                        className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={theme.primary}
+                        onChange={(e) => setTheme({ ...theme, primary: e.target.value })}
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        placeholder="#1a1a1a"
+                      />
+                    </div>
+                    <div className="p-2 rounded bg-white/5">
+                      <button
+                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        style={{ 
+                          backgroundColor: theme.primary, 
+                          color: theme.background 
+                        }}
+                      >
+                        button preview
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Cards */}
+                  <div>
+                    <label className="block text-white/60 text-sm mb-3 lowercase">cards</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={theme.cardBg}
+                        onChange={(e) => setTheme({ ...theme, cardBg: e.target.value })}
+                        className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={theme.cardBg}
+                        onChange={(e) => setTheme({ ...theme, cardBg: e.target.value })}
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        placeholder="#f5f5f5"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Text */}
+                  <div>
+                    <label className="block text-white/60 text-sm mb-3 lowercase">text</label>
+                    <select
+                      value={theme.font}
+                      onChange={(e) => setTheme({ ...theme, font: e.target.value as CreatorTheme['font'] })}
+                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f] mb-2"
+                    >
+                      <option value="default">default / sans</option>
+                      <option value="serif">serif</option>
+                      <option value="mono">mono</option>
+                      <option value="rounded">rounded</option>
+                    </select>
+                    <div className={`p-2 rounded bg-white/5 ${getThemeFontClass(theme.font)}`}>
+                      <p className="text-sm text-white/60">font preview text</p>
+                    </div>
+                  </div>
+
+                  {/* Colors */}
+                  <div>
+                    <label className="block text-white/60 text-sm mb-3 lowercase">colors</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={theme.textColor}
+                        onChange={(e) => setTheme({ ...theme, textColor: e.target.value })}
+                        className="w-12 h-9 rounded border border-white/5 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={theme.textColor}
+                        onChange={(e) => setTheme({ ...theme, textColor: e.target.value })}
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        placeholder="#000000"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+                <button
+                  onClick={handleThemeSave}
+                  disabled={themeSaving}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[#10a37f] hover:bg-[#0d8b6b] disabled:bg-[#10a37f]/50 disabled:cursor-not-allowed text-black rounded-lg transition-colors font-medium"
+                >
+                  {themeSaving ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-black/20 border-t-black/60 rounded-full animate-spin" />
+                      <span className="lowercase">saving theme...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} />
+                      <span className="lowercase">save theme</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right Panel - Live Preview */}
@@ -632,10 +898,13 @@ export default function PageBuilder() {
             {/* Phone Frame */}
             <div className="mx-auto max-w-sm">
               <div className="bg-black rounded-3xl p-2 border-4 border-gray-800">
-                <div className="bg-[#0a0a0a] rounded-2xl overflow-hidden min-h-[600px] max-h-[600px] overflow-y-auto">
+                <div 
+                  className={`rounded-2xl overflow-hidden min-h-[600px] max-h-[600px] overflow-y-auto ${getThemeFontClass(theme.font)}`}
+                  style={getThemeStyles(theme)}
+                >
                   {/* Profile Header */}
-                  <div className="p-6 text-center border-b border-white/10">
-                    <div className="w-20 h-20 rounded-full bg-emerald-500/20 mx-auto mb-4 flex items-center justify-center">
+                  <div className="p-6 text-center border-b" style={{ borderColor: `${theme.textColor}20` }}>
+                    <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: `${theme.primary}20` }}>
                       {profile?.avatar_url ? (
                         <img 
                           src={profile.avatar_url} 
@@ -643,13 +912,13 @@ export default function PageBuilder() {
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        <User size={32} className="text-emerald-400" />
+                        <User size={32} style={{ color: theme.primary }} />
                       )}
                     </div>
-                    <h3 className="text-white font-semibold text-lg">{profile?.display_name || 'creator'}</h3>
-                    <p className="text-white/60 text-sm">@{profile?.handle || 'handle'}</p>
+                    <h3 className="font-semibold text-lg" style={{ color: theme.textColor }}>{profile?.display_name || 'creator'}</h3>
+                    <p className="text-sm" style={{ color: `${theme.textColor}80` }}>@{profile?.handle || 'handle'}</p>
                     {profile?.bio && (
-                      <p className="text-white/80 text-sm mt-2">{profile.bio}</p>
+                      <p className="text-sm mt-2" style={{ color: `${theme.textColor}90` }}>{profile.bio}</p>
                     )}
                   </div>
 
@@ -659,7 +928,7 @@ export default function PageBuilder() {
                       if (product.product_type === 'header') {
                         return (
                           <div key={product.id} className="py-2">
-                            <h4 className="text-white/80 font-medium text-center text-sm uppercase tracking-wide">
+                            <h4 className="font-medium text-center text-sm uppercase tracking-wide" style={{ color: `${theme.textColor}80` }}>
                               {product.title}
                             </h4>
                           </div>
@@ -669,26 +938,42 @@ export default function PageBuilder() {
                       // Featured layout — big card
                       if (product.layout === 'featured') {
                         return (
-                          <div key={product.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-emerald-500/30 transition-all">
+                          <div 
+                            key={product.id} 
+                            className="border rounded-2xl overflow-hidden transition-all"
+                            style={{ 
+                              backgroundColor: theme.cardBg,
+                              borderColor: `${theme.textColor}20`,
+                            }}
+                          >
                             {product.thumbnail_url ? (
-                              <div className="aspect-video bg-white/5">
+                              <div className="aspect-video" style={{ backgroundColor: `${theme.textColor}10` }}>
                                 <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover" />
                               </div>
                             ) : (
-                              <div className="aspect-video bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center">
-                                <Package size={32} className="text-emerald-400/40" />
+                              <div 
+                                className="aspect-video flex items-center justify-center"
+                                style={{ backgroundColor: `${theme.primary}20` }}
+                              >
+                                <Package size={32} style={{ color: `${theme.primary}60` }} />
                               </div>
                             )}
                             <div className="p-4">
-                              <h4 className="text-white font-bold text-lg">{product.title}</h4>
+                              <h4 className="font-bold text-lg" style={{ color: theme.textColor }}>{product.title}</h4>
                               {product.description && (
-                                <p className="text-white/60 text-sm mt-1 line-clamp-2">{product.description}</p>
+                                <p className="text-sm mt-1 line-clamp-2" style={{ color: `${theme.textColor}80` }}>{product.description}</p>
                               )}
                               <div className="flex items-center justify-between mt-3">
                                 {product.price > 0 && (
-                                  <span className="text-emerald-400 font-bold text-lg">${product.price.toFixed(2)}</span>
+                                  <span className="font-bold text-lg" style={{ color: theme.primary }}>${product.price.toFixed(2)}</span>
                                 )}
-                                <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium ml-auto">
+                                <button 
+                                  className="px-4 py-2 rounded-lg text-sm font-medium ml-auto"
+                                  style={{ 
+                                    backgroundColor: theme.primary,
+                                    color: theme.background
+                                  }}
+                                >
                                   {product.cta_text || (product.product_type === 'link' ? 'Visit' : 'Purchase')}
                                 </button>
                               </div>
@@ -704,12 +989,16 @@ export default function PageBuilder() {
                             href={product.external_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+                            className="block p-4 rounded-lg transition-colors"
+                            style={{ 
+                              backgroundColor: theme.cardBg,
+                              borderColor: `${theme.textColor}20`
+                            }}
                           >
                             <div className="flex items-center gap-3">
-                              <LinkIcon size={16} className="text-blue-400" />
-                              <span className="text-white font-medium">{product.title}</span>
-                              <ExternalLink size={14} className="text-white/40 ml-auto" />
+                              <LinkIcon size={16} style={{ color: theme.primary }} />
+                              <span className="font-medium" style={{ color: theme.textColor }}>{product.title}</span>
+                              <ExternalLink size={14} style={{ color: `${theme.textColor}40` }} className="ml-auto" />
                             </div>
                           </a>
                         );
@@ -717,19 +1006,32 @@ export default function PageBuilder() {
 
                       // Classic product card
                       return (
-                        <div key={product.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
+                        <div 
+                          key={product.id} 
+                          className="border rounded-lg p-4"
+                          style={{ 
+                            backgroundColor: theme.cardBg,
+                            borderColor: `${theme.textColor}20`
+                          }}
+                        >
                           <div className="space-y-3">
                             <div>
-                              <h4 className="text-white font-semibold">{product.title}</h4>
+                              <h4 className="font-semibold" style={{ color: theme.textColor }}>{product.title}</h4>
                               {product.description && (
-                                <p className="text-white/60 text-sm mt-1">{product.description}</p>
+                                <p className="text-sm mt-1" style={{ color: `${theme.textColor}80` }}>{product.description}</p>
                               )}
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-emerald-400 font-bold">
+                              <span className="font-bold" style={{ color: theme.primary }}>
                                 ${product.price > 0 ? product.price.toFixed(2) : 'Free'}
                               </span>
-                              <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">
+                              <button 
+                                className="px-4 py-2 rounded-lg text-sm font-medium"
+                                style={{ 
+                                  backgroundColor: theme.primary,
+                                  color: theme.background
+                                }}
+                              >
                                 {product.cta_text || 'Purchase'}
                               </button>
                             </div>
@@ -740,7 +1042,7 @@ export default function PageBuilder() {
                     
                     {products.filter(p => p.is_active).length === 0 && (
                       <div className="text-center py-12">
-                        <p className="text-white/40 text-sm lowercase">no active blocks</p>
+                        <p className="text-sm lowercase" style={{ color: `${theme.textColor}40` }}>no active blocks</p>
                       </div>
                     )}
                   </div>
