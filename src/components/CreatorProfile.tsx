@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag, Mail, Play } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
+import { CreatorTheme, DEFAULT_THEME } from '@/types/theme';
+import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
 
 interface DBCreator {
   id: string;
@@ -210,6 +212,28 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
   const isDemo = !isFromDB && DEMO_CREATORS[handle];
   const creator = isFromDB ? dbData?.creator : DEMO_CREATORS[handle];
   const products = isFromDB ? dbData?.products || [] : creator?.products || [];
+  const [emailStates, setEmailStates] = useState<Record<string, { email: string; isSubmitting: boolean; success: boolean; error: string }>>({});
+
+  // Theme handling - use full theme structure
+  const creatorTheme: CreatorTheme = { ...DEFAULT_THEME, ...creator?.theme };
+  const isDark = isDarkColor(creatorTheme.background);
+  const fontClass = getThemeFontClass(creatorTheme.font);
+  
+  // Apply styles inline for dynamic theming
+  const pageStyle = getThemeStyles(creatorTheme);
+  const primaryIsLight = isLightColor(creatorTheme.primary);
+
+  // Color classes based on theme
+  const textColor = isDark ? 'text-white' : 'text-gray-900';
+  const mutedTextColor = isDark ? 'text-gray-400' : 'text-gray-500';
+  const linkCardBg = isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100';
+  const linkCardBorder = isDark ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300';
+  const productCardBg = isDark ? 'bg-gray-800' : 'bg-white';
+  const productCardBorder = isDark ? 'border-gray-700' : 'border-gray-200';
+  const socialIconBg = isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200';
+  const socialIconColor = isDark ? 'text-gray-300' : 'text-gray-600';
+  const primaryColor = creatorTheme.primary;
+  const gradientColor = isDemo ? creator.color : 'from-gray-700 to-gray-800';
 
   // Demo directory page - keep existing dark design
   if (handle === 'demo') {
@@ -273,23 +297,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
     );
   }
 
-  // Theme handling
-  const theme = creator.theme || { primary: '#1a1a1a', background: '#ffffff' };
-  const isDark = isDarkColor(theme.background || '#ffffff');
-  const primaryColor = theme.primary || '#1a1a1a';
-  const primaryIsLight = isLightColor(primaryColor);
-
-  // Color classes based on theme
-  const bgColor = isDark ? 'bg-gray-900' : 'bg-white';
-  const textColor = isDark ? 'text-white' : 'text-gray-900';
-  const subtleTextColor = isDark ? 'text-gray-300' : 'text-gray-600';
-  const mutedTextColor = isDark ? 'text-gray-400' : 'text-gray-500';
-  const linkCardBg = isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-50 hover:bg-gray-100';
-  const linkCardBorder = isDark ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300';
-  const productCardBg = isDark ? 'bg-gray-800' : 'bg-white';
-  const productCardBorder = isDark ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300';
-  const socialIconBg = isDark ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200';
-  const socialIconColor = isDark ? 'text-gray-300' : 'text-gray-600';
+  // Theme handling removed - now using new implementation above
 
   const formatPrice = (price: number | string): string => {
     if (typeof price === 'string') return price;
@@ -301,11 +309,15 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
   const getProductEmoji = (productType: string, demoEmoji?: string): string => {
     if (demoEmoji) return demoEmoji;
     switch (productType) {
-      case 'digital_product': return '📚';
+      case 'digital_product': 
+      case 'digital': return '📚';
       case 'coaching': return '🎯';
       case 'affiliate_link':
       case 'link': return '🔗';
       case 'subscription': return '📅';
+      case 'email_collector': return '📧';
+      case 'embed': return '📺';
+      case 'header': return '📋';
       default: return '📦';
     }
   };
@@ -319,7 +331,115 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
     return 'get it';
   };
 
-  const gradientColor = isDemo ? creator.color : 'from-gray-700 to-gray-800';
+  const handleEmailSubmit = async (productId: string, creatorId: string) => {
+    const state = emailStates[productId];
+    if (!state?.email || state.isSubmitting) return;
+
+    setEmailStates(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], isSubmitting: true, error: '' }
+    }));
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creator_id: creatorId, email: state.email })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setEmailStates(prev => ({
+          ...prev,
+          [productId]: { ...prev[productId], isSubmitting: false, success: true }
+        }));
+      } else {
+        setEmailStates(prev => ({
+          ...prev,
+          [productId]: { ...prev[productId], isSubmitting: false, error: result.error || 'Failed to subscribe' }
+        }));
+      }
+    } catch (error) {
+      setEmailStates(prev => ({
+        ...prev,
+        [productId]: { ...prev[productId], isSubmitting: false, error: 'Failed to subscribe' }
+      }));
+    }
+  };
+
+  const getEmbedComponent = (url: string, title: string) => {
+    if (!url) return null;
+
+    // YouTube embed
+    if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
+      let videoId;
+      if (url.includes('youtube.com/watch')) {
+        videoId = url.split('v=')[1]?.split('&')[0];
+      } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1]?.split('?')[0];
+      }
+
+      if (videoId) {
+        return (
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}`}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            />
+          </div>
+        );
+      }
+    }
+
+    // Spotify embed
+    if (url.includes('open.spotify.com/')) {
+      const spotifyId = url.split('open.spotify.com/')[1];
+      if (spotifyId) {
+        const embedUrl = `https://open.spotify.com/embed/${spotifyId}`;
+        const isTrack = spotifyId.includes('track');
+        const height = isTrack ? '152px' : '352px';
+        
+        return (
+          <div className="w-full rounded-lg overflow-hidden">
+            <iframe
+              src={embedUrl}
+              width="100%"
+              height={height}
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="rounded-lg"
+            />
+          </div>
+        );
+      }
+    }
+
+    // Generic link card for other URLs
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block bg-gray-50 hover:bg-gray-100 rounded-lg p-4 transition-colors border border-gray-200"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+            <Play className="h-5 w-5 text-gray-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-medium text-gray-900">{title}</h3>
+            <p className="text-sm text-gray-500">External content</p>
+          </div>
+          <ExternalLink className="h-4 w-4 text-gray-400" />
+        </div>
+      </a>
+    );
+  };
 
   // Build social links
   const socialLinks: { platform: string; url: string; icon: any }[] = [];
@@ -371,7 +491,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
   }
 
   return (
-    <div className={`min-h-screen ${bgColor}`}>
+    <div className={`min-h-screen ${fontClass}`} style={pageStyle}>
       <div className="max-w-[480px] mx-auto px-4 py-8">
         {/* Only show back link on demo profiles */}
         {isDemo && (
@@ -406,7 +526,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           
           {/* Bio - max 2-3 lines, centered */}
           {creator.bio && (
-            <p className={`${subtleTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
+            <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
               {creator.bio}
             </p>
           )}
@@ -440,6 +560,79 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                     <h3 className={`text-xs font-semibold uppercase tracking-wider ${mutedTextColor} text-center`}>
                       {p.title}
                     </h3>
+                  </div>
+                );
+              }
+
+              // Email collector component
+              if ((p.product_type === 'email_collector' || p.type === 'email_collector') && isFromDB) {
+                const state = emailStates[p.id] || { email: '', isSubmitting: false, success: false, error: '' };
+                
+                if (state.success) {
+                  return (
+                    <div key={i} className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Mail className="h-6 w-6 text-green-600" />
+                      </div>
+                      <h3 className="font-semibold text-green-900 mb-1">Thanks for subscribing!</h3>
+                      <p className="text-sm text-green-700">You'll hear from us soon.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div key={i} className="bg-gray-50 rounded-xl p-6 text-center border border-gray-200">
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Mail className="h-6 w-6 text-gray-600" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">{p.title}</h3>
+                    {p.description && (
+                      <p className="text-sm text-gray-600 mb-4">{p.description}</p>
+                    )}
+                    
+                    <div className="max-w-sm mx-auto">
+                      <div className="flex gap-2">
+                        <input
+                          type="email"
+                          placeholder="your@email.com"
+                          value={state.email}
+                          onChange={(e) => setEmailStates(prev => ({
+                            ...prev,
+                            [p.id]: { ...prev[p.id], email: e.target.value, error: '' }
+                          }))}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && creator?.id) {
+                              handleEmailSubmit(p.id, creator.id);
+                            }
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                          disabled={state.isSubmitting}
+                        />
+                        <button
+                          onClick={() => creator?.id && handleEmailSubmit(p.id, creator.id)}
+                          disabled={state.isSubmitting || !state.email}
+                          className="bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                        >
+                          {state.isSubmitting ? '...' : 'Subscribe'}
+                        </button>
+                      </div>
+                      {state.error && (
+                        <p className="text-red-600 text-sm mt-2">{state.error}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+
+              // Embed component
+              if ((p.product_type === 'embed' || p.type === 'embed') && p.external_url) {
+                return (
+                  <div key={i} className="space-y-3">
+                    <h3 className="font-semibold text-gray-900">{p.title}</h3>
+                    {p.description && (
+                      <p className="text-sm text-gray-600">{p.description}</p>
+                    )}
+                    {getEmbedComponent(p.external_url, p.title)}
                   </div>
                 );
               }
@@ -490,7 +683,81 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 return <div key={i}>{linkCard}</div>;
               }
 
-              // Product style - Stan.store detailed cards
+              // Check layout preference - default to classic
+              const layout = p.layout || 'classic';
+              
+              // Featured layout - large card with hero image
+              if (layout === 'featured') {
+                const featuredCard = (
+                  <div className={`${productCardBg} ${productCardBorder} rounded-2xl border shadow-sm overflow-hidden transition-all duration-200 cursor-pointer group hover:shadow-xl hover:ring-2 hover:ring-opacity-20`}
+                       style={{ ['--tw-ring-color' as any]: primaryColor }}>
+                    {/* Hero thumbnail */}
+                    {p.thumbnail_url ? (
+                      <div className="aspect-video w-full overflow-hidden">
+                        <img 
+                          src={p.thumbnail_url} 
+                          alt={p.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <div className={`aspect-video w-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'} flex items-center justify-center`}>
+                        <div className="text-6xl opacity-50">
+                          {getProductEmoji(p.product_type || p.type, p.emoji)}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Content */}
+                    <div className="p-6">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <h3 className={`font-bold ${textColor} leading-tight text-xl`}>{p.title}</h3>
+                        <span className={`${textColor} font-bold text-xl flex-shrink-0`}>
+                          {formatPrice(p.price)}
+                        </span>
+                      </div>
+                      
+                      {/* Description */}
+                      {(p.description || p.desc) && (
+                        <p className={`text-sm ${mutedTextColor} leading-relaxed mb-4 line-clamp-3`}>
+                          {p.description || p.desc}
+                        </p>
+                      )}
+                      
+                      {/* CTA button - full width, colored */}
+                      <button 
+                        className="w-full font-semibold py-3 px-6 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                        style={{ 
+                          backgroundColor: primaryColor,
+                          color: primaryIsLight ? '#000000' : '#ffffff'
+                        }}
+                      >
+                        {getCtaText(p)}
+                      </button>
+                    </div>
+                  </div>
+                );
+
+                if (isFromDB && creator?.id && p.id) {
+                  const url = p.external_url || p.file_url;
+                  if (url) {
+                    return (
+                      <TrackClick key={i} creatorId={creator.id} productId={p.id}>
+                        <Link href={url} target="_blank" rel="noopener noreferrer">{featuredCard}</Link>
+                      </TrackClick>
+                    );
+                  }
+                  return <TrackClick key={i} creatorId={creator.id} productId={p.id}>{featuredCard}</TrackClick>;
+                }
+
+                if (p.link || p.external_url) {
+                  return <Link key={i} href={p.link || p.external_url} target="_blank" rel="noopener noreferrer">{featuredCard}</Link>;
+                }
+
+                return <div key={i}>{featuredCard}</div>;
+              }
+
+              // Classic layout - compact row style (current default)
               const productCard = (
                 <div className={`${productCardBg} ${productCardBorder} rounded-xl border shadow-sm p-4 transition-all duration-200 cursor-pointer group hover:shadow-xl`}>
                   <div className="flex gap-4 mb-4">
@@ -518,7 +785,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                       
                       {/* Description - 1-2 lines */}
                       {(p.description || p.desc) && (
-                        <p className={`text-sm ${subtleTextColor} leading-relaxed line-clamp-2`}>
+                        <p className={`text-sm ${mutedTextColor} leading-relaxed line-clamp-2`}>
                           {p.description || p.desc}
                         </p>
                       )}

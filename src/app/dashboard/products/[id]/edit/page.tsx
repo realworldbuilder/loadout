@@ -56,6 +56,7 @@ export default function EditProductPage() {
   const [externalUrl, setExternalUrl] = useState('');
   const [ctaText, setCtaText] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [layout, setLayout] = useState<'classic' | 'featured'>('classic');
 
   async function loadProduct() {
     try {
@@ -88,6 +89,7 @@ export default function EditProductPage() {
       setProductType(data.product_type);
       setExternalUrl(data.external_url || '');
       setCtaText(data.cta_text || '');
+      setLayout(data.layout || 'classic');
     } catch (error) {
       console.error('Error loading product:', error);
       router.push('/dashboard/products');
@@ -119,6 +121,7 @@ export default function EditProductPage() {
         product_type: productType,
         external_url: externalUrl || undefined,
         cta_text: ctaText || undefined,
+        layout: layout,
       };
 
       const { error } = await updateProduct(product.id, updateData);
@@ -306,6 +309,83 @@ export default function EditProductPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Layout Picker */}
+            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-white mb-6 lowercase">layout style</h2>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Classic Layout */}
+                <button
+                  type="button"
+                  onClick={() => setLayout('classic')}
+                  className={`p-4 rounded-2xl border transition-all ${
+                    layout === 'classic'
+                      ? 'border-emerald-500/50 bg-emerald-500/10 ring-2 ring-emerald-500/20'
+                      : 'border-white/10 bg-[#161616] hover:border-white/20 hover:bg-white/5'
+                  }`}
+                >
+                  <div className="space-y-3">
+                    <div className="w-full h-16 bg-white/5 rounded border border-white/10 p-2">
+                      <div className="flex items-center space-x-2 h-full">
+                        <div className="w-10 h-10 bg-white/10 rounded flex-shrink-0"></div>
+                        <div className="flex-1 space-y-1">
+                          <div className="w-3/4 h-2 bg-white/20 rounded"></div>
+                          <div className="w-1/2 h-1.5 bg-white/10 rounded"></div>
+                        </div>
+                        <div className="w-12 h-6 bg-emerald-500/30 rounded text-xs flex items-center justify-center">
+                          <span className="text-[10px] text-emerald-400">$29</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <h3 className={`font-medium mb-1 lowercase ${layout === 'classic' ? 'text-emerald-400' : 'text-white'}`}>
+                        classic
+                      </h3>
+                      <p className="text-xs text-white/60 lowercase">compact row layout</p>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Featured Layout */}
+                <button
+                  type="button"
+                  onClick={() => setLayout('featured')}
+                  className={`p-4 rounded-2xl border transition-all ${
+                    layout === 'featured'
+                      ? 'border-emerald-500/50 bg-emerald-500/10 ring-2 ring-emerald-500/20'
+                      : 'border-white/10 bg-[#161616] hover:border-white/20 hover:bg-white/5'
+                  }`}
+                >
+                  <div className="space-y-3">
+                    <div className="w-full h-20 bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                      <div className="h-12 bg-white/10"></div>
+                      <div className="p-2 space-y-1">
+                        <div className="w-3/4 h-2 bg-white/20 rounded"></div>
+                        <div className="flex items-center justify-between">
+                          <div className="w-1/3 h-1.5 bg-white/10 rounded"></div>
+                          <div className="w-8 h-3 bg-emerald-500/30 rounded text-xs flex items-center justify-center">
+                            <span className="text-[8px] text-emerald-400">$29</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <h3 className={`font-medium mb-1 lowercase ${layout === 'featured' ? 'text-emerald-400' : 'text-white'}`}>
+                        featured
+                      </h3>
+                      <p className="text-xs text-white/60 lowercase">large card with hero image</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+              {layout === 'featured' && (
+                <div className="mt-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                  <p className="text-sm text-emerald-400 lowercase">
+                    <strong>featured layout tip:</strong> add a thumbnail image for the best visual impact
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Conditional Fields */}

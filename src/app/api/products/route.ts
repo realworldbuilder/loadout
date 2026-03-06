@@ -21,6 +21,7 @@ function mapToDb(body: any) {
   if (body.cta_text !== undefined) mapped.cta_text = body.cta_text;
   if (body.is_active !== undefined) mapped.is_active = body.is_active;
   if (body.sort_order !== undefined) mapped.sort_order = body.sort_order;
+  if (body.layout !== undefined) mapped.layout = body.layout;
   
   // price -> price_cents
   if (body.price !== undefined) {
@@ -51,6 +52,7 @@ function mapFromDb(row: any) {
     ...row,
     price: (row.price_cents || 0) / 100,
     product_type: row.type === 'digital' ? 'digital_product' : row.type,
+    layout: row.layout || 'classic', // Default to classic layout
   };
 }
 

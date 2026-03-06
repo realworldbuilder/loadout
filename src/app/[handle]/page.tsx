@@ -100,6 +100,7 @@ async function getCreatorData(handle: string) {
       ...p,
       price: (p.price_cents || 0) / 100,
       product_type: p.type === 'digital' ? 'digital_product' : p.type,
+      layout: p.layout || 'classic', // Ensure layout is passed through
     }));
     return { creator, products: mapped };
   } catch (error) {

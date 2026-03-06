@@ -15,6 +15,7 @@ export interface Product {
   cta_text?: string; // Call to action text
   is_active: boolean;
   sort_order: number;
+  layout?: 'classic' | 'featured';
   created_at: string;
   updated_at: string;
 }
@@ -31,6 +32,7 @@ export interface CreateProductData {
   cta_text?: string;
   is_active?: boolean;
   sort_order?: number;
+  layout?: 'classic' | 'featured';
 }
 
 export interface UpdateProductData {
@@ -44,6 +46,7 @@ export interface UpdateProductData {
   cta_text?: string;
   is_active?: boolean;
   sort_order?: number;
+  layout?: 'classic' | 'featured';
 }
 
 // Fetch products for a creator, ordered by sort_order
