@@ -19,10 +19,12 @@ import {
   Bot,
   User,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Layers
 } from 'lucide-react';
 
 const navItems = [
+  { href: '/dashboard/page-builder', label: 'page builder', icon: Layers },
   { href: '/dashboard', label: 'overview', icon: LayoutDashboard },
   { href: '/dashboard/products', label: 'products', icon: Package },
   { href: '/dashboard/analytics', label: 'analytics', icon: BarChart3 },

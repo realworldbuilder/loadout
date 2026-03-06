@@ -35,6 +35,7 @@ function mapToDb(body: any) {
       'coaching': 'coaching',
       'link': 'link',
       'subscription': 'subscription',
+      'header': 'header',
     };
     mapped.type = typeMap[body.product_type] || body.product_type;
   }
