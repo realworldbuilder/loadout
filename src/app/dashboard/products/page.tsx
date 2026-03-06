@@ -196,10 +196,17 @@ export default function ProductsPage() {
           </p>
         </div>
         
-        <div className="flex space-x-4 mt-4 sm:mt-0">
+        <div className="flex space-x-2 sm:space-x-3 mt-4 sm:mt-0">
+          <Link
+            href="/dashboard/products/new?type=link"
+            className="inline-flex items-center px-4 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors lowercase border border-white/10"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            add link
+          </Link>
           <Link
             href="/dashboard/products/new"
-            className="inline-flex items-center px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors lowercase"
+            className="inline-flex items-center px-4 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors lowercase"
           >
             <Plus className="h-4 w-4 mr-2" />
             add product
@@ -211,17 +218,26 @@ export default function ProductsPage() {
         /* Empty state */
         <div className="bg-[#111] border border-white/5 rounded-lg p-12 text-center">
           <Package className="h-16 w-16 text-white/20 mx-auto mb-6" />
-          <h3 className="text-xl font-semibold text-white mb-2 lowercase">no products yet</h3>
+          <h3 className="text-xl font-semibold text-white mb-2 lowercase">nothing here yet</h3>
           <p className="text-white/60 mb-8 lowercase">
-            create your first product to start selling to your audience
+            add products to sell or links to share with your audience
           </p>
-          <Link
-            href="/dashboard/products/new"
-            className="inline-flex items-center px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors lowercase"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            create your first product
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/dashboard/products/new?type=link"
+              className="inline-flex items-center px-6 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors lowercase border border-white/10"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              add a link
+            </Link>
+            <Link
+              href="/dashboard/products/new"
+              className="inline-flex items-center px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors lowercase"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              add a product
+            </Link>
+          </div>
         </div>
       ) : (
         <>

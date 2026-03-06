@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { createProduct } from '@/lib/products';
 import { uploadThumbnail } from '@/lib/storage';
@@ -19,9 +19,10 @@ import {
   ImageIcon
 } from 'lucide-react';
 
-export default function NewProductPage() {
+function NewProductInner() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +37,8 @@ export default function NewProductPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [productType, setProductType] = useState<ProductType>('digital_product');
+  const initialType = (searchParams.get('type') as ProductType) || 'digital_product';
+  const [productType, setProductType] = useState<ProductType>(initialType);
   const [externalUrl, setExternalUrl] = useState('');
   const [ctaText, setCtaText] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -350,5 +352,13 @@ export default function NewProductPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewProductPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-white/40">loading...</div>}>
+      <NewProductInner />
+    </Suspense>
   );
 }
