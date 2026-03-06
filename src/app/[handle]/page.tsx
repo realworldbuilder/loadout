@@ -5,6 +5,9 @@ import TrackPageView from '@/components/TrackPageView';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+// Revalidate every 10 seconds so new products show up quickly
+export const revalidate = 10;
+
 export function generateStaticParams() {
   return [
     { handle: 'demo' },
