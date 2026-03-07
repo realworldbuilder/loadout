@@ -223,7 +223,7 @@ export default function SettingsPage() {
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">settings</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">settings</h1>
         <p className="text-gray-400">manage your profile and preferences</p>
       </div>
 
@@ -231,9 +231,9 @@ export default function SettingsPage() {
         {/* Settings Panels */}
         <div className="lg:col-span-2 space-y-8">
           {/* Profile Section */}
-          <div className="bg-[#111] rounded-lg border border-white/5 p-6">
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">profile</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">profile</h3>
               <button
                 onClick={() => handleSave('profile')}
                 disabled={loading}
@@ -260,7 +260,7 @@ export default function SettingsPage() {
                   type="text"
                   value={formData.display_name}
                   onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                   placeholder="your display name"
                 />
               </div>
@@ -270,7 +270,7 @@ export default function SettingsPage() {
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f] resize-none"
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f] resize-none"
                   rows={3}
                   placeholder="tell people about yourself"
                 />
@@ -295,14 +295,14 @@ export default function SettingsPage() {
                     type="button"
                     onClick={() => avatarInputRef.current?.click()}
                     disabled={avatarUploading}
-                    className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-[#1a1a1a] border border-white/5 rounded-lg text-gray-300 hover:text-white hover:bg-[#262626] transition-colors disabled:opacity-50"
+                    className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-[#1a1a1a] border border-white/5 rounded-lg text-gray-300 hover:text-gray-900 dark:text-white hover:bg-[#262626] transition-colors disabled:opacity-50"
                   >
                     <Camera className="h-4 w-4" />
                     <span>{avatarUploading ? 'uploading...' : profile?.avatar_url ? 'change avatar' : 'upload avatar'}</span>
                   </button>
                   {profile?.avatar_url && (
                     <div className="mt-2">
-                      <img src={profile.avatar_url} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-white/10" />
+                      <img src={profile.avatar_url} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-white/10" />
                     </div>
                   )}
                 </div>
@@ -311,9 +311,9 @@ export default function SettingsPage() {
           </div>
 
           {/* Social Links Section */}
-          <div className="bg-[#111] rounded-lg border border-white/5 p-6">
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">social links</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">social links</h3>
               <button
                 onClick={() => handleSave('social')}
                 disabled={loading}
@@ -343,7 +343,7 @@ export default function SettingsPage() {
                     ...formData,
                     social_links: { ...formData.social_links, instagram: e.target.value }
                   })}
-                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                   placeholder="@username"
                 />
               </div>
@@ -357,7 +357,7 @@ export default function SettingsPage() {
                     ...formData,
                     social_links: { ...formData.social_links, tiktok: e.target.value }
                   })}
-                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                   placeholder="@username"
                 />
               </div>
@@ -371,7 +371,7 @@ export default function SettingsPage() {
                     ...formData,
                     social_links: { ...formData.social_links, youtube: e.target.value }
                   })}
-                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                   placeholder="@channel"
                 />
               </div>
@@ -385,7 +385,7 @@ export default function SettingsPage() {
                     ...formData,
                     social_links: { ...formData.social_links, twitter: e.target.value }
                   })}
-                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                   placeholder="@username"
                 />
               </div>
@@ -393,9 +393,9 @@ export default function SettingsPage() {
           </div>
 
           {/* Theme Customization */}
-          <div className="bg-[#111] rounded-lg border border-white/5 p-6">
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">theme customization</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">theme customization</h3>
               <button
                 onClick={() => handleSave('theme')}
                 disabled={loading}
@@ -431,7 +431,7 @@ export default function SettingsPage() {
                       type="text"
                       value={theme.background}
                       onChange={(e) => setTheme({ ...theme, background: e.target.value })}
-                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                       placeholder="#ffffff"
                     />
                   </div>
@@ -450,7 +450,7 @@ export default function SettingsPage() {
                       type="text"
                       value={theme.primary}
                       onChange={(e) => setTheme({ ...theme, primary: e.target.value })}
-                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                       placeholder="#1a1a1a"
                     />
                   </div>
@@ -469,7 +469,7 @@ export default function SettingsPage() {
                       type="text"
                       value={theme.cardBg}
                       onChange={(e) => setTheme({ ...theme, cardBg: e.target.value })}
-                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                       placeholder="#f5f5f5"
                     />
                   </div>
@@ -488,7 +488,7 @@ export default function SettingsPage() {
                       type="text"
                       value={theme.textColor}
                       onChange={(e) => setTheme({ ...theme, textColor: e.target.value })}
-                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                       placeholder="#000000"
                     />
                   </div>
@@ -501,7 +501,7 @@ export default function SettingsPage() {
                 <select
                   value={theme.font}
                   onChange={(e) => setTheme({ ...theme, font: e.target.value as CreatorTheme['font'] })}
-                  className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                 >
                   <option value="default">default / sans</option>
                   <option value="serif">serif</option>
@@ -518,23 +518,23 @@ export default function SettingsPage() {
                     <button
                       key={name}
                       onClick={() => setTheme(preset)}
-                      className="p-3 rounded-lg border border-white/10 hover:border-white/20 transition-all text-left group"
+                      className="p-3 rounded-lg border border-gray-200 dark:border-white/10 hover:border-white/20 transition-all text-left group"
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <div 
-                          className="w-4 h-4 rounded-full border border-white/10" 
+                          className="w-4 h-4 rounded-full border border-gray-200 dark:border-white/10" 
                           style={{ backgroundColor: preset.primary }}
                         />
                         <div 
-                          className="w-4 h-4 rounded border border-white/10" 
+                          className="w-4 h-4 rounded border border-gray-200 dark:border-white/10" 
                           style={{ backgroundColor: preset.background }}
                         />
                         <div 
-                          className="w-4 h-4 rounded border border-white/10" 
+                          className="w-4 h-4 rounded border border-gray-200 dark:border-white/10" 
                           style={{ backgroundColor: preset.cardBg }}
                         />
                       </div>
-                      <p className="text-white text-xs font-medium">{name}</p>
+                      <p className="text-gray-900 dark:text-white text-xs font-medium">{name}</p>
                     </button>
                   ))}
                 </div>
@@ -543,13 +543,13 @@ export default function SettingsPage() {
           </div>
 
           {/* Account Section */}
-          <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-            <h3 className="text-lg font-semibold text-white mb-6">account</h3>
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">account</h3>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-lg">
                 <div>
-                  <p className="text-white font-medium">
+                  <p className="text-gray-900 dark:text-white font-medium">
                     {stripeStatus === 'complete' ? '✅ stripe connected' : 'connect stripe'}
                   </p>
                   <p className="text-gray-400 text-sm">
@@ -564,7 +564,7 @@ export default function SettingsPage() {
                   <button
                     onClick={handleStripeConnect}
                     disabled={stripeLoading}
-                    className="px-4 py-2 bg-[#635bff] text-white rounded-lg hover:bg-[#5851db] transition-colors disabled:opacity-50"
+                    className="px-4 py-2 bg-[#635bff] text-gray-900 dark:text-white rounded-lg hover:bg-[#5851db] transition-colors disabled:opacity-50"
                   >
                     {stripeLoading ? 'opening...' : 'stripe dashboard'}
                   </button>
@@ -574,7 +574,7 @@ export default function SettingsPage() {
                   <button
                     onClick={handleStripeConnect}
                     disabled={stripeLoading}
-                    className="px-4 py-2 bg-[#635bff] text-white rounded-lg hover:bg-[#5851db] transition-colors disabled:opacity-50"
+                    className="px-4 py-2 bg-[#635bff] text-gray-900 dark:text-white rounded-lg hover:bg-[#5851db] transition-colors disabled:opacity-50"
                   >
                     {stripeLoading ? 'connecting...' : stripeStatus === 'pending' ? 'continue setup' : 'connect stripe'}
                   </button>
@@ -583,19 +583,19 @@ export default function SettingsPage() {
               
               <div className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-lg">
                 <div>
-                  <p className="text-white font-medium">email</p>
+                  <p className="text-gray-900 dark:text-white font-medium">email</p>
                   <p className="text-gray-400 text-sm">{user?.email}</p>
                 </div>
               </div>
               
               <div className="flex items-center justify-between p-4 bg-red-500/10 rounded-lg border border-red-500/20">
                 <div>
-                  <p className="text-white font-medium">sign out</p>
+                  <p className="text-gray-900 dark:text-white font-medium">sign out</p>
                   <p className="text-gray-400 text-sm">sign out of your account</p>
                 </div>
                 <button 
                   onClick={handleSignOut}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="px-4 py-2 bg-red-600 text-gray-900 dark:text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   sign out
                 </button>
@@ -606,8 +606,8 @@ export default function SettingsPage() {
 
         {/* Preview Panel */}
         <div className="space-y-6">
-          <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-            <h3 className="text-lg font-semibold text-white mb-6">preview</h3>
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">preview</h3>
             {renderPreview()}
             <div className="mt-4">
               <a

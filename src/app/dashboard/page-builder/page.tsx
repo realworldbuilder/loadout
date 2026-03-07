@@ -358,7 +358,7 @@ export default function PageBuilder() {
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-white/60 lowercase">loading page builder...</p>
+          <p className="text-gray-500 dark:text-white/60 lowercase">loading page builder...</p>
         </div>
       </div>
     );
@@ -367,19 +367,19 @@ export default function PageBuilder() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2 lowercase">page builder</h1>
-        <p className="text-white/60">drag and drop to build your public page</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 lowercase">page builder</h1>
+        <p className="text-gray-500 dark:text-white/60">drag and drop to build your public page</p>
       </div>
 
       {/* Tab Navigation */}
       <div className="mb-8">
-        <div className="flex space-x-1 p-1 bg-[#2f2f2f] rounded-lg border border-white/10 inline-flex">
+        <div className="flex space-x-1 p-1 bg-white dark:bg-[#2f2f2f] rounded-lg border border-gray-200 dark:border-white/10 inline-flex">
           <button
             onClick={() => setActiveTab('content')}
             className={`px-6 py-2 rounded-md text-sm font-medium transition-all lowercase ${
               activeTab === 'content'
-                ? 'bg-white/10 text-white'
-                : 'text-white/50 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-gray-900 dark:text-white'
+                : 'text-white/50 hover:text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5'
             }`}
           >
             content
@@ -388,8 +388,8 @@ export default function PageBuilder() {
             onClick={() => setActiveTab('design')}
             className={`px-6 py-2 rounded-md text-sm font-medium transition-all lowercase ${
               activeTab === 'design'
-                ? 'bg-white/10 text-white'
-                : 'text-white/50 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-gray-900 dark:text-white'
+                : 'text-white/50 hover:text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5'
             }`}
           >
             design
@@ -403,8 +403,8 @@ export default function PageBuilder() {
           {activeTab === 'content' && (
             <>
           {/* Add Buttons */}
-          <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-4">
-            <h2 className="text-lg font-semibold text-white mb-4 lowercase">add blocks</h2>
+          <div className="bg-white dark:bg-[#2f2f2f] rounded-lg border border-gray-200 dark:border-white/10 p-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">add blocks</h2>
             <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={() => setAddForm({ ...addForm, type: 'link' })}
@@ -435,12 +435,12 @@ export default function PageBuilder() {
 
           {/* Add Form */}
           {addForm.type && (
-            <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+            <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white lowercase">add {addForm.type}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white lowercase">add {addForm.type}</h3>
                 <button
                   onClick={() => setAddForm({ type: null, title: '', description: '', price: '', external_url: '', layout: 'classic' })}
-                  className="text-white/60 hover:text-white"
+                  className="text-gray-500 dark:text-white/60 hover:text-gray-900 dark:text-white"
                 >
                   <X size={20} />
                 </button>
@@ -452,12 +452,12 @@ export default function PageBuilder() {
                     placeholder="title"
                     value={addForm.title}
                     onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                    className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50"
                   />
                 </div>
                 {addForm.type !== 'header' && (
                   <div>
-                    <label className="text-white/60 text-xs mb-2 block lowercase">layout</label>
+                    <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">layout</label>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
@@ -465,14 +465,14 @@ export default function PageBuilder() {
                         className={`p-3 rounded-lg border text-left transition-all ${
                           addForm.layout === 'classic'
                             ? 'border-emerald-500 bg-emerald-500/10'
-                            : 'border-white/10 bg-white/5 hover:border-white/20'
+                            : 'border-gray-200 dark:border-white/10 bg-white/5 hover:border-white/20'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <div className={`w-3 h-3 rounded-full border-2 ${addForm.layout === 'classic' ? 'border-emerald-500 bg-emerald-500' : 'border-white/30'}`} />
-                          <span className="text-white text-sm font-medium">classic</span>
+                          <span className="text-gray-900 dark:text-white text-sm font-medium">classic</span>
                         </div>
-                        <p className="text-white/40 text-xs">compact row</p>
+                        <p className="text-gray-400 dark:text-white/40 text-xs">compact row</p>
                       </button>
                       <button
                         type="button"
@@ -480,14 +480,14 @@ export default function PageBuilder() {
                         className={`p-3 rounded-lg border text-left transition-all ${
                           addForm.layout === 'featured'
                             ? 'border-emerald-500 bg-emerald-500/10'
-                            : 'border-white/10 bg-white/5 hover:border-white/20'
+                            : 'border-gray-200 dark:border-white/10 bg-white/5 hover:border-white/20'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <div className={`w-3 h-3 rounded-full border-2 ${addForm.layout === 'featured' ? 'border-emerald-500 bg-emerald-500' : 'border-white/30'}`} />
-                          <span className="text-white text-sm font-medium">featured</span>
+                          <span className="text-gray-900 dark:text-white text-sm font-medium">featured</span>
                         </div>
-                        <p className="text-white/40 text-xs">large card + thumbnail</p>
+                        <p className="text-gray-400 dark:text-white/40 text-xs">large card + thumbnail</p>
                       </button>
                     </div>
                   </div>
@@ -499,7 +499,7 @@ export default function PageBuilder() {
                       placeholder="url"
                       value={addForm.external_url}
                       onChange={(e) => setAddForm({ ...addForm, external_url: e.target.value })}
-                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50"
                     />
                   </div>
                 )}
@@ -510,7 +510,7 @@ export default function PageBuilder() {
                         placeholder="description"
                         value={addForm.description}
                         onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
-                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50 resize-none h-20"
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50 resize-none h-20"
                       />
                     </div>
                     <div>
@@ -520,7 +520,7 @@ export default function PageBuilder() {
                         placeholder="price"
                         value={addForm.price}
                         onChange={(e) => setAddForm({ ...addForm, price: e.target.value })}
-                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
                   </>
@@ -528,7 +528,7 @@ export default function PageBuilder() {
                 <button
                   onClick={handleAdd}
                   disabled={!addForm.title.trim() || saving}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-gray-900 dark:text-white rounded-lg transition-colors"
                 >
                   <Save size={16} />
                   {saving ? 'saving...' : 'add'}
@@ -538,15 +538,15 @@ export default function PageBuilder() {
           )}
 
           {/* Products List */}
-          <div className="bg-[#111] rounded-lg border border-white/5 p-4">
-            <h2 className="text-lg font-semibold text-white mb-4 lowercase">page blocks</h2>
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">page blocks</h2>
             
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="products">
                 {(provided) => (
                   <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
                     {products.length === 0 ? (
-                      <p className="text-white/40 text-center py-8 lowercase">no blocks yet. add some above!</p>
+                      <p className="text-gray-400 dark:text-white/40 text-center py-8 lowercase">no blocks yet. add some above!</p>
                     ) : (
                       products.map((product, index) => {
                         const Icon = getProductIcon(product.product_type);
@@ -559,7 +559,7 @@ export default function PageBuilder() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 className={`
-                                  bg-white/5 border border-white/10 rounded-lg p-3
+                                  bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-3
                                   ${snapshot.isDragging ? 'ring-2 ring-emerald-500/50' : ''}
                                   ${!product.is_active ? 'opacity-50' : ''}
                                 `}
@@ -572,7 +572,7 @@ export default function PageBuilder() {
                                         type="text"
                                         value={editForm.title}
                                         onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                                        className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                                        className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm"
                                       />
                                     </div>
                                     {product.product_type === 'digital_product' && (
@@ -581,7 +581,7 @@ export default function PageBuilder() {
                                           <textarea
                                             value={editForm.description}
                                             onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                            className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-white text-sm resize-none h-16"
+                                            className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm resize-none h-16"
                                           />
                                         </div>
                                         <div>
@@ -590,7 +590,7 @@ export default function PageBuilder() {
                                             step="0.01"
                                             value={editForm.price}
                                             onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                                            className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                                            className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm"
                                           />
                                         </div>
                                       </>
@@ -601,7 +601,7 @@ export default function PageBuilder() {
                                           type="url"
                                           value={editForm.external_url}
                                           onChange={(e) => setEditForm({ ...editForm, external_url: e.target.value })}
-                                          className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                                          className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm"
                                         />
                                       </div>
                                     )}
@@ -615,7 +615,7 @@ export default function PageBuilder() {
                                             className={`px-2 py-1.5 rounded border text-xs transition-all ${
                                               editForm.layout === 'classic'
                                                 ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
-                                                : 'border-white/10 text-white/50 hover:border-white/20'
+                                                : 'border-gray-200 dark:border-white/10 text-white/50 hover:border-white/20'
                                             }`}
                                           >
                                             classic
@@ -626,7 +626,7 @@ export default function PageBuilder() {
                                             className={`px-2 py-1.5 rounded border text-xs transition-all ${
                                               editForm.layout === 'featured'
                                                 ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
-                                                : 'border-white/10 text-white/50 hover:border-white/20'
+                                                : 'border-gray-200 dark:border-white/10 text-white/50 hover:border-white/20'
                                             }`}
                                           >
                                             featured
@@ -638,13 +638,13 @@ export default function PageBuilder() {
                                       <button
                                         onClick={handleEdit}
                                         disabled={saving}
-                                        className="flex-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-sm"
+                                        className="flex-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-gray-900 dark:text-white rounded text-sm"
                                       >
                                         save
                                       </button>
                                       <button
                                         onClick={() => setEditForm({ product: null, title: '', description: '', price: '', external_url: '', layout: 'classic' })}
-                                        className="flex-1 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-sm"
+                                        className="flex-1 px-3 py-1 bg-white/10 hover:bg-white/20 text-gray-900 dark:text-white rounded text-sm"
                                       >
                                         cancel
                                       </button>
@@ -653,14 +653,14 @@ export default function PageBuilder() {
                                 ) : (
                                   // Display mode
                                   <div className="flex items-center gap-3">
-                                    <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-white/40 hover:text-white/60">
+                                    <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-gray-400 dark:text-white/40 hover:text-gray-500 dark:text-white/60">
                                       <GripVertical size={16} />
                                     </div>
                                     <div className={`p-2 rounded ${getTypeBadge(product.product_type)}`}>
                                       <Icon size={16} />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-white text-sm font-medium truncate">{product.title}</p>
+                                      <p className="text-gray-900 dark:text-white text-sm font-medium truncate">{product.title}</p>
                                       <div className="flex items-center gap-2 mt-1">
                                         <span className={`px-2 py-0.5 rounded text-xs ${getTypeBadge(product.product_type)}`}>
                                           {product.product_type}
@@ -676,19 +676,19 @@ export default function PageBuilder() {
                                     <div className="flex items-center gap-1">
                                       <button
                                         onClick={() => toggleActive(product)}
-                                        className="p-1 text-white/40 hover:text-white"
+                                        className="p-1 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:text-white"
                                       >
                                         {product.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
                                       </button>
                                       <button
                                         onClick={() => startEdit(product)}
-                                        className="p-1 text-white/40 hover:text-white"
+                                        className="p-1 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:text-white"
                                       >
                                         <Edit2 size={16} />
                                       </button>
                                       <button
                                         onClick={() => handleDelete(product.id)}
-                                        className="p-1 text-white/40 hover:text-red-400"
+                                        className="p-1 text-gray-400 dark:text-white/40 hover:text-red-400"
                                       >
                                         <Trash2 size={16} />
                                       </button>
@@ -713,12 +713,12 @@ export default function PageBuilder() {
           {activeTab === 'design' && (
             <>
               {/* Preset Themes */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+              <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-white lowercase">preset themes</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white lowercase">preset themes</h2>
                   <button
                     onClick={shuffleTheme}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/60 hover:text-white text-sm transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-gray-500 dark:text-white/60 hover:text-gray-900 dark:text-white text-sm transition-colors"
                   >
                     <Shuffle size={14} />
                     <span className="lowercase">shuffle</span>
@@ -729,36 +729,36 @@ export default function PageBuilder() {
                     <button
                       key={name}
                       onClick={() => setTheme(preset)}
-                      className="p-3 rounded-lg border border-white/10 hover:border-white/20 transition-all text-left group"
+                      className="p-3 rounded-lg border border-gray-200 dark:border-white/10 hover:border-white/20 transition-all text-left group"
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <div 
-                          className="w-3 h-3 rounded-full border border-white/10" 
+                          className="w-3 h-3 rounded-full border border-gray-200 dark:border-white/10" 
                           style={{ backgroundColor: preset.primary }}
                         />
                         <div 
-                          className="w-3 h-3 rounded border border-white/10" 
+                          className="w-3 h-3 rounded border border-gray-200 dark:border-white/10" 
                           style={{ backgroundColor: preset.background }}
                         />
                         <div 
-                          className="w-3 h-3 rounded border border-white/10" 
+                          className="w-3 h-3 rounded border border-gray-200 dark:border-white/10" 
                           style={{ backgroundColor: preset.cardBg }}
                         />
                       </div>
-                      <p className="text-white text-xs font-medium lowercase">{name}</p>
+                      <p className="text-gray-900 dark:text-white text-xs font-medium lowercase">{name}</p>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Customize Theme */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
-                <h2 className="text-lg font-semibold text-white mb-4 lowercase">customize theme</h2>
+              <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">customize theme</h2>
                 
                 <div className="space-y-6">
                   {/* Background */}
                   <div>
-                    <label className="block text-white/60 text-sm mb-3 lowercase">background</label>
+                    <label className="block text-gray-500 dark:text-white/60 text-sm mb-3 lowercase">background</label>
                     <div className="flex gap-2">
                       <input
                         type="color"
@@ -770,7 +770,7 @@ export default function PageBuilder() {
                         type="text"
                         value={theme.background}
                         onChange={(e) => setTheme({ ...theme, background: e.target.value })}
-                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                         placeholder="#ffffff"
                       />
                     </div>
@@ -778,7 +778,7 @@ export default function PageBuilder() {
 
                   {/* Buttons */}
                   <div>
-                    <label className="block text-white/60 text-sm mb-3 lowercase">buttons</label>
+                    <label className="block text-gray-500 dark:text-white/60 text-sm mb-3 lowercase">buttons</label>
                     <div className="flex gap-2 mb-2">
                       <input
                         type="color"
@@ -790,7 +790,7 @@ export default function PageBuilder() {
                         type="text"
                         value={theme.primary}
                         onChange={(e) => setTheme({ ...theme, primary: e.target.value })}
-                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                         placeholder="#1a1a1a"
                       />
                     </div>
@@ -817,7 +817,7 @@ export default function PageBuilder() {
                           className={`p-2 rounded-lg border transition-all ${
                             (theme.buttonStyle || 'fill') === style 
                               ? 'border-emerald-500 bg-emerald-500/10' 
-                              : 'border-white/10 hover:border-white/20'
+                              : 'border-gray-200 dark:border-white/10 hover:border-white/20'
                           }`}
                         >
                           <div 
@@ -842,7 +842,7 @@ export default function PageBuilder() {
 
                   {/* Cards */}
                   <div>
-                    <label className="block text-white/60 text-sm mb-3 lowercase">cards</label>
+                    <label className="block text-gray-500 dark:text-white/60 text-sm mb-3 lowercase">cards</label>
                     <div className="flex gap-2">
                       <input
                         type="color"
@@ -854,7 +854,7 @@ export default function PageBuilder() {
                         type="text"
                         value={theme.cardBg}
                         onChange={(e) => setTheme({ ...theme, cardBg: e.target.value })}
-                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                         placeholder="#f5f5f5"
                       />
                     </div>
@@ -862,11 +862,11 @@ export default function PageBuilder() {
 
                   {/* Text */}
                   <div>
-                    <label className="block text-white/60 text-sm mb-3 lowercase">text</label>
+                    <label className="block text-gray-500 dark:text-white/60 text-sm mb-3 lowercase">text</label>
                     <select
                       value={theme.font}
                       onChange={(e) => setTheme({ ...theme, font: e.target.value as CreatorTheme['font'] })}
-                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f] mb-2"
+                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f] mb-2"
                     >
                       <option value="default">default / sans</option>
                       <option value="serif">serif</option>
@@ -874,13 +874,13 @@ export default function PageBuilder() {
                       <option value="rounded">rounded</option>
                     </select>
                     <div className={`p-2 rounded bg-white/5 ${getThemeFontClass(theme.font)}`}>
-                      <p className="text-sm text-white/60">font preview text</p>
+                      <p className="text-sm text-gray-500 dark:text-white/60">font preview text</p>
                     </div>
                   </div>
 
                   {/* Colors */}
                   <div>
-                    <label className="block text-white/60 text-sm mb-3 lowercase">colors</label>
+                    <label className="block text-gray-500 dark:text-white/60 text-sm mb-3 lowercase">colors</label>
                     <div className="flex gap-2">
                       <input
                         type="color"
@@ -892,7 +892,7 @@ export default function PageBuilder() {
                         type="text"
                         value={theme.textColor}
                         onChange={(e) => setTheme({ ...theme, textColor: e.target.value })}
-                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                        className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                         placeholder="#000000"
                       />
                     </div>
@@ -901,8 +901,8 @@ export default function PageBuilder() {
               </div>
 
               {/* FEATURE 2: Background Wallpaper/Gradient */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
-                <h2 className="text-lg font-semibold text-white mb-4 lowercase">background</h2>
+              <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">background</h2>
                 
                 {/* Background Type Toggle */}
                 <div className="flex gap-1 p-1 bg-white/5 rounded-lg mb-4">
@@ -913,7 +913,7 @@ export default function PageBuilder() {
                       className={`flex-1 px-3 py-2 rounded text-sm transition-all lowercase ${
                         theme.backgroundType === type 
                           ? 'bg-emerald-500 text-black font-medium' 
-                          : 'text-white/60 hover:text-white'
+                          : 'text-gray-500 dark:text-white/60 hover:text-gray-900 dark:text-white'
                       }`}
                     >
                       {type}
@@ -934,7 +934,7 @@ export default function PageBuilder() {
                       type="text"
                       value={theme.background}
                       onChange={(e) => setTheme({ ...theme, background: e.target.value })}
-                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      className="flex-1 bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                       placeholder="#ffffff"
                     />
                   </div>
@@ -943,7 +943,7 @@ export default function PageBuilder() {
                 {/* Gradient Presets */}
                 {theme.backgroundType === 'gradient' && (
                   <div>
-                    <label className="block text-white/60 text-sm mb-3 lowercase">preset gradients</label>
+                    <label className="block text-gray-500 dark:text-white/60 text-sm mb-3 lowercase">preset gradients</label>
                     <div className="grid grid-cols-2 gap-2 mb-4">
                       {Object.entries({
                         midnight: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
@@ -961,7 +961,7 @@ export default function PageBuilder() {
                           className={`h-12 rounded-lg border transition-all ${
                             theme.backgroundGradient === gradient 
                               ? 'border-emerald-500 ring-2 ring-emerald-500/20' 
-                              : 'border-white/10 hover:border-white/20'
+                              : 'border-gray-200 dark:border-white/10 hover:border-white/20'
                           }`}
                           style={{ background: gradient }}
                         >
@@ -974,7 +974,7 @@ export default function PageBuilder() {
                       value={theme.backgroundGradient || ''}
                       onChange={(e) => setTheme({ ...theme, backgroundGradient: e.target.value })}
                       placeholder="custom gradient (e.g. linear-gradient(135deg, #000, #fff))"
-                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                     />
                   </div>
                 )}
@@ -993,8 +993,8 @@ export default function PageBuilder() {
               </div>
 
               {/* FEATURE 3: Header Layout */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
-                <h2 className="text-lg font-semibold text-white mb-4 lowercase">header</h2>
+              <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">header</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
                     { style: 'classic', label: 'classic', desc: 'centered circle avatar + name + bio' },
@@ -1007,18 +1007,18 @@ export default function PageBuilder() {
                       className={`p-3 rounded-lg border text-left transition-all ${
                         theme.headerStyle === style 
                           ? 'border-emerald-500 bg-emerald-500/10' 
-                          : 'border-white/10 hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 hover:border-white/20'
                       }`}
                     >
                       <div className="mb-2">
                         <div className="h-8 bg-white/10 rounded mb-1 flex items-center justify-center">
                           {style === 'classic' && <div className="w-4 h-4 rounded-full bg-white/30"></div>}
                           {style === 'banner' && <div className="w-full h-2 bg-white/30 rounded"></div>}
-                          {style === 'minimal' && <div className="text-[8px] text-white/40">Name</div>}
+                          {style === 'minimal' && <div className="text-[8px] text-gray-400 dark:text-white/40">Name</div>}
                         </div>
                       </div>
-                      <p className="text-white text-xs font-medium lowercase">{label}</p>
-                      <p className="text-white/40 text-[10px] mt-1">{desc}</p>
+                      <p className="text-gray-900 dark:text-white text-xs font-medium lowercase">{label}</p>
+                      <p className="text-gray-400 dark:text-white/40 text-[10px] mt-1">{desc}</p>
                     </button>
                   ))}
                 </div>
@@ -1026,7 +1026,7 @@ export default function PageBuilder() {
                 {/* Banner Image Upload */}
                 {theme.headerStyle === 'banner' && (
                   <div className="mt-4 pt-4 border-t border-white/5">
-                    <h3 className="text-sm font-medium text-white mb-3 lowercase">banner image</h3>
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3 lowercase">banner image</h3>
                     <p className="text-xs text-gray-500 mb-2">optimal size: 1200 × 400px</p>
                     <ImageUpload
                       onUpload={(url) => setTheme({ ...theme, headerImage: url })}
@@ -1039,8 +1039,8 @@ export default function PageBuilder() {
               </div>
 
               {/* FEATURE 4: Card Transparency/Blur */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
-                <h2 className="text-lg font-semibold text-white mb-4 lowercase">cards</h2>
+              <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">cards</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
                     { style: 'solid', label: 'solid', desc: 'opaque cards' },
@@ -1053,7 +1053,7 @@ export default function PageBuilder() {
                       className={`p-3 rounded-lg border text-left transition-all ${
                         theme.cardStyle === style 
                           ? 'border-emerald-500 bg-emerald-500/10' 
-                          : 'border-white/10 hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 hover:border-white/20'
                       }`}
                     >
                       <div className="mb-2">
@@ -1065,16 +1065,16 @@ export default function PageBuilder() {
                           {style === 'transparent' ? 'text' : 'card'}
                         </div>
                       </div>
-                      <p className="text-white text-xs font-medium lowercase">{label}</p>
-                      <p className="text-white/40 text-[10px] mt-1">{desc}</p>
+                      <p className="text-gray-900 dark:text-white text-xs font-medium lowercase">{label}</p>
+                      <p className="text-gray-400 dark:text-white/40 text-[10px] mt-1">{desc}</p>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* FEATURE 5: Social Icon Style */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
-                <h2 className="text-lg font-semibold text-white mb-4 lowercase">social icons</h2>
+              <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">social icons</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[
                     { style: 'filled', label: 'filled', desc: 'solid circles' },
@@ -1088,7 +1088,7 @@ export default function PageBuilder() {
                       className={`p-3 rounded-lg border text-left transition-all ${
                         theme.socialStyle === style 
                           ? 'border-emerald-500 bg-emerald-500/10' 
-                          : 'border-white/10 hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 hover:border-white/20'
                       }`}
                     >
                       <div className="mb-2 flex justify-center">
@@ -1102,15 +1102,15 @@ export default function PageBuilder() {
                           {style === 'minimal' && '○'}
                         </div>
                       </div>
-                      <p className="text-white text-xs font-medium lowercase">{label}</p>
-                      <p className="text-white/40 text-[10px] mt-1">{desc}</p>
+                      <p className="text-gray-900 dark:text-white text-xs font-medium lowercase">{label}</p>
+                      <p className="text-gray-400 dark:text-white/40 text-[10px] mt-1">{desc}</p>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Save Button */}
-              <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+              <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-4">
                 <button
                   onClick={handleThemeSave}
                   disabled={themeSaving}
@@ -1135,8 +1135,8 @@ export default function PageBuilder() {
 
         {/* Right Panel - Live Preview */}
         <div className="sticky top-8">
-          <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4 lowercase">live preview</h2>
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">live preview</h2>
             
             {/* Phone Frame */}
             <div className="mx-auto max-w-sm">

@@ -66,7 +66,7 @@ export default function AnalyticsPage() {
           <div className="h-5 bg-white/5 rounded w-64 mb-8"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-[#111] rounded-lg border border-white/5 p-6">
+              <div key={i} className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
                 <div className="h-6 bg-white/5 rounded w-20 mb-4"></div>
                 <div className="h-8 bg-white/5 rounded w-16"></div>
               </div>
@@ -95,50 +95,50 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">analytics</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">analytics</h1>
           <p className="text-gray-400">track your performance and growth</p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
+        <div className="bg-white dark:bg-[#2f2f2f] rounded-lg border border-gray-200 dark:border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <Eye className="h-5 w-5 text-white/60" />
+            <Eye className="h-5 w-5 text-gray-500 dark:text-white/60" />
             <span className="text-sm text-gray-400">total views</span>
           </div>
-          <p className="text-2xl font-bold text-white">{analytics?.pageViews.total || 0}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics?.pageViews.total || 0}</p>
         </div>
 
-        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
+        <div className="bg-white dark:bg-[#2f2f2f] rounded-lg border border-gray-200 dark:border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <Eye className="h-5 w-5 text-white/60" />
+            <Eye className="h-5 w-5 text-gray-500 dark:text-white/60" />
             <span className="text-sm text-gray-400">views today</span>
           </div>
-          <p className="text-2xl font-bold text-white">{analytics?.pageViews.today || 0}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics?.pageViews.today || 0}</p>
         </div>
 
-        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
+        <div className="bg-white dark:bg-[#2f2f2f] rounded-lg border border-gray-200 dark:border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <MousePointer className="h-5 w-5 text-white/60" />
+            <MousePointer className="h-5 w-5 text-gray-500 dark:text-white/60" />
             <span className="text-sm text-gray-400">total clicks</span>
           </div>
-          <p className="text-2xl font-bold text-white">{analytics?.clicks.total || 0}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics?.clicks.total || 0}</p>
         </div>
 
-        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
+        <div className="bg-white dark:bg-[#2f2f2f] rounded-lg border border-gray-200 dark:border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <MousePointer className="h-5 w-5 text-white/60" />
+            <MousePointer className="h-5 w-5 text-gray-500 dark:text-white/60" />
             <span className="text-sm text-gray-400">clicks today</span>
           </div>
-          <p className="text-2xl font-bold text-white">{analytics?.clicks.today || 0}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics?.clicks.today || 0}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Views Chart */}
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">views last 30 days</h3>
+        <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">views last 30 days</h3>
           <div className="space-y-1">
             {analytics?.viewsByDay.slice(-7).map((day, index) => (
               <div key={day.date} className="flex items-center gap-3">
@@ -150,7 +150,7 @@ export default function AnalyticsPage() {
                     className="bg-emerald-500 h-full rounded transition-all duration-300"
                     style={{ width: `${maxViews > 0 ? (day.count / maxViews) * 100 : 0}%` }}
                   ></div>
-                  <span className="absolute inset-0 flex items-center justify-center text-xs font-mono text-white">
+                  <span className="absolute inset-0 flex items-center justify-center text-xs font-mono text-gray-900 dark:text-white">
                     {day.count}
                   </span>
                 </div>
@@ -160,8 +160,8 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Referrers */}
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">top referrers</h3>
+        <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">top referrers</h3>
           <div className="space-y-3">
             {analytics?.referrers.length ? (
               analytics.referrers.map((ref, index) => (
@@ -177,8 +177,8 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Products */}
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">top clicked products</h3>
+        <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">top clicked products</h3>
           <div className="space-y-3">
             {analytics?.topProducts.length ? (
               analytics.topProducts.map((product, index) => (
@@ -197,8 +197,8 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Share Section */}
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">share your link</h3>
+        <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">share your link</h3>
           {profile?.handle && (
             <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 mb-4">
               <p className="text-emerald-400 text-sm mb-2">your public page:</p>

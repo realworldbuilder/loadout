@@ -37,7 +37,7 @@ export default function AILayout({
         </div>
 
         {/* Sub Navigation */}
-        <div className="flex space-x-1 bg-[#111] p-1 rounded-lg mb-8 w-fit">
+        <div className="flex space-x-1 bg-white dark:bg-[#111] p-1 rounded-lg mb-8 w-fit">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -50,7 +50,7 @@ export default function AILayout({
                   flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 text-sm
                   ${isActive 
                     ? 'bg-emerald-500 text-black font-medium' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    : 'text-gray-400 hover:text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5'
                   }
                 `}
               >

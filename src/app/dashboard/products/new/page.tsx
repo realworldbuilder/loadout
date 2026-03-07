@@ -172,7 +172,7 @@ function NewProductInner() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-white/60 lowercase">loading...</p>
+          <p className="text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">loading...</p>
         </div>
       </div>
     );
@@ -181,12 +181,12 @@ function NewProductInner() {
   return (
     <div className="px-6 py-8 lg:px-8">
       <div className="flex items-center space-x-4 mb-8">
-        <Link href="/dashboard/products" className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-          <ArrowLeft className="h-5 w-5 text-white/70" />
+        <Link href="/dashboard/products" className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+          <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-white/70" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-white lowercase">create product</h1>
-          <p className="text-white/60 lowercase">add a new product to your storefront</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-900 dark:text-gray-900 dark:text-white lowercase">create product</h1>
+          <p className="text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">add a new product to your storefront</p>
         </div>
       </div>
 
@@ -194,30 +194,30 @@ function NewProductInner() {
         <div className="lg:col-span-2 space-y-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">basic info</h2>
+            <div className="bg-white dark:bg-white dark:bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-200 dark:border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-900 dark:text-gray-900 dark:text-white mb-6 lowercase">basic info</h2>
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2 lowercase">title *</label>
                   <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
+                    className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                     placeholder="e.g., 12-week shred program" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2 lowercase">description</label>
                   <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4}
-                    className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20 resize-none"
+                    className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-white/20 resize-none"
                     placeholder="describe what customers will get..." />
-                  <p className="text-xs text-white/40 mt-2 lowercase">tell customers what they'll receive</p>
+                  <p className="text-xs text-gray-400 dark:text-white/40 mt-2 lowercase">tell customers what they'll receive</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {productType !== 'link' && productType !== 'email_collector' && productType !== 'header' && (
                     <div>
                       <label className="block text-sm font-medium text-white/80 mb-2 lowercase">price ($) *</label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
+                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/40" />
                         <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
+                          className="w-full pl-10 pr-4 py-3 bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                           placeholder="29.99" step="0.01" min="0" required />
                       </div>
                     </div>
@@ -225,7 +225,7 @@ function NewProductInner() {
                   <div className={(productType === 'link' || productType === 'email_collector' || productType === 'header') ? 'col-span-full' : ''}>
                     <label className="block text-sm font-medium text-white/80 mb-2 lowercase">type *</label>
                     <select value={productType} onChange={(e) => setProductType(e.target.value as ProductType)}
-                      className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/20">
+                      className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-gray-900 dark:text-white focus:outline-none focus:border-white/20">
                       <option value="digital">digital product</option>
                       <option value="coaching">coaching</option>
                       <option value="affiliate_link">affiliate link</option>
@@ -241,8 +241,8 @@ function NewProductInner() {
             </div>
 
             {/* Layout Picker */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">layout style</h2>
+            <div className="bg-white dark:bg-white dark:bg-[#111] border border-gray-200 dark:border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-900 dark:text-white mb-6 lowercase">layout style</h2>
               <div className="grid grid-cols-2 gap-4">
                 {/* Classic Layout */}
                 <button
@@ -251,11 +251,11 @@ function NewProductInner() {
                   className={`p-4 rounded-2xl border transition-all ${
                     layout === 'classic'
                       ? 'border-emerald-500/50 bg-emerald-500/10 ring-2 ring-emerald-500/20'
-                      : 'border-white/10 bg-[#161616] hover:border-white/20 hover:bg-white/5'
+                      : 'border-gray-200 dark:border-white/10 bg-[#161616] hover:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
                 >
                   <div className="space-y-3">
-                    <div className="w-full h-16 bg-white/5 rounded border border-white/10 p-2">
+                    <div className="w-full h-16 bg-white/5 rounded border border-gray-200 dark:border-white/10 p-2">
                       <div className="flex items-center space-x-2 h-full">
                         <div className="w-10 h-10 bg-white/10 rounded flex-shrink-0"></div>
                         <div className="flex-1 space-y-1">
@@ -268,10 +268,10 @@ function NewProductInner() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <h3 className={`font-medium mb-1 lowercase ${layout === 'classic' ? 'text-emerald-400' : 'text-white'}`}>
+                      <h3 className={`font-medium mb-1 lowercase ${layout === 'classic' ? 'text-emerald-400' : 'text-gray-900 dark:text-gray-900 dark:text-white'}`}>
                         classic
                       </h3>
-                      <p className="text-xs text-white/60 lowercase">compact row layout</p>
+                      <p className="text-xs text-gray-500 dark:text-white/60 lowercase">compact row layout</p>
                     </div>
                   </div>
                 </button>
@@ -283,11 +283,11 @@ function NewProductInner() {
                   className={`p-4 rounded-2xl border transition-all ${
                     layout === 'featured'
                       ? 'border-emerald-500/50 bg-emerald-500/10 ring-2 ring-emerald-500/20'
-                      : 'border-white/10 bg-[#161616] hover:border-white/20 hover:bg-white/5'
+                      : 'border-gray-200 dark:border-white/10 bg-[#161616] hover:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
                 >
                   <div className="space-y-3">
-                    <div className="w-full h-20 bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                    <div className="w-full h-20 bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden">
                       <div className="h-12 bg-white/10"></div>
                       <div className="p-2 space-y-1">
                         <div className="w-3/4 h-2 bg-white/20 rounded"></div>
@@ -300,10 +300,10 @@ function NewProductInner() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <h3 className={`font-medium mb-1 lowercase ${layout === 'featured' ? 'text-emerald-400' : 'text-white'}`}>
+                      <h3 className={`font-medium mb-1 lowercase ${layout === 'featured' ? 'text-emerald-400' : 'text-gray-900 dark:text-gray-900 dark:text-white'}`}>
                         featured
                       </h3>
-                      <p className="text-xs text-white/60 lowercase">large card with hero image</p>
+                      <p className="text-xs text-gray-500 dark:text-white/60 lowercase">large card with hero image</p>
                     </div>
                   </div>
                 </button>
@@ -319,8 +319,8 @@ function NewProductInner() {
 
             {/* External URL - for links, embeds, or any product */}
             {productType !== 'email_collector' && productType !== 'header' && (
-              <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-white mb-6 lowercase">
+              <div className="bg-white dark:bg-white dark:bg-[#111] border border-gray-200 dark:border-white/5 rounded-lg p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-900 dark:text-white mb-6 lowercase">
                   {productType === 'link' ? 'destination url' : productType === 'embed' ? 'embed url' : 'link'}
                 </h2>
                 <div>
@@ -328,9 +328,9 @@ function NewProductInner() {
                     {productType === 'embed' ? 'content url' : 'external url'} {(productType === 'link' || productType === 'embed') ? '*' : ''}
                   </label>
                   <div className="relative">
-                    <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
+                    <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/40" />
                     <input type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
+                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                       placeholder={
                         productType === 'link' ? 'https://youtube.com/@yourhandle' :
                         productType === 'embed' ? 'https://youtube.com/watch?v=... or https://open.spotify.com/...' :
@@ -338,7 +338,7 @@ function NewProductInner() {
                       }
                       required={productType === 'link' || productType === 'embed'} />
                   </div>
-                  <p className="text-xs text-white/40 mt-2 lowercase">
+                  <p className="text-xs text-gray-400 dark:text-white/40 mt-2 lowercase">
                     {productType === 'link' ? 'where people go when they click this link' : 
                      productType === 'embed' ? 'youtube, spotify, or other embeddable content url' :
                      'where customers go when they click "get it"'}
@@ -348,25 +348,25 @@ function NewProductInner() {
             )}
 
             {/* CTA */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">call to action</h2>
+            <div className="bg-white dark:bg-white dark:bg-[#111] border border-gray-200 dark:border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-900 dark:text-white mb-6 lowercase">call to action</h2>
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2 lowercase">button text</label>
                 <input type="text" value={ctaText} onChange={(e) => setCtaText(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
+                  className="w-full px-4 py-3 bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                   placeholder="get now, buy this, start today..." />
-                <p className="text-xs text-white/40 mt-2 lowercase">leave empty to use default</p>
+                <p className="text-xs text-gray-400 dark:text-white/40 mt-2 lowercase">leave empty to use default</p>
               </div>
             </div>
 
             {/* Thumbnail Upload */}
-            <div className={`bg-[#111] border rounded-lg p-6 ${
+            <div className={`bg-white dark:bg-white dark:bg-[#111] border rounded-lg p-6 ${
               layout === 'featured' 
                 ? 'border-emerald-500/30 ring-1 ring-emerald-500/10' 
-                : 'border-white/5'
+                : 'border-gray-200 dark:border-white/5'
             }`}>
               <h2 className={`text-lg font-semibold mb-6 lowercase ${
-                layout === 'featured' ? 'text-emerald-400' : 'text-white'
+                layout === 'featured' ? 'text-emerald-400' : 'text-gray-900 dark:text-gray-900 dark:text-white'
               }`}>
                 thumbnail {layout === 'featured' && '✨'}
               </h2>
@@ -384,12 +384,12 @@ function NewProductInner() {
                   <img
                     src={thumbnailPreview}
                     alt="Thumbnail preview"
-                    className="w-full aspect-video object-cover rounded-lg border border-white/10"
+                    className="w-full aspect-video object-cover rounded-lg border border-gray-200 dark:border-white/10"
                   />
                   <button
                     type="button"
                     onClick={clearThumbnail}
-                    className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white/80 hover:text-white hover:bg-black/80 transition-colors"
+                    className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white/80 hover:text-gray-900 dark:text-gray-900 dark:text-white hover:bg-black/80 transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -398,12 +398,12 @@ function NewProductInner() {
                 <button
                   type="button"
                   onClick={() => thumbnailInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-white/20 hover:bg-white/5 transition-all group cursor-pointer"
+                  className="w-full border-2 border-dashed border-gray-200 dark:border-white/10 rounded-lg p-8 text-center hover:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5 transition-all group cursor-pointer"
                 >
                   <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:bg-white/10 transition-colors">
-                    <ImageIcon className="h-6 w-6 text-white/40 group-hover:text-white/60 transition-colors" />
+                    <ImageIcon className="h-6 w-6 text-gray-400 dark:text-white/40 group-hover:text-gray-500 dark:text-white/60 transition-colors" />
                   </div>
-                  <p className="text-white/60 text-sm mb-1 lowercase">click to upload thumbnail</p>
+                  <p className="text-gray-500 dark:text-white/60 text-sm mb-1 lowercase">click to upload thumbnail</p>
                   <p className="text-white/30 text-xs lowercase">jpg, png, webp · max 5mb</p>
                 </button>
               )}
@@ -412,7 +412,7 @@ function NewProductInner() {
             {/* Submit */}
             <div className="flex space-x-4">
               <Link href="/dashboard/products"
-                className="flex-1 px-6 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center font-medium hover:bg-white/10 transition-colors lowercase">
+                className="flex-1 px-6 py-3 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-gray-900 dark:text-white text-center font-medium hover:bg-white/10 transition-colors lowercase">
                 cancel
               </Link>
               <button type="submit" disabled={loading || !title || ((productType === 'link' || productType === 'embed') ? !externalUrl : (productType !== 'email_collector' && productType !== 'header' && !price))}
@@ -430,13 +430,13 @@ function NewProductInner() {
 
         {/* Preview */}
         <div className="space-y-6">
-          <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+          <div className="bg-white dark:bg-white dark:bg-[#111] border border-gray-200 dark:border-white/5 rounded-lg p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <Eye className="h-5 w-5 text-white/60" />
-              <h2 className="text-lg font-semibold text-white lowercase">preview</h2>
+              <Eye className="h-5 w-5 text-gray-500 dark:text-white/60" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-900 dark:text-white lowercase">preview</h2>
             </div>
             
-            <div className="bg-[#161616] border border-white/5 rounded-lg overflow-hidden">
+            <div className="bg-[#161616] border border-gray-200 dark:border-white/5 rounded-lg overflow-hidden">
               <div className="aspect-video bg-[#1a1a1a] flex items-center justify-center overflow-hidden">
                 {thumbnailPreview ? (
                   <img src={thumbnailPreview} alt="Preview" className="w-full h-full object-cover" />
@@ -445,20 +445,20 @@ function NewProductInner() {
                 )}
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-white mb-1">{title || (
+                <h3 className="font-semibold text-gray-900 dark:text-gray-900 dark:text-white mb-1">{title || (
                   productType === 'link' ? 'link title' :
                   productType === 'email_collector' ? 'join my newsletter' :
                   productType === 'embed' ? 'embedded content' :
                   productType === 'header' ? 'section title' :
                   'product title'
                 )}</h3>
-                {description && <p className="text-sm text-white/60 mb-3 line-clamp-2">{description}</p>}
+                {description && <p className="text-sm text-gray-500 dark:text-white/60 mb-3 line-clamp-2">{description}</p>}
                 <div className="flex items-center justify-between mb-3">
                   {productType !== 'link' && productType !== 'email_collector' && productType !== 'header' && <span className="font-semibold text-emerald-500">{formatPrice(price)}</span>}
-                  <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-white/60 lowercase ml-auto">{getProductTypeLabel(productType)}</span>
+                  <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-gray-500 dark:text-white/60 lowercase ml-auto">{getProductTypeLabel(productType)}</span>
                 </div>
                 {productType === 'link' ? (
-                  <div className="flex items-center justify-center py-2 text-white/60">
+                  <div className="flex items-center justify-center py-2 text-gray-500 dark:text-white/60">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     <span className="text-sm lowercase">clickable link</span>
                   </div>
@@ -470,11 +470,11 @@ function NewProductInner() {
                     </div>
                   </div>
                 ) : productType === 'embed' ? (
-                  <div className="bg-white/5 border border-white/10 rounded p-4 text-center text-white/40">
+                  <div className="bg-white/5 border border-gray-200 dark:border-white/10 rounded p-4 text-center text-gray-400 dark:text-white/40">
                     <span className="text-xs">embed preview</span>
                   </div>
                 ) : productType === 'header' ? (
-                  <div className="text-center py-2 text-white/40 text-xs uppercase tracking-wider">
+                  <div className="text-center py-2 text-gray-400 dark:text-white/40 text-xs uppercase tracking-wider">
                     section header
                   </div>
                 ) : (
@@ -493,7 +493,7 @@ function NewProductInner() {
 
 export default function NewProductPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-white/40">loading...</div>}>
+    <Suspense fallback={<div className="p-8 text-gray-400 dark:text-white/40">loading...</div>}>
       <NewProductInner />
     </Suspense>
   );

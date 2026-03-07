@@ -58,11 +58,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-[#111] border border-white/5 rounded-lg p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-white mb-2">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
               welcome back
             </h1>
             <p className="text-white/60 text-sm">
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
+                className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white placeholder-white/40"
                 placeholder="you@example.com"
                 disabled={loading}
               />
@@ -101,7 +101,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-white placeholder-white/40"
+                className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded focus:outline-none focus:border-emerald-500 text-gray-900 dark:text-white placeholder-white/40"
                 placeholder="your password"
                 disabled={loading}
               />
@@ -110,7 +110,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-medium rounded transition-colors duration-200"
+              className="w-full py-2 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-gray-900 dark:text-white font-medium rounded transition-colors duration-200"
             >
               {loading ? 'signing in...' : 'sign in'}
             </button>

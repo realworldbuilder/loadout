@@ -14,9 +14,9 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 backdrop-blur-xl bg-[#0a0a0a]/80">
+      <nav className="fixed top-0 w-full z-50 border-b border-white/5 backdrop-blur-xl bg-white dark:bg-[#0a0a0a]/80">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-between items-center h-14">
             <div className="flex items-center gap-2">

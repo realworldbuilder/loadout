@@ -139,8 +139,8 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-white/60 lowercase">
+          <div className="animate-spin h-8 w-8 border-2 border-gray-400 dark:border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">
             {initializing ? 'checking auth...' : authLoading ? 'loading profile...' : 'loading dashboard...'}
           </p>
         </div>
@@ -152,10 +152,10 @@ export default function DashboardPage() {
     <div className="px-6 py-8 lg:px-8">
       {/* Welcome section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2 lowercase">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-900 dark:text-white mb-2 lowercase">
           welcome back, {profile.display_name}
         </h1>
-        <p className="text-white/60 lowercase">
+        <p className="text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">
           @{profile.handle} • here's how your page is performing
         </p>
       </div>
@@ -164,39 +164,39 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Link
           href="/dashboard/products/new"
-          className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6 hover:border-white/15 transition-all duration-200 group"
+          className="bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-gray-200 dark:border-white/10 rounded-lg p-6 hover:border-gray-300 dark:hover:border-white/15 transition-all duration-200 group"
         >
           <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
-              <Plus className="h-5 w-5 text-white/60" />
+            <div className="p-2 bg-gray-100 dark:bg-white/5 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
+              <Plus className="h-5 w-5 text-gray-500 dark:text-gray-500 dark:text-white/60" />
             </div>
-            <h3 className="font-semibold text-white lowercase">add product</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-900 dark:text-white lowercase">add product</h3>
           </div>
-          <p className="text-sm text-white/60 lowercase">create a new product to sell</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">create a new product to sell</p>
         </Link>
 
         <Link
           href={`/${profile.handle}`}
           target="_blank"
-          className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6 hover:border-white/15 transition-all duration-200 group"
+          className="bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-gray-200 dark:border-white/10 rounded-lg p-6 hover:border-gray-300 dark:hover:border-white/15 transition-all duration-200 group"
         >
           <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
-              <ExternalLink className="h-5 w-5 text-white/60" />
+            <div className="p-2 bg-gray-100 dark:bg-white/5 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
+              <ExternalLink className="h-5 w-5 text-gray-500 dark:text-gray-500 dark:text-white/60" />
             </div>
-            <h3 className="font-semibold text-white lowercase">view my page</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-900 dark:text-white lowercase">view my page</h3>
           </div>
-          <p className="text-sm text-white/60 lowercase">see how visitors see your page</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">see how visitors see your page</p>
         </Link>
 
-        <button className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6 hover:border-white/15 transition-all duration-200 group text-left">
+        <button className="bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-gray-200 dark:border-white/10 rounded-lg p-6 hover:border-gray-300 dark:hover:border-white/15 transition-all duration-200 group text-left">
           <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
-              <Share2 className="h-5 w-5 text-white/60" />
+            <div className="p-2 bg-gray-100 dark:bg-white/5 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
+              <Share2 className="h-5 w-5 text-gray-500 dark:text-gray-500 dark:text-white/60" />
             </div>
-            <h3 className="font-semibold text-white lowercase">share link</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-900 dark:text-white lowercase">share link</h3>
           </div>
-          <p className="text-sm text-white/60 lowercase">copy your page link to share</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">copy your page link to share</p>
         </button>
       </div>
 
@@ -227,16 +227,16 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Empty state for products */}
         {stats.totalProducts === 0 && (
-          <div className="bg-[#2f2f2f] border border-white/10 rounded-lg p-8">
+          <div className="bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-gray-200 dark:border-white/10 rounded-lg p-8">
             <div className="text-center">
-              <Package className="h-12 w-12 text-white/20 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2 lowercase">start selling</h3>
-              <p className="text-white/60 text-sm mb-6 lowercase">
+              <Package className="h-12 w-12 text-gray-300 dark:text-white/20 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-900 dark:text-white mb-2 lowercase">start selling</h3>
+              <p className="text-gray-500 dark:text-gray-500 dark:text-white/60 text-sm mb-6 lowercase">
                 create your first product to start earning
               </p>
               <Link 
                 href="/dashboard/products/new"
-                className="inline-flex items-center px-4 py-2 bg-white text-black hover:bg-white/90 font-medium rounded transition-colors duration-200 lowercase"
+                className="inline-flex items-center px-4 py-2 bg-gray-900 dark:bg-white text-gray-900 dark:text-white dark:text-black hover:bg-gray-800 dark:hover:bg-white/90 font-medium rounded transition-colors duration-200 lowercase"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 add your first product
@@ -248,42 +248,42 @@ export default function DashboardPage() {
         {/* AI suggestion + Recent orders */}
         <div className="space-y-8">
           {/* Recent orders */}
-          <div className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6">
+          <div className="bg-white dark:bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-gray-200 dark:border-white/10 rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-white lowercase">recent orders</h2>
-              <Link href="/dashboard/orders" className="text-sm text-white/50 hover:text-white transition-colors lowercase">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-900 dark:text-white lowercase">recent orders</h2>
+              <Link href="/dashboard/orders" className="text-sm text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-gray-900 dark:text-white transition-colors lowercase">
                 view all
               </Link>
             </div>
 
             {recentOrders.length === 0 ? (
               <div className="text-center py-8">
-                <ShoppingCart className="h-12 w-12 text-white/20 mx-auto mb-4" />
-                <p className="text-white/60 lowercase">no orders yet</p>
-                <p className="text-sm text-white/40 mt-1 lowercase">
+                <ShoppingCart className="h-12 w-12 text-gray-300 dark:text-white/20 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-500 dark:text-white/60 lowercase">no orders yet</p>
+                <p className="text-sm text-gray-400 dark:text-gray-400 dark:text-white/40 mt-1 lowercase">
                   orders will appear here when customers purchase
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 bg-[#3f3f3f] rounded-lg">
+                  <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#3f3f3f] rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className={`w-2 h-2 rounded-full ${
                         order.status === 'completed' ? 'bg-emerald-500' : 
                         order.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
                       }`} />
                       <div>
-                        <p className="font-medium text-white text-sm">
+                        <p className="font-medium text-gray-900 dark:text-gray-900 dark:text-white text-sm">
                           {(order as any).products?.title || 'unknown product'}
                         </p>
-                        <p className="text-xs text-white/60">{order.buyer_email}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 dark:text-white/60">{order.buyer_email}</p>
                       </div>
                     </div>
                     
                     <div className="text-right">
-                      <p className="font-semibold text-white text-sm">{formatPrice(order.amount_cents)}</p>
-                      <p className="text-xs text-white/40">
+                      <p className="font-semibold text-gray-900 dark:text-gray-900 dark:text-white text-sm">{formatPrice(order.amount_cents)}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-400 dark:text-white/40">
                         {formatDate(order.created_at)}
                       </p>
                     </div>

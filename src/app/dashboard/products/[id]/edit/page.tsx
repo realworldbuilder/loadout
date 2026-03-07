@@ -201,7 +201,7 @@ export default function EditProductPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-white/60 lowercase">loading...</p>
+          <p className="text-gray-500 dark:text-white/60 lowercase">loading...</p>
         </div>
       </div>
     );
@@ -211,7 +211,7 @@ export default function EditProductPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <p className="text-white/60 lowercase">product not found</p>
+          <p className="text-gray-500 dark:text-white/60 lowercase">product not found</p>
         </div>
       </div>
     );
@@ -224,13 +224,13 @@ export default function EditProductPage() {
         <div className="flex items-center space-x-4">
           <Link
             href="/dashboard/products"
-            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-white/70" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-white lowercase">edit product</h1>
-            <p className="text-white/60 lowercase">update your product details</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white lowercase">edit product</h1>
+            <p className="text-gray-500 dark:text-white/60 lowercase">update your product details</p>
           </div>
         </div>
 
@@ -249,8 +249,8 @@ export default function EditProductPage() {
         <div className="lg:col-span-2 space-y-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">basic info</h2>
+            <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 lowercase">basic info</h2>
               
               <div className="space-y-6">
                 <div>
@@ -261,7 +261,7 @@ export default function EditProductPage() {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
+                    className="w-full px-4 py-3 bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                     placeholder="e.g., 12-week shred program"
                     required
                   />
@@ -275,10 +275,10 @@ export default function EditProductPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
-                    className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50 resize-none"
+                    className="w-full px-4 py-3 bg-[#161616] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50 resize-none"
                     placeholder="describe what customers will get..."
                   />
-                  <p className="text-xs text-white/40 mt-2 lowercase">tell customers what they'll receive</p>
+                  <p className="text-xs text-gray-400 dark:text-white/40 mt-2 lowercase">tell customers what they'll receive</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -287,12 +287,12 @@ export default function EditProductPage() {
                       price ($) *
                     </label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/40" />
                       <input
                         type="number"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
                         placeholder="29.99"
                         step="0.01"
                         min="0"
@@ -308,7 +308,7 @@ export default function EditProductPage() {
                     <select
                       value={productType}
                       onChange={(e) => setProductType(e.target.value as ProductType)}
-                      className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white focus:outline-none focus:border-emerald-500/50"
+                      className="w-full px-4 py-3 bg-[#161616] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500/50"
                     >
                       <option value="digital_product">digital product</option>
                       <option value="coaching">coaching</option>
@@ -321,8 +321,8 @@ export default function EditProductPage() {
             </div>
 
             {/* Layout Picker */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">layout style</h2>
+            <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 lowercase">layout style</h2>
               <div className="grid grid-cols-2 gap-4">
                 {/* Classic Layout */}
                 <button
@@ -331,11 +331,11 @@ export default function EditProductPage() {
                   className={`p-4 rounded-2xl border transition-all ${
                     layout === 'classic'
                       ? 'border-emerald-500/50 bg-emerald-500/10 ring-2 ring-emerald-500/20'
-                      : 'border-white/10 bg-[#161616] hover:border-white/20 hover:bg-white/5'
+                      : 'border-gray-200 dark:border-white/10 bg-[#161616] hover:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
                 >
                   <div className="space-y-3">
-                    <div className="w-full h-16 bg-white/5 rounded border border-white/10 p-2">
+                    <div className="w-full h-16 bg-white/5 rounded border border-gray-200 dark:border-white/10 p-2">
                       <div className="flex items-center space-x-2 h-full">
                         <div className="w-10 h-10 bg-white/10 rounded flex-shrink-0"></div>
                         <div className="flex-1 space-y-1">
@@ -348,10 +348,10 @@ export default function EditProductPage() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <h3 className={`font-medium mb-1 lowercase ${layout === 'classic' ? 'text-emerald-400' : 'text-white'}`}>
+                      <h3 className={`font-medium mb-1 lowercase ${layout === 'classic' ? 'text-emerald-400' : 'text-gray-900 dark:text-white'}`}>
                         classic
                       </h3>
-                      <p className="text-xs text-white/60 lowercase">compact row layout</p>
+                      <p className="text-xs text-gray-500 dark:text-white/60 lowercase">compact row layout</p>
                     </div>
                   </div>
                 </button>
@@ -363,11 +363,11 @@ export default function EditProductPage() {
                   className={`p-4 rounded-2xl border transition-all ${
                     layout === 'featured'
                       ? 'border-emerald-500/50 bg-emerald-500/10 ring-2 ring-emerald-500/20'
-                      : 'border-white/10 bg-[#161616] hover:border-white/20 hover:bg-white/5'
+                      : 'border-gray-200 dark:border-white/10 bg-[#161616] hover:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
                 >
                   <div className="space-y-3">
-                    <div className="w-full h-20 bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                    <div className="w-full h-20 bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden">
                       <div className="h-12 bg-white/10"></div>
                       <div className="p-2 space-y-1">
                         <div className="w-3/4 h-2 bg-white/20 rounded"></div>
@@ -380,10 +380,10 @@ export default function EditProductPage() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <h3 className={`font-medium mb-1 lowercase ${layout === 'featured' ? 'text-emerald-400' : 'text-white'}`}>
+                      <h3 className={`font-medium mb-1 lowercase ${layout === 'featured' ? 'text-emerald-400' : 'text-gray-900 dark:text-white'}`}>
                         featured
                       </h3>
-                      <p className="text-xs text-white/60 lowercase">large card with hero image</p>
+                      <p className="text-xs text-gray-500 dark:text-white/60 lowercase">large card with hero image</p>
                     </div>
                   </div>
                 </button>
@@ -399,8 +399,8 @@ export default function EditProductPage() {
 
             {/* Conditional Fields */}
             {productType === 'affiliate_link' && (
-              <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-white mb-6 lowercase">affiliate link</h2>
+              <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 lowercase">affiliate link</h2>
                 
                 <div className="space-y-6">
                   <div>
@@ -408,12 +408,12 @@ export default function EditProductPage() {
                       external url
                     </label>
                     <div className="relative">
-                      <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
+                      <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white/40" />
                       <input
                         type="url"
                         value={externalUrl}
                         onChange={(e) => setExternalUrl(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                        className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
                         placeholder="https://example.com/product"
                       />
                     </div>
@@ -423,8 +423,8 @@ export default function EditProductPage() {
             )}
 
             {/* Call to Action */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">call to action</h2>
+            <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 lowercase">call to action</h2>
               
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2 lowercase">
@@ -434,21 +434,21 @@ export default function EditProductPage() {
                   type="text"
                   value={ctaText}
                   onChange={(e) => setCtaText(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full px-4 py-3 bg-[#161616] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
                   placeholder="get now, buy this, start today..."
                 />
-                <p className="text-xs text-white/40 mt-2 lowercase">
+                <p className="text-xs text-gray-400 dark:text-white/40 mt-2 lowercase">
                   leave empty to use default: "get this"
                 </p>
               </div>
             </div>
 
             {/* Thumbnail */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-6 lowercase">thumbnail</h2>
+            <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 lowercase">thumbnail</h2>
               
-              <div className="border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-white/20 transition-colors">
-                <div className="text-white/40 mb-4">
+              <div className="border-2 border-dashed border-gray-200 dark:border-white/10 rounded-lg p-8 text-center hover:border-white/20 transition-colors">
+                <div className="text-gray-400 dark:text-white/40 mb-4">
                   {product.thumbnail_url ? (
                     <img 
                       src={product.thumbnail_url} 
@@ -457,12 +457,12 @@ export default function EditProductPage() {
                     />
                   ) : (
                     <div className="w-full h-32 bg-gray-600 rounded-lg flex items-center justify-center">
-                      <Package className="h-8 w-8 text-white/40" />
+                      <Package className="h-8 w-8 text-gray-400 dark:text-white/40" />
                     </div>
                   )}
                 </div>
                 <p className="text-white/80 mb-2 lowercase">file upload coming in phase 4</p>
-                <p className="text-sm text-white/40 lowercase">for now, thumbnails cannot be changed</p>
+                <p className="text-sm text-gray-400 dark:text-white/40 lowercase">for now, thumbnails cannot be changed</p>
               </div>
             </div>
 
@@ -470,7 +470,7 @@ export default function EditProductPage() {
             <div className="flex space-x-4">
               <Link
                 href="/dashboard/products"
-                className="flex-1 px-6 py-3 bg-white/5 border border-white/10 rounded-lg text-white text-center font-medium hover:bg-white/10 transition-colors lowercase"
+                className="flex-1 px-6 py-3 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white text-center font-medium hover:bg-white/10 transition-colors lowercase"
               >
                 cancel
               </Link>
@@ -487,10 +487,10 @@ export default function EditProductPage() {
 
         {/* Preview */}
         <div className="space-y-6">
-          <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+          <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Eye className="h-5 w-5 text-emerald-500" />
-              <h2 className="text-lg font-semibold text-white lowercase">preview</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white lowercase">preview</h2>
             </div>
             
             <div className="bg-[#161616] border border-white/5 rounded-lg overflow-hidden">
@@ -509,11 +509,11 @@ export default function EditProductPage() {
               
               {/* Preview content */}
               <div className="p-4">
-                <h3 className="font-semibold text-white mb-1">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                   {title || 'product title'}
                 </h3>
                 {description && (
-                  <p className="text-sm text-white/60 mb-3 line-clamp-2">
+                  <p className="text-sm text-gray-500 dark:text-white/60 mb-3 line-clamp-2">
                     {description}
                   </p>
                 )}
@@ -521,7 +521,7 @@ export default function EditProductPage() {
                   <span className="font-semibold text-emerald-500">
                     {formatPrice(price)}
                   </span>
-                  <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-white/60 lowercase">
+                  <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-gray-500 dark:text-white/60 lowercase">
                     {getProductTypeLabel(productType)}
                   </span>
                 </div>

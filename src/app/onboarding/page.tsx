@@ -172,7 +172,7 @@ export default function OnboardingPage() {
   };
 
   if (authLoading || !user) {
-    return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+    return <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
         <div className="text-white/60">loading...</div>
@@ -181,7 +181,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] py-8 px-4">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4">
       <div className="max-w-2xl mx-auto">
         
         {/* Progress bar */}

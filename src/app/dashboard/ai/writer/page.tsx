@@ -99,7 +99,7 @@ export default function WriterPage() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[calc(100vh-200px)]">
       {/* Left Panel - Input */}
       <div className="space-y-6">
-        <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+        <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-6 flex items-center">
             <PenTool className="h-5 w-5 mr-2 text-emerald-500" />
             product details
@@ -114,7 +114,7 @@ export default function WriterPage() {
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0 resize-none transition-colors"
+                className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0 resize-none transition-colors"
                 rows={4}
                 placeholder="describe your fitness program in 2-3 sentences..."
               />
@@ -127,7 +127,7 @@ export default function WriterPage() {
                     <button
                       key={prompt}
                       onClick={() => handleExampleClick(prompt)}
-                      className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-gray-400 hover:text-white transition-colors"
+                      className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 border border-gray-200 dark:border-white/10 rounded-full text-gray-400 hover:text-gray-900 dark:text-white transition-colors"
                     >
                       {prompt}
                     </button>
@@ -144,7 +144,7 @@ export default function WriterPage() {
               <select
                 value={programType}
                 onChange={(e) => setProgramType(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
               >
                 {PROGRAM_TYPES.map((type) => (
                   <option key={type} value={type} className="bg-[#0a0a0a]">
@@ -163,7 +163,7 @@ export default function WriterPage() {
                 <select
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
-                  className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                  className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
                 >
                   {DURATIONS.map((weeks) => (
                     <option key={weeks} value={weeks} className="bg-[#0a0a0a]">
@@ -180,7 +180,7 @@ export default function WriterPage() {
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
-                  className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                  className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
                 >
                   {DIFFICULTIES.map((level) => (
                     <option key={level} value={level} className="bg-[#0a0a0a]">
@@ -199,7 +199,7 @@ export default function WriterPage() {
               <select
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
               >
                 {AUDIENCES.map((aud) => (
                   <option key={aud} value={aud} className="bg-[#0a0a0a]">
@@ -234,7 +234,7 @@ export default function WriterPage() {
       {/* Right Panel - Output */}
       <div className="space-y-6">
         {!generatedContent && !isGenerating && (
-          <div className="bg-[#111] border border-white/5 rounded-lg p-8 text-center h-full flex items-center justify-center">
+          <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-8 text-center h-full flex items-center justify-center">
             <div className="text-gray-500">
               <Wand2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p className="text-lg mb-2">ai-generated content will appear here</p>
@@ -244,7 +244,7 @@ export default function WriterPage() {
         )}
 
         {isGenerating && (
-          <div className="bg-[#111] border border-white/5 rounded-lg p-8">
+          <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-8">
             <div className="animate-pulse space-y-4">
               <div className="h-4 bg-white/10 rounded w-3/4"></div>
               <div className="h-4 bg-white/10 rounded w-full"></div>
@@ -259,7 +259,7 @@ export default function WriterPage() {
         )}
 
         {generatedContent && (
-          <div className="bg-[#111] border border-white/5 rounded-lg p-6 space-y-6">
+          <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold flex items-center">
                 <Wand2 className="h-5 w-5 mr-2 text-emerald-500" />
@@ -283,7 +283,7 @@ export default function WriterPage() {
                 type="text"
                 value={editedTitle}
                 onChange={(e) => setEditedTitle(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
               />
             </div>
 
@@ -295,7 +295,7 @@ export default function WriterPage() {
               <textarea
                 value={editedDescription}
                 onChange={(e) => setEditedDescription(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0 resize-none"
+                className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0 resize-none"
                 rows={8}
               />
             </div>
@@ -305,7 +305,7 @@ export default function WriterPage() {
               <label className="block text-sm font-medium mb-2 text-gray-300">
                 suggested price
               </label>
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-3">
+              <div className="bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-emerald-400">
                     ${generatedContent.suggestedPrice}

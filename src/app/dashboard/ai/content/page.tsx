@@ -185,7 +185,7 @@ export default function ContentPage() {
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}
-      <div className="flex space-x-1 bg-[#111] p-1 rounded-lg w-fit">
+      <div className="flex space-x-1 bg-white dark:bg-[#111] p-1 rounded-lg w-fit">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
@@ -198,7 +198,7 @@ export default function ContentPage() {
                 flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 text-sm
                 ${isActive 
                   ? 'bg-emerald-500 text-black font-medium' 
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  : 'text-gray-400 hover:text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5'
                 }
               `}
             >
@@ -215,7 +215,7 @@ export default function ContentPage() {
         {activeTab === 'caption' && (
           <>
             {/* Left Panel */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+            <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-6 flex items-center">
                 <MessageSquare className="h-5 w-5 mr-2 text-emerald-500" />
                 caption generator
@@ -229,7 +229,7 @@ export default function ContentPage() {
                   <select
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
                   >
                     <option value="">choose a product...</option>
                     {products.map((product) => (
@@ -247,7 +247,7 @@ export default function ContentPage() {
                   <select
                     value={contentStyle}
                     onChange={(e) => setContentStyle(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
                   >
                     {CONTENT_STYLES.map((style) => (
                       <option key={style} value={style} className="bg-[#0a0a0a]">
@@ -264,7 +264,7 @@ export default function ContentPage() {
                   <select
                     value={platform}
                     onChange={(e) => setPlatform(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
                   >
                     {PLATFORMS.map((plat) => (
                       <option key={plat} value={plat} className="bg-[#0a0a0a]">
@@ -294,7 +294,7 @@ export default function ContentPage() {
             {/* Right Panel - Generated Captions */}
             <div className="space-y-4">
               {generatedCaptions.length === 0 && !isLoading && (
-                <div className="bg-[#111] border border-white/5 rounded-lg p-8 text-center">
+                <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-8 text-center">
                   <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50 text-gray-500" />
                   <p className="text-gray-500">generated captions will appear here</p>
                 </div>
@@ -303,7 +303,7 @@ export default function ContentPage() {
               {isLoading && (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-[#111] border border-white/5 rounded-lg p-4">
+                    <div key={i} className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-4">
                       <div className="animate-pulse space-y-2">
                         <div className="h-4 bg-white/10 rounded w-3/4"></div>
                         <div className="h-4 bg-white/10 rounded w-full"></div>
@@ -315,7 +315,7 @@ export default function ContentPage() {
               )}
 
               {generatedCaptions.map((caption, index) => (
-                <div key={index} className="bg-[#111] border border-white/5 rounded-lg p-4">
+                <div key={index} className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-sm text-gray-400">option {index + 1}</span>
                     <button
@@ -335,7 +335,7 @@ export default function ContentPage() {
                       )}
                     </button>
                   </div>
-                  <p className="text-white mb-3 whitespace-pre-wrap">{caption.content}</p>
+                  <p className="text-gray-900 dark:text-white mb-3 whitespace-pre-wrap">{caption.content}</p>
                   <div className="flex flex-wrap gap-1">
                     {caption.hashtags.map((tag, tagIndex) => (
                       <span key={tagIndex} className="text-emerald-400 text-sm">
@@ -353,7 +353,7 @@ export default function ContentPage() {
         {activeTab === 'carousel' && (
           <>
             {/* Left Panel */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+            <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-6 flex items-center">
                 <ImageIcon className="h-5 w-5 mr-2 text-emerald-500" />
                 carousel builder
@@ -367,7 +367,7 @@ export default function ContentPage() {
                   <textarea
                     value={carouselTopic}
                     onChange={(e) => setCarouselTopic(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0 resize-none"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0 resize-none"
                     rows={3}
                     placeholder="what should this carousel be about?"
                   />
@@ -380,7 +380,7 @@ export default function ContentPage() {
                   <select
                     value={slideCount}
                     onChange={(e) => setSlideCount(Number(e.target.value))}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white focus:border-emerald-500/50 focus:ring-0"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white focus:border-emerald-500/50 focus:ring-0"
                   >
                     {[5, 6, 7, 8, 9, 10].map((count) => (
                       <option key={count} value={count} className="bg-[#0a0a0a]">
@@ -410,7 +410,7 @@ export default function ContentPage() {
             {/* Right Panel - Carousel Slides */}
             <div className="space-y-4">
               {carouselSlides.length === 0 && !isLoading && (
-                <div className="bg-[#111] border border-white/5 rounded-lg p-8 text-center">
+                <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-8 text-center">
                   <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50 text-gray-500" />
                   <p className="text-gray-500">carousel slides will appear here</p>
                 </div>
@@ -419,7 +419,7 @@ export default function ContentPage() {
               {isLoading && (
                 <div className="space-y-4">
                   {Array.from({ length: slideCount }).map((_, i) => (
-                    <div key={i} className="bg-[#111] border border-white/5 rounded-lg p-4">
+                    <div key={i} className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-4">
                       <div className="animate-pulse space-y-2">
                         <div className="h-4 bg-white/10 rounded w-1/4"></div>
                         <div className="h-4 bg-white/10 rounded w-3/4"></div>
@@ -431,7 +431,7 @@ export default function ContentPage() {
               )}
 
               {carouselSlides.map((slide) => (
-                <div key={slide.slideNumber} className="bg-[#111] border border-white/5 rounded-lg p-4">
+                <div key={slide.slideNumber} className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-sm text-gray-400 bg-emerald-500/20 px-2 py-1 rounded">
                       slide {slide.slideNumber}
@@ -453,7 +453,7 @@ export default function ContentPage() {
                       )}
                     </button>
                   </div>
-                  <h4 className="font-semibold text-white mb-2">{slide.title}</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{slide.title}</h4>
                   <p className="text-gray-300 text-sm">{slide.content}</p>
                 </div>
               ))}
@@ -465,7 +465,7 @@ export default function ContentPage() {
         {activeTab === 'bio' && (
           <>
             {/* Left Panel */}
-            <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+            <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-6 flex items-center">
                 <User className="h-5 w-5 mr-2 text-emerald-500" />
                 bio generator
@@ -480,7 +480,7 @@ export default function ContentPage() {
                     type="text"
                     value={credentials}
                     onChange={(e) => setCredentials(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0"
                     placeholder="e.g., NASM-CPT, 5 years experience"
                   />
                 </div>
@@ -493,7 +493,7 @@ export default function ContentPage() {
                     type="text"
                     value={niche}
                     onChange={(e) => setNiche(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0"
                     placeholder="e.g., strength training, weight loss"
                   />
                 </div>
@@ -506,7 +506,7 @@ export default function ContentPage() {
                     type="text"
                     value={personality}
                     onChange={(e) => setPersonality(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-lg p-3 text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0"
+                    className="w-full bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-gray-900 dark:text-white placeholder-gray-500 focus:border-emerald-500/50 focus:ring-0"
                     placeholder="e.g., motivational, science-based"
                   />
                 </div>
@@ -531,7 +531,7 @@ export default function ContentPage() {
             {/* Right Panel - Generated Bios */}
             <div className="space-y-4">
               {generatedBios.length === 0 && !isLoading && (
-                <div className="bg-[#111] border border-white/5 rounded-lg p-8 text-center">
+                <div className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-8 text-center">
                   <User className="h-12 w-12 mx-auto mb-4 opacity-50 text-gray-500" />
                   <p className="text-gray-500">generated bios will appear here</p>
                 </div>
@@ -540,7 +540,7 @@ export default function ContentPage() {
               {isLoading && (
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-[#111] border border-white/5 rounded-lg p-4">
+                    <div key={i} className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-4">
                       <div className="animate-pulse space-y-2">
                         <div className="h-4 bg-white/10 rounded w-3/4"></div>
                         <div className="h-4 bg-white/10 rounded w-full"></div>
@@ -551,7 +551,7 @@ export default function ContentPage() {
               )}
 
               {generatedBios.map((bio, index) => (
-                <div key={index} className="bg-[#111] border border-white/5 rounded-lg p-4">
+                <div key={index} className="bg-white dark:bg-[#111] border border-white/5 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-400">option {index + 1}</span>
@@ -580,7 +580,7 @@ export default function ContentPage() {
                       )}
                     </button>
                   </div>
-                  <p className="text-white">{bio.bio}</p>
+                  <p className="text-gray-900 dark:text-white">{bio.bio}</p>
                 </div>
               ))}
             </div>
