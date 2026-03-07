@@ -95,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-5 border-b border-white/10">
+        <div className={`p-5 border-b border-white/10 ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
           <Link href="/" className="flex items-center gap-2">
             {sidebarCollapsed ? (
               <span className="text-lg">🏋️</span>
@@ -140,10 +140,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="hidden lg:block p-3">
           <button
             onClick={toggleCollapsed}
-            className="w-full flex items-center justify-center px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+            className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-white/40 hover:text-white/60 hover:bg-white/5 transition-colors text-sm ${sidebarCollapsed ? 'justify-center' : ''}`}
             title={sidebarCollapsed ? 'expand sidebar' : 'collapse sidebar'}
           >
-            {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            {sidebarCollapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /><span>collapse</span></>}
           </button>
         </div>
 
