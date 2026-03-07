@@ -1155,7 +1155,7 @@ export default function PageBuilder() {
                   {/* Profile Header - respects headerStyle */}
                   {(theme.headerStyle || 'classic') === 'banner' ? (
                     <div>
-                      <div className="h-24" style={{ backgroundColor: `${theme.primary}30` }} />
+                      <div className="h-24" style={theme.headerImage ? { backgroundImage: `url(${theme.headerImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { backgroundColor: `${theme.primary}30` }} />
                       <div className="px-6 pb-4 -mt-10 text-center">
                         <div className="w-20 h-20 rounded-full mx-auto mb-3 border-4 flex items-center justify-center" style={{ borderColor: theme.background, backgroundColor: `${theme.primary}20` }}>
                           {profile?.avatar_url ? (
