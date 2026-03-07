@@ -1027,6 +1027,7 @@ export default function PageBuilder() {
                 {theme.headerStyle === 'banner' && (
                   <div className="mt-4 pt-4 border-t border-white/5">
                     <h3 className="text-sm font-medium text-white mb-3 lowercase">banner image</h3>
+                    <p className="text-xs text-gray-500 mb-2">optimal size: 1200 × 400px</p>
                     <ImageUpload
                       onUpload={(url) => setTheme({ ...theme, headerImage: url })}
                       currentImage={theme.headerImage}
