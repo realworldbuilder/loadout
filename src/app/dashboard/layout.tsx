@@ -20,7 +20,8 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  Layers
+  Layers,
+  Dumbbell
 } from 'lucide-react';
 
 const navItems = [
@@ -97,7 +98,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-5 border-b border-white/10">
           <Link href="/" className="flex items-center gap-2">
             {sidebarCollapsed ? (
-              <span className="text-xl font-bold text-white tracking-tight">L</span>
+              <Dumbbell size={20} className="text-white/70" />
             ) : (
               <>
                 <span className="text-xl font-bold text-white tracking-tight">loadout</span>
@@ -163,24 +164,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Link>
           )}
           
-          <div className={`flex items-center gap-3 px-3 py-2 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-              <User size={14} className="text-white/60" />
-            </div>
-            {!sidebarCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-white truncate">{profile?.display_name || 'creator'}</p>
-                <p className="text-xs text-white/40 truncate">@{profile?.handle || '...'}</p>
-              </div>
-            )}
+          {sidebarCollapsed ? (
             <button 
               onClick={handleSignOut}
-              className={`text-white/30 hover:text-red-400 transition-colors ${sidebarCollapsed ? 'hidden' : ''}`}
+              className="flex items-center justify-center px-3 py-2 text-white/30 hover:text-red-400 transition-colors"
               title="sign out"
             >
               <LogOut size={16} />
             </button>
-          </div>
+          ) : (
+            <div className="flex items-center gap-3 px-3 py-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-white truncate">{profile?.display_name || 'creator'}</p>
+                <p className="text-xs text-white/40 truncate">@{profile?.handle || '...'}</p>
+              </div>
+              <button 
+                onClick={handleSignOut}
+                className="text-white/30 hover:text-red-400 transition-colors"
+                title="sign out"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 
