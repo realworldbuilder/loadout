@@ -98,7 +98,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-5 border-b border-white/10">
           <Link href="/" className="flex items-center gap-2">
             {sidebarCollapsed ? (
-              <Dumbbell size={20} className="text-white/70" />
+              <span className="text-lg">🏋️</span>
             ) : (
               <>
                 <span className="text-xl font-bold text-white tracking-tight">loadout</span>
