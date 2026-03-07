@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 
 interface ImageUploadProps {
@@ -57,30 +56,25 @@ export default function ImageUpload({
     try {
       // Create unique filename
       const timestamp = Date.now();
-      const fileExt = file.name.split('.').pop();
       const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       const filePath = `${user.id}/${filename}`;
 
-      // Upload to Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
-        .from('creator-assets')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Upload via API route (uses service role key, bypasses RLS)
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'creator-assets');
+      formData.append('path', filePath);
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const result = await res.json();
+
+      if (!res.ok) {
+        console.error('Upload error:', result.error);
         setError('Failed to upload image. Please try again.');
         return;
       }
 
-      // Get public URL
-      const { data: publicData } = supabase.storage
-        .from('creator-assets')
-        .getPublicUrl(filePath);
-
-      const publicUrl = publicData.publicUrl;
+      const publicUrl = result.url;
       
       if (publicUrl) {
         onUpload(publicUrl);

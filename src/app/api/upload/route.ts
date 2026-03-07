@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing file, bucket, or path' }, { status: 400 });
     }
 
-    if (!['avatars', 'thumbnails', 'products'].includes(bucket)) {
+    if (!['avatars', 'thumbnails', 'products', 'creator-assets'].includes(bucket)) {
       return NextResponse.json({ error: 'Invalid bucket' }, { status: 400 });
     }
 
