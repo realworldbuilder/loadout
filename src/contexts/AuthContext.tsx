@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
-import { onAuthStateChange, getCreatorProfile } from '@/lib/auth';
+import { getCreatorProfile } from '@/lib/auth';
 import { createSupabaseClient } from '@/lib/supabase';
 import type { Creator } from '@/lib/supabase';
 

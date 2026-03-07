@@ -1,14 +1,16 @@
+import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// For server-side operations
+// For server-side operations (API routes use service role key directly)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// For client-side operations with auth
-export const createSupabaseClient = () => createClientComponentClient();
+// For client-side operations with cookie-based auth persistence
+// Uses @supabase/ssr which properly handles cookies in App Router
+export const createSupabaseClient = () => 
+  createBrowserClient(supabaseUrl, supabaseAnonKey);
 
 // Database types (extend as needed)
 export interface Creator {
@@ -19,10 +21,7 @@ export interface Creator {
   bio?: string;
   avatar_url?: string;
   banner_url?: string;
-  theme: {
-    primary: string;
-    background: string;
-  };
+  theme: Record<string, any>;
   social_links: {
     instagram?: string;
     tiktok?: string;
