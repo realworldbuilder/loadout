@@ -102,33 +102,33 @@ export default function AnalyticsPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
+        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <Eye className="h-5 w-5 text-emerald-500" />
+            <Eye className="h-5 w-5 text-white/60" />
             <span className="text-sm text-gray-400">total views</span>
           </div>
           <p className="text-2xl font-bold text-white">{analytics?.pageViews.total || 0}</p>
         </div>
 
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
+        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <Eye className="h-5 w-5 text-emerald-500" />
+            <Eye className="h-5 w-5 text-white/60" />
             <span className="text-sm text-gray-400">views today</span>
           </div>
           <p className="text-2xl font-bold text-white">{analytics?.pageViews.today || 0}</p>
         </div>
 
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
+        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <MousePointer className="h-5 w-5 text-emerald-500" />
+            <MousePointer className="h-5 w-5 text-white/60" />
             <span className="text-sm text-gray-400">total clicks</span>
           </div>
           <p className="text-2xl font-bold text-white">{analytics?.clicks.total || 0}</p>
         </div>
 
-        <div className="bg-[#111] rounded-lg border border-white/5 p-6">
+        <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-2">
-            <MousePointer className="h-5 w-5 text-emerald-500" />
+            <MousePointer className="h-5 w-5 text-white/60" />
             <span className="text-sm text-gray-400">clicks today</span>
           </div>
           <p className="text-2xl font-bold text-white">{analytics?.clicks.today || 0}</p>

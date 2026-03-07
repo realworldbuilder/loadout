@@ -122,8 +122,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   transition-colors duration-150
                   ${sidebarCollapsed ? 'justify-center' : ''}
                   ${active 
-                    ? 'bg-emerald-500/10 text-emerald-400' 
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                    ? 'bg-white/10 text-white' 
+                    : 'text-white/50 hover:text-white hover:bg-white/5'
                   }
                 `}
                 title={sidebarCollapsed ? item.label : undefined}
@@ -147,7 +147,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Profile + view page */}
-        <div className="p-3 border-t border-white/5 space-y-2">
+        <div className="p-3 border-t border-white/10 space-y-2">
           {profile?.handle && (
             <Link
               href={`/${profile.handle}`}
@@ -164,8 +164,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
           
           <div className={`flex items-center gap-3 px-3 py-2 ${sidebarCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <User size={14} className="text-emerald-400" />
+            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+              <User size={14} className="text-white/60" />
             </div>
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
@@ -187,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main content */}
       <div className={`flex-1 flex flex-col min-h-screen ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} transition-all duration-200`}>
         {/* Mobile header */}
-        <header className="lg:hidden sticky top-0 z-30 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
+        <header className="lg:hidden sticky top-0 z-30 bg-[#212121]/80 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between">
           <button 
             onClick={() => setSidebarOpen(true)}
             className="text-white/60 hover:text-white"

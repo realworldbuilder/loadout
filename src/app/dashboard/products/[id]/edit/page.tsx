@@ -200,7 +200,7 @@ export default function EditProductPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-white/60 lowercase">loading...</p>
         </div>
       </div>
@@ -261,7 +261,7 @@ export default function EditProductPage() {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                    className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                     placeholder="e.g., 12-week shred program"
                     required
                   />

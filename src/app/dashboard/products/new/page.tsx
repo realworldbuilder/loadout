@@ -171,7 +171,7 @@ function NewProductInner() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4" />
+          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-white/60 lowercase">loading...</p>
         </div>
       </div>
@@ -200,13 +200,13 @@ function NewProductInner() {
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2 lowercase">title *</label>
                   <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                    className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                     placeholder="e.g., 12-week shred program" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2 lowercase">description</label>
                   <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4}
-                    className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50 resize-none"
+                    className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20 resize-none"
                     placeholder="describe what customers will get..." />
                   <p className="text-xs text-white/40 mt-2 lowercase">tell customers what they'll receive</p>
                 </div>
@@ -217,7 +217,7 @@ function NewProductInner() {
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
                         <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                          className="w-full pl-10 pr-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                           placeholder="29.99" step="0.01" min="0" required />
                       </div>
                     </div>
@@ -225,7 +225,7 @@ function NewProductInner() {
                   <div className={(productType === 'link' || productType === 'email_collector' || productType === 'header') ? 'col-span-full' : ''}>
                     <label className="block text-sm font-medium text-white/80 mb-2 lowercase">type *</label>
                     <select value={productType} onChange={(e) => setProductType(e.target.value as ProductType)}
-                      className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white focus:outline-none focus:border-emerald-500/50">
+                      className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/20">
                       <option value="digital">digital product</option>
                       <option value="coaching">coaching</option>
                       <option value="affiliate_link">affiliate link</option>
@@ -330,7 +330,7 @@ function NewProductInner() {
                   <div className="relative">
                     <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/40" />
                     <input type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                      className="w-full pl-10 pr-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                       placeholder={
                         productType === 'link' ? 'https://youtube.com/@yourhandle' :
                         productType === 'embed' ? 'https://youtube.com/watch?v=... or https://open.spotify.com/...' :
@@ -353,7 +353,7 @@ function NewProductInner() {
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2 lowercase">button text</label>
                 <input type="text" value={ctaText} onChange={(e) => setCtaText(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#161616] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20"
                   placeholder="get now, buy this, start today..." />
                 <p className="text-xs text-white/40 mt-2 lowercase">leave empty to use default</p>
               </div>
@@ -398,10 +398,10 @@ function NewProductInner() {
                 <button
                   type="button"
                   onClick={() => thumbnailInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all group cursor-pointer"
+                  className="w-full border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-white/20 hover:bg-white/5 transition-all group cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:bg-emerald-500/10 transition-colors">
-                    <ImageIcon className="h-6 w-6 text-white/40 group-hover:text-emerald-400 transition-colors" />
+                  <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:bg-white/10 transition-colors">
+                    <ImageIcon className="h-6 w-6 text-white/40 group-hover:text-white/60 transition-colors" />
                   </div>
                   <p className="text-white/60 text-sm mb-1 lowercase">click to upload thumbnail</p>
                   <p className="text-white/30 text-xs lowercase">jpg, png, webp · max 5mb</p>
@@ -416,7 +416,7 @@ function NewProductInner() {
                 cancel
               </Link>
               <button type="submit" disabled={loading || !title || ((productType === 'link' || productType === 'embed') ? !externalUrl : (productType !== 'email_collector' && productType !== 'header' && !price))}
-                className="flex-1 px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed lowercase">
+                className="flex-1 px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed lowercase">
                 {uploading ? 'uploading...' : loading ? 'creating...' : 
                  productType === 'link' ? 'create link' :
                  productType === 'email_collector' ? 'create email signup' :
@@ -432,7 +432,7 @@ function NewProductInner() {
         <div className="space-y-6">
           <div className="bg-[#111] border border-white/5 rounded-lg p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <Eye className="h-5 w-5 text-emerald-500" />
+              <Eye className="h-5 w-5 text-white/60" />
               <h2 className="text-lg font-semibold text-white lowercase">preview</h2>
             </div>
             

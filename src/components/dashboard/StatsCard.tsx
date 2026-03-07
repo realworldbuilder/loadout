@@ -16,7 +16,7 @@ export default function StatsCard({
   trendUp 
 }: StatsCardProps) {
   return (
-    <div className="bg-[#111] border border-white/5 rounded-lg p-6 transition-all duration-200 hover:border-white/10">
+    <div className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6 transition-all duration-200 hover:border-white/15">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-white/60 text-sm font-medium lowercase">{title}</p>
@@ -31,8 +31,8 @@ export default function StatsCard({
             )}
           </div>
         </div>
-        <div className="p-3 bg-emerald-500/10 rounded-lg">
-          <Icon className="h-5 w-5 text-emerald-500" />
+        <div className="p-3 bg-white/5 rounded-lg">
+          <Icon className="h-5 w-5 text-white/60" />
         </div>
       </div>
     </div>

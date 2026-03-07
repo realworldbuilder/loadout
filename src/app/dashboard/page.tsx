@@ -139,7 +139,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-white/60 lowercase">
             {initializing ? 'checking auth...' : authLoading ? 'loading profile...' : 'loading dashboard...'}
           </p>
@@ -164,11 +164,11 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Link
           href="/dashboard/products/new"
-          className="bg-[#111] border border-white/5 rounded-lg p-6 hover:border-white/10 transition-all duration-200 group"
+          className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6 hover:border-white/15 transition-all duration-200 group"
         >
           <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
-              <Plus className="h-5 w-5 text-emerald-500" />
+            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+              <Plus className="h-5 w-5 text-white/60" />
             </div>
             <h3 className="font-semibold text-white lowercase">add product</h3>
           </div>
@@ -178,21 +178,21 @@ export default function DashboardPage() {
         <Link
           href={`/${profile.handle}`}
           target="_blank"
-          className="bg-[#111] border border-white/5 rounded-lg p-6 hover:border-white/10 transition-all duration-200 group"
+          className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6 hover:border-white/15 transition-all duration-200 group"
         >
           <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
-              <ExternalLink className="h-5 w-5 text-emerald-500" />
+            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+              <ExternalLink className="h-5 w-5 text-white/60" />
             </div>
             <h3 className="font-semibold text-white lowercase">view my page</h3>
           </div>
           <p className="text-sm text-white/60 lowercase">see how visitors see your page</p>
         </Link>
 
-        <button className="bg-[#111] border border-white/5 rounded-lg p-6 hover:border-white/10 transition-all duration-200 group text-left">
+        <button className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6 hover:border-white/15 transition-all duration-200 group text-left">
           <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
-              <Share2 className="h-5 w-5 text-emerald-500" />
+            <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+              <Share2 className="h-5 w-5 text-white/60" />
             </div>
             <h3 className="font-semibold text-white lowercase">share link</h3>
           </div>
@@ -227,7 +227,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Empty state for products */}
         {stats.totalProducts === 0 && (
-          <div className="bg-[#111] border border-white/5 rounded-lg p-8">
+          <div className="bg-[#2f2f2f] border border-white/10 rounded-lg p-8">
             <div className="text-center">
               <Package className="h-12 w-12 text-white/20 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-white mb-2 lowercase">start selling</h3>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
               </p>
               <Link 
                 href="/dashboard/products/new"
-                className="inline-flex items-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded transition-colors duration-200 lowercase"
+                className="inline-flex items-center px-4 py-2 bg-white text-black hover:bg-white/90 font-medium rounded transition-colors duration-200 lowercase"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 add your first product
@@ -248,10 +248,10 @@ export default function DashboardPage() {
         {/* AI suggestion + Recent orders */}
         <div className="space-y-8">
           {/* Recent orders */}
-          <div className="bg-[#111] border border-white/5 rounded-lg p-6">
+          <div className="bg-[#2f2f2f] border border-white/10 rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white lowercase">recent orders</h2>
-              <Link href="/dashboard/orders" className="text-sm text-emerald-500 hover:text-emerald-400 transition-colors lowercase">
+              <Link href="/dashboard/orders" className="text-sm text-white/50 hover:text-white transition-colors lowercase">
                 view all
               </Link>
             </div>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 bg-[#161616] rounded-lg">
+                  <div key={order.id} className="flex items-center justify-between p-4 bg-[#3f3f3f] rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className={`w-2 h-2 rounded-full ${
                         order.status === 'completed' ? 'bg-emerald-500' : 

@@ -185,7 +185,7 @@ export default function ProductsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-white/60 lowercase">loading products...</p>
         </div>
       </div>
@@ -208,14 +208,14 @@ export default function ProductsPage() {
         <div className="flex space-x-2 sm:space-x-3 mt-4 sm:mt-0">
           <Link
             href="/dashboard/products/new?type=link"
-            className="inline-flex items-center px-4 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors lowercase border border-white/10"
+            className="inline-flex items-center px-4 py-3 border border-white/20 text-white font-medium rounded-lg hover:bg-white/5 transition-colors lowercase"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             add link
           </Link>
           <Link
             href="/dashboard/products/new"
-            className="inline-flex items-center px-4 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors lowercase"
+            className="inline-flex items-center px-4 py-3 bg-white text-black font-medium rounded-lg hover:bg-white/90 transition-colors lowercase"
           >
             <Plus className="h-4 w-4 mr-2" />
             add product
@@ -225,7 +225,7 @@ export default function ProductsPage() {
 
       {products.length === 0 ? (
         /* Empty state */
-        <div className="bg-[#111] border border-white/5 rounded-lg p-12 text-center">
+        <div className="bg-[#2f2f2f] border border-white/10 rounded-lg p-12 text-center">
           <Package className="h-16 w-16 text-white/20 mx-auto mb-6" />
           <h3 className="text-xl font-semibold text-white mb-2 lowercase">nothing here yet</h3>
           <p className="text-white/60 mb-8 lowercase">
@@ -234,14 +234,14 @@ export default function ProductsPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/dashboard/products/new?type=link"
-              className="inline-flex items-center px-6 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors lowercase border border-white/10"
+              className="inline-flex items-center px-6 py-3 border border-white/20 text-white font-medium rounded-lg hover:bg-white/5 transition-colors lowercase"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               add a link
             </Link>
             <Link
               href="/dashboard/products/new"
-              className="inline-flex items-center px-6 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 transition-colors lowercase"
+              className="inline-flex items-center px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-white/90 transition-colors lowercase"
             >
               <Plus className="h-4 w-4 mr-2" />
               add a product
@@ -260,7 +260,7 @@ export default function ProductsPage() {
                 placeholder="search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[#111] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-emerald-500/50 lowercase"
+                className="w-full pl-10 pr-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/20 lowercase"
               />
             </div>
 
@@ -271,14 +271,14 @@ export default function ProductsPage() {
                   setShowSortDropdown(!showSortDropdown);
                   setShowFilterDropdown(false);
                 }}
-                className="flex items-center space-x-2 px-4 py-3 bg-[#111] border border-white/10 rounded-lg text-white hover:border-white/20 transition-colors lowercase min-w-[200px] justify-between"
+                className="flex items-center space-x-2 px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white hover:border-white/20 transition-colors lowercase min-w-[200px] justify-between"
               >
                 <span>sort: {getSortLabel(sortBy)}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
               
               {showSortDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-full bg-[#111] border border-white/10 rounded-lg shadow-xl z-20">
+                <div className="absolute top-full left-0 mt-2 w-full bg-[#2f2f2f] border border-white/10 rounded-lg shadow-xl z-20">
                   {(['newest', 'price_low', 'price_high', 'title'] as SortOption[]).map((option) => (
                     <button
                       key={option}
@@ -287,7 +287,7 @@ export default function ProductsPage() {
                         setShowSortDropdown(false);
                       }}
                       className={`w-full px-4 py-3 text-left hover:bg-white/5 transition-colors first:rounded-t-lg last:rounded-b-lg lowercase ${
-                        sortBy === option ? 'text-emerald-500' : 'text-white/80'
+                        sortBy === option ? 'text-white' : 'text-white/80'
                       }`}
                     >
                       {getSortLabel(option)}
@@ -304,14 +304,14 @@ export default function ProductsPage() {
                   setShowFilterDropdown(!showFilterDropdown);
                   setShowSortDropdown(false);
                 }}
-                className="flex items-center space-x-2 px-4 py-3 bg-[#111] border border-white/10 rounded-lg text-white hover:border-white/20 transition-colors lowercase min-w-[150px] justify-between"
+                className="flex items-center space-x-2 px-4 py-3 bg-[#2f2f2f] border border-white/10 rounded-lg text-white hover:border-white/20 transition-colors lowercase min-w-[150px] justify-between"
               >
                 <span>{getFilterLabel(filterBy)}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
               
               {showFilterDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-full bg-[#111] border border-white/10 rounded-lg shadow-xl z-20">
+                <div className="absolute top-full left-0 mt-2 w-full bg-[#2f2f2f] border border-white/10 rounded-lg shadow-xl z-20">
                   {(['all', 'active', 'inactive'] as FilterOption[]).map((option) => (
                     <button
                       key={option}
@@ -320,7 +320,7 @@ export default function ProductsPage() {
                         setShowFilterDropdown(false);
                       }}
                       className={`w-full px-4 py-3 text-left hover:bg-white/5 transition-colors first:rounded-t-lg last:rounded-b-lg lowercase ${
-                        filterBy === option ? 'text-emerald-500' : 'text-white/80'
+                        filterBy === option ? 'text-white' : 'text-white/80'
                       }`}
                     >
                       {getFilterLabel(option)}
@@ -333,16 +333,16 @@ export default function ProductsPage() {
 
           {/* Products grid */}
           {filteredProducts.length === 0 ? (
-            <div className="bg-[#111] border border-white/5 rounded-lg p-8 text-center">
+            <div className="bg-[#2f2f2f] border border-white/10 rounded-lg p-8 text-center">
               <Package className="h-12 w-12 text-white/20 mx-auto mb-4" />
               <p className="text-white/60 lowercase">no products match your search</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="bg-[#161616] border border-white/5 rounded-lg overflow-hidden transition-all duration-200 hover:border-white/10 group">
+                <div key={product.id} className="bg-[#2f2f2f] border border-white/10 rounded-lg overflow-hidden transition-all duration-200 hover:border-white/15 group">
                   {/* Thumbnail */}
-                  <div className="aspect-video bg-[#111] relative flex items-center justify-center">
+                  <div className="aspect-video bg-[#171717] relative flex items-center justify-center">
                     {product.thumbnail_url ? (
                       <img
                         src={product.thumbnail_url}

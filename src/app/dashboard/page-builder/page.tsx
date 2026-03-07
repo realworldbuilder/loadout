@@ -357,7 +357,7 @@ export default function PageBuilder() {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-white/60 lowercase">loading page builder...</p>
         </div>
       </div>
@@ -373,13 +373,13 @@ export default function PageBuilder() {
 
       {/* Tab Navigation */}
       <div className="mb-8">
-        <div className="flex space-x-1 p-1 bg-[#111] rounded-lg border border-white/5 inline-flex">
+        <div className="flex space-x-1 p-1 bg-[#2f2f2f] rounded-lg border border-white/10 inline-flex">
           <button
             onClick={() => setActiveTab('content')}
             className={`px-6 py-2 rounded-md text-sm font-medium transition-all lowercase ${
               activeTab === 'content'
-                ? 'bg-[#10a37f] text-black'
-                : 'text-white/60 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-white'
+                : 'text-white/50 hover:text-white hover:bg-white/5'
             }`}
           >
             content
@@ -388,8 +388,8 @@ export default function PageBuilder() {
             onClick={() => setActiveTab('design')}
             className={`px-6 py-2 rounded-md text-sm font-medium transition-all lowercase ${
               activeTab === 'design'
-                ? 'bg-[#10a37f] text-black'
-                : 'text-white/60 hover:text-white hover:bg-white/5'
+                ? 'bg-white/10 text-white'
+                : 'text-white/50 hover:text-white hover:bg-white/5'
             }`}
           >
             design
@@ -403,7 +403,7 @@ export default function PageBuilder() {
           {activeTab === 'content' && (
             <>
           {/* Add Buttons */}
-          <div className="bg-[#111] rounded-lg border border-white/5 p-4">
+          <div className="bg-[#2f2f2f] rounded-lg border border-white/10 p-4">
             <h2 className="text-lg font-semibold text-white mb-4 lowercase">add blocks</h2>
             <div className="grid grid-cols-3 gap-3">
               <button
@@ -1114,7 +1114,7 @@ export default function PageBuilder() {
                 <button
                   onClick={handleThemeSave}
                   disabled={themeSaving}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[#10a37f] hover:bg-[#0d8b6b] disabled:bg-[#10a37f]/50 disabled:cursor-not-allowed text-black rounded-lg transition-colors font-medium"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-white hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed text-black rounded-lg transition-colors font-medium"
                 >
                   {themeSaving ? (
                     <>
