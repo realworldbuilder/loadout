@@ -59,21 +59,21 @@ export default function EditProductPage() {
   async function loadProduct() {
     try {
       setLoadingProduct(true);
-      const { data, error } = await getProduct(productId);
       
-      if (error) {
-        console.error('Error loading product:', error);
+      // Use API route to bypass RLS (same as other product operations)
+      const res = await fetch(`/api/products?creator_id=${profile?.id}`);
+      const result = await res.json();
+      
+      if (!res.ok || !result.data) {
+        console.error('Error loading products:', result.error);
         router.push('/dashboard/products');
         return;
       }
+      
+      const data = result.data.find((p: any) => p.id === productId);
 
       if (!data) {
-        router.push('/dashboard/products');
-        return;
-      }
-
-      // Check if this product belongs to the current user
-      if (data.creator_id !== profile?.id) {
+        console.error('Product not found:', productId);
         router.push('/dashboard/products');
         return;
       }
