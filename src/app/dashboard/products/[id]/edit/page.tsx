@@ -122,10 +122,16 @@ export default function EditProductPage() {
         layout: layout,
       };
 
-      const { error } = await updateProduct(product.id, updateData);
+      // Use API route to bypass RLS
+      const res = await fetch('/api/products', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: product.id, ...updateData }),
+      });
+      const result = await res.json();
 
-      if (error) {
-        console.error('Error updating product:', error);
+      if (!res.ok) {
+        console.error('Error updating product:', result.error);
         alert('Failed to update product. Please try again.');
         return;
       }
@@ -148,10 +154,15 @@ export default function EditProductPage() {
 
     setDeleting(true);
     try {
-      const { error } = await deleteProduct(product.id);
+      const res = await fetch('/api/products', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: product.id }),
+      });
 
-      if (error) {
-        console.error('Error deleting product:', error);
+      if (!res.ok) {
+        const result = await res.json();
+        console.error('Error deleting product:', result.error);
         alert('Failed to delete product. Please try again.');
         return;
       }
