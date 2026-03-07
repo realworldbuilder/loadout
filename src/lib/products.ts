@@ -1,4 +1,4 @@
-import { createSupabaseClient } from './supabase';
+// Removed direct Supabase client import - now using API routes
 
 export type ProductType = 'digital' | 'coaching' | 'link' | 'subscription' | 'affiliate_link' | 'header' | 'email_collector' | 'embed';
 
@@ -52,19 +52,16 @@ export interface UpdateProductData {
 // Fetch products for a creator, ordered by sort_order
 export const getCreatorProducts = async (creatorId: string) => {
   try {
-    const supabase = createSupabaseClient();
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('creator_id', creatorId)
-      .order('sort_order', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching creator products:', error);
-      return { data: null, error: error.message };
+    const response = await fetch(`/api/products?creator_id=${creatorId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error fetching creator products:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to fetch products' };
     }
 
-    return { data: data as Product[], error: null };
+    const result = await response.json();
+    return { data: result.data as Product[], error: null };
   } catch (error) {
     console.error('Error fetching creator products:', error);
     return { 
@@ -77,19 +74,16 @@ export const getCreatorProducts = async (creatorId: string) => {
 // Fetch single product by ID
 export const getProduct = async (productId: string) => {
   try {
-    const supabase = createSupabaseClient();
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', productId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching product:', error);
-      return { data: null, error: error.message };
+    const response = await fetch(`/api/products?id=${productId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error fetching product:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to fetch product' };
     }
 
-    return { data: data as Product, error: null };
+    const result = await response.json();
+    return { data: result.data as Product, error: null };
   } catch (error) {
     console.error('Error fetching product:', error);
     return { 
@@ -102,8 +96,6 @@ export const getProduct = async (productId: string) => {
 // Create a new product
 export const createProduct = async (productData: CreateProductData) => {
   try {
-    const supabase = createSupabaseClient();
-    
     // Set default values
     const newProduct = {
       ...productData,
@@ -111,18 +103,22 @@ export const createProduct = async (productData: CreateProductData) => {
       sort_order: productData.sort_order ?? 0,
     };
 
-    const { data, error } = await supabase
-      .from('products')
-      .insert([newProduct])
-      .select()
-      .single();
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newProduct),
+    });
 
-    if (error) {
-      console.error('Error creating product:', error);
-      return { data: null, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error creating product:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to create product' };
     }
 
-    return { data: data as Product, error: null };
+    const result = await response.json();
+    return { data: result.data as Product, error: null };
   } catch (error) {
     console.error('Error creating product:', error);
     return { 
@@ -135,20 +131,22 @@ export const createProduct = async (productData: CreateProductData) => {
 // Update a product
 export const updateProduct = async (productId: string, updates: UpdateProductData) => {
   try {
-    const supabase = createSupabaseClient();
-    const { data, error } = await supabase
-      .from('products')
-      .update(updates)
-      .eq('id', productId)
-      .select()
-      .single();
+    const response = await fetch('/api/products', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: productId, ...updates }),
+    });
 
-    if (error) {
-      console.error('Error updating product:', error);
-      return { data: null, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error updating product:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to update product' };
     }
 
-    return { data: data as Product, error: null };
+    const result = await response.json();
+    return { data: result.data as Product, error: null };
   } catch (error) {
     console.error('Error updating product:', error);
     return { 
@@ -161,15 +159,18 @@ export const updateProduct = async (productId: string, updates: UpdateProductDat
 // Delete a product
 export const deleteProduct = async (productId: string) => {
   try {
-    const supabase = createSupabaseClient();
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', productId);
+    const response = await fetch('/api/products', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: productId }),
+    });
 
-    if (error) {
-      console.error('Error deleting product:', error);
-      return { error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error deleting product:', errorData.error);
+      return { error: errorData.error || 'Failed to delete product' };
     }
 
     return { error: null };
@@ -184,20 +185,22 @@ export const deleteProduct = async (productId: string) => {
 // Toggle product active status
 export const toggleProductActive = async (productId: string, isActive: boolean) => {
   try {
-    const supabase = createSupabaseClient();
-    const { data, error } = await supabase
-      .from('products')
-      .update({ is_active: isActive })
-      .eq('id', productId)
-      .select()
-      .single();
+    const response = await fetch('/api/products', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: productId, is_active: isActive }),
+    });
 
-    if (error) {
-      console.error('Error toggling product status:', error);
-      return { data: null, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error toggling product status:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to toggle product status' };
     }
 
-    return { data: data as Product, error: null };
+    const result = await response.json();
+    return { data: result.data as Product, error: null };
   } catch (error) {
     console.error('Error toggling product status:', error);
     return { 
@@ -210,20 +213,22 @@ export const toggleProductActive = async (productId: string, isActive: boolean) 
 // Update product sort order
 export const updateProductOrder = async (productId: string, sortOrder: number) => {
   try {
-    const supabase = createSupabaseClient();
-    const { data, error } = await supabase
-      .from('products')
-      .update({ sort_order: sortOrder })
-      .eq('id', productId)
-      .select()
-      .single();
+    const response = await fetch('/api/products', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: productId, sort_order: sortOrder }),
+    });
 
-    if (error) {
-      console.error('Error updating product order:', error);
-      return { data: null, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error updating product order:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to update product order' };
     }
 
-    return { data: data as Product, error: null };
+    const result = await response.json();
+    return { data: result.data as Product, error: null };
   } catch (error) {
     console.error('Error updating product order:', error);
     return { 

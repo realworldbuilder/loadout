@@ -1,5 +1,10 @@
-import { supabase, createSupabaseClient } from './supabase';
+import { createSupabaseClient } from './supabase';
 import type { User, Session } from '@supabase/supabase-js';
+
+// Always use the cookie-based client for auth operations
+// Using the raw createClient() stores sessions in memory/localStorage
+// but the middleware reads from cookies — causing logout on every refresh
+const getAuthClient = () => createSupabaseClient();
 
 export interface AuthUser {
   id: string;
@@ -16,7 +21,7 @@ export interface AuthSession {
 // Sign up with email and password
 export const signUp = async (email: string, password: string) => {
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await getAuthClient().auth.signUp({
       email,
       password,
       options: {
@@ -42,7 +47,7 @@ export const signUp = async (email: string, password: string) => {
 // Sign in with email and password
 export const signIn = async (email: string, password: string) => {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await getAuthClient().auth.signInWithPassword({
       email,
       password,
     });
@@ -65,7 +70,7 @@ export const signIn = async (email: string, password: string) => {
 // Sign in with Google OAuth
 export const signInWithGoogle = async () => {
   try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await getAuthClient().auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
@@ -94,7 +99,7 @@ export const signInWithGoogle = async () => {
 // Sign out
 export const signOut = async () => {
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await getAuthClient().auth.signOut();
     
     if (error) {
       console.error('Sign out error:', error);
@@ -113,7 +118,7 @@ export const signOut = async () => {
 // Get current user
 export const getUser = async (): Promise<User | null> => {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data: { user }, error } = await getAuthClient().auth.getUser();
     
     if (error) {
       console.error('Get user error:', error);
@@ -130,7 +135,7 @@ export const getUser = async (): Promise<User | null> => {
 // Get current session
 export const getSession = async (): Promise<Session | null> => {
   try {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { session }, error } = await getAuthClient().auth.getSession();
     
     if (error) {
       console.error('Get session error:', error);
@@ -146,7 +151,7 @@ export const getSession = async (): Promise<Session | null> => {
 
 // Auth state change listener
 export const onAuthStateChange = (callback: (event: string, session: Session | null) => void) => {
-  return supabase.auth.onAuthStateChange(callback);
+  return getAuthClient().auth.onAuthStateChange(callback);
 };
 
 // Helper to check if handle is available
@@ -161,25 +166,18 @@ export const checkHandleAvailability = async (handle: string): Promise<{ availab
       };
     }
 
-    const client = createSupabaseClient();
-    const { data, error } = await client
-      .from('creators')
-      .select('handle')
-      .eq('handle', handle)
-      .single();
-
-    if (error && error.code === 'PGRST116') {
-      // No rows found, handle is available
-      return { available: true };
-    }
-
-    if (error) {
-      console.error('Handle check error:', error);
+    const response = await fetch(`/api/profile?handle=${handle}`);
+    
+    if (!response.ok) {
+      console.error('Handle check error');
       return { available: false, error: 'failed to check handle availability' };
     }
 
-    // Handle exists
-    return { available: false, error: 'handle already taken' };
+    const result = await response.json();
+    return { 
+      available: result.available, 
+      error: result.error 
+    };
   } catch (error) {
     console.error('Handle check error:', error);
     return { available: false, error: 'failed to check handle availability' };
@@ -201,28 +199,22 @@ export const createCreatorProfile = async (profileData: {
   };
 }) => {
   try {
-    const client = createSupabaseClient();
-    const { data, error } = await client
-      .from('creators')
-      .insert([{
-        ...profileData,
-        is_active: true,
-        tier: 'free',
-        stripe_onboarding_complete: false,
-        theme: {
-          primary: '#10a37f',
-          background: '#0d0d0d'
-        }
-      }])
-      .select()
-      .single();
+    const response = await fetch('/api/profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(profileData),
+    });
 
-    if (error) {
-      console.error('Create profile error:', error);
-      return { data: null, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Create profile error:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to create profile' };
     }
 
-    return { data, error: null };
+    const result = await response.json();
+    return { data: result.data, error: null };
   } catch (error) {
     console.error('Create profile error:', error);
     return { 
@@ -246,32 +238,22 @@ export const updateCreatorProfile = async (userId: string, updates: Partial<{
   };
 }>) => {
   try {
-    const client = createSupabaseClient();
-    const { data, error } = await client
-      .from('creators')
-      .update(updates)
-      .eq('user_id', userId)
-      .select();
+    const response = await fetch('/api/profile', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_id: userId, ...updates }),
+    });
 
-    if (error) {
-      console.error('Update profile error:', error);
-      return { data: null, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Update profile error:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to update profile' };
     }
 
-    if (!data || data.length === 0) {
-      // RLS may have blocked the return — try fetching to confirm
-      const { data: check } = await client
-        .from('creators')
-        .select()
-        .eq('user_id', userId)
-        .single();
-      if (check) {
-        return { data: check, error: null };
-      }
-      return { data: null, error: 'Profile not found or update blocked by permissions' };
-    }
-
-    return { data: data[0], error: null };
+    const result = await response.json();
+    return { data: result.data, error: null };
   } catch (error) {
     console.error('Update profile error:', error);
     return { 
@@ -284,25 +266,16 @@ export const updateCreatorProfile = async (userId: string, updates: Partial<{
 // Get creator profile by user ID
 export const getCreatorProfile = async (userId: string) => {
   try {
-    // Use the auth-aware client so RLS can see auth.uid()
-    const client = createSupabaseClient();
-    const { data, error } = await client
-      .from('creators')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+    const response = await fetch(`/api/profile?user_id=${userId}`);
 
-    if (error && error.code === 'PGRST116') {
-      // No profile found
-      return { data: null, error: null };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Get profile error:', errorData.error);
+      return { data: null, error: errorData.error || 'Failed to get profile' };
     }
 
-    if (error) {
-      console.error('Get profile error:', error);
-      return { data: null, error: error.message };
-    }
-
-    return { data, error: null };
+    const result = await response.json();
+    return { data: result.data, error: null };
   } catch (error) {
     console.error('Get profile error:', error);
     return { 

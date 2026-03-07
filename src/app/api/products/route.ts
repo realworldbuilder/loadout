@@ -59,9 +59,25 @@ function mapFromDb(row: any) {
 export async function GET(request: NextRequest) {
   try {
     const creatorId = request.nextUrl.searchParams.get('creator_id');
-    if (!creatorId) return NextResponse.json({ error: 'Missing creator_id' }, { status: 400 });
+    const productId = request.nextUrl.searchParams.get('id');
 
     const supabase = getSupabase();
+
+    // If ID is provided, fetch single product by ID
+    if (productId) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ data: mapFromDb(data) });
+    }
+
+    // Otherwise, fetch by creator_id
+    if (!creatorId) return NextResponse.json({ error: 'Missing creator_id or id' }, { status: 400 });
+
     const { data, error } = await supabase
       .from('products')
       .select('*')

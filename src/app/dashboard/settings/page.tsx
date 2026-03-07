@@ -5,13 +5,12 @@ import { Camera, Check, ExternalLink, CreditCard, AlertTriangle, Save, User, Pal
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/lib/auth';
 import { uploadAvatar } from '@/lib/storage';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+// Removed unused Supabase import - settings page now uses API routes
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
 
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
-  const supabase = createClientComponentClient();
   
   const [formData, setFormData] = useState({
     display_name: '',

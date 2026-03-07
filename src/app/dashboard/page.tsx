@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { createSupabaseClient, type Product, type Order } from '@/lib/supabase';
+import { type Product, type Order } from '@/lib/supabase';
 import StatsCard from '@/components/dashboard/StatsCard';
 import Link from 'next/link';
 import { 
@@ -36,7 +36,6 @@ export default function DashboardPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createSupabaseClient();
 
   // Auth guards
   useEffect(() => {
@@ -82,17 +81,19 @@ export default function DashboardPage() {
 
   async function loadStats(creatorId: string) {
     try {
-      // Get product count
-      const { count: productCount } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .eq('creator_id', creatorId)
-        .eq('is_active', true);
+      // Get product count by fetching all products and counting active ones
+      const response = await fetch(`/api/products?creator_id=${creatorId}`);
+      
+      let productCount = 0;
+      if (response.ok) {
+        const result = await response.json();
+        productCount = (result.data || []).filter((p: Product) => p.is_active).length;
+      }
 
       // For Phase 1, use placeholder stats since orders/revenue may not be implemented yet
       setStats({
         totalRevenue: 0, // Placeholder - will be real when orders are implemented
-        totalProducts: productCount || 0,
+        totalProducts: productCount,
         totalSold: 0, // Placeholder - will be real when orders are implemented
         pageViews: 0, // Placeholder - will be real when analytics are implemented
       });
@@ -110,17 +111,10 @@ export default function DashboardPage() {
 
   async function loadRecentOrders(creatorId: string) {
     try {
-      const { data } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          products (title)
-        `)
-        .eq('creator_id', creatorId)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      setRecentOrders(data || []);
+      // For Phase 1, just show empty orders since there's no orders API route yet
+      // When orders are implemented, this will be replaced with:
+      // const response = await fetch(`/api/orders?creator_id=${creatorId}&limit=5`);
+      setRecentOrders([]);
     } catch (error) {
       console.error('Error loading recent orders:', error);
       // Ignore error since orders table might not exist yet in Phase 1
