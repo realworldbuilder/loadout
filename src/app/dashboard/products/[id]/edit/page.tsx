@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function EditProductPage() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, initializing } = useAuth();
   const router = useRouter();
   const params = useParams();
   const productId = params.id as string;
@@ -26,20 +26,18 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
 
-  // Auth guards
+  // Auth guards — wait for initializing to complete before redirecting
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      
-      if (!profile) {
-        router.push('/onboarding');
-        return;
-      }
+    if (initializing) return;
+    if (!user) {
+      router.push('/login');
+      return;
     }
-  }, [user, profile, authLoading, router]);
+    if (!profile && !authLoading) {
+      router.push('/onboarding');
+      return;
+    }
+  }, [user, profile, authLoading, initializing, router]);
 
   // Load product data
   useEffect(() => {

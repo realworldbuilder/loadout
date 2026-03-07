@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 function NewProductInner() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, initializing } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -28,11 +28,10 @@ function NewProductInner() {
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) { router.push('/login'); return; }
-      if (!profile) { router.push('/onboarding'); return; }
-    }
-  }, [user, profile, authLoading, router]);
+    if (initializing) return;
+    if (!user) { router.push('/login'); return; }
+    if (!profile && !authLoading) { router.push('/onboarding'); return; }
+  }, [user, profile, authLoading, initializing, router]);
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

@@ -4,17 +4,15 @@ import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
-
-  // Refresh session if expired - required for Supabase auth helpers
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  // Optional: Add auth protection for dashboard routes
-  // if (req.nextUrl.pathname.startsWith('/dashboard') && !session) {
-  //   return NextResponse.redirect(new URL('/login', req.url))
-  // }
+  
+  try {
+    const supabase = createMiddlewareClient({ req, res })
+    // Refresh session if expired - required for Supabase auth helpers
+    await supabase.auth.getSession()
+  } catch (e) {
+    // If token refresh fails, don't blow up — let the client-side handle it
+    console.error('Middleware auth refresh failed:', e)
+  }
 
   return res
 }
