@@ -22,7 +22,8 @@ export async function POST(request: NextRequest) {
           stripe_account_id,
           stripe_onboarding_complete,
           display_name,
-          handle
+          handle,
+          tier
         )
       `)
       .eq('id', productId)
@@ -46,8 +47,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate platform fee
-    const platformFee = calculatePlatformFee(product.price_cents);
+    // Calculate platform fee (0% for pro creators)
+    const isPro = creator.tier === 'pro' || creator.tier === 'studio';
+    const platformFee = calculatePlatformFee(product.price_cents, isPro);
 
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
         platformFee: platformFee.toString(),
       },
       payment_intent_data: {
-        application_fee_amount: platformFee,
+        ...(platformFee > 0 ? { application_fee_amount: platformFee } : {}),
         transfer_data: {
           destination: creator.stripe_account_id,
         },

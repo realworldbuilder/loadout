@@ -290,7 +290,7 @@ export default function HomePage() {
                   'sell up to 3 products',
                   'basic analytics',
                   'stripe payments',
-                  '5% platform fee',
+                  '5% transaction fee',
                   'start monetizing today',
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2 text-gray-400">
@@ -325,6 +325,7 @@ export default function HomePage() {
               <ul className="space-y-2.5 mb-8 text-sm">
                 {[
                   'everything in starter',
+                  '0% transaction fee',
                   'unlimited products',
                   'AI product writer',
                   'AI content lab',

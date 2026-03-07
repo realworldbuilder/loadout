@@ -35,7 +35,9 @@ export const STRIPE_CONNECT_CONFIG = {
 };
 
 // Helper function to calculate platform fee
-export function calculatePlatformFee(amountCents: number): number {
+// Free tier: 5%, Pro tier: 0%
+export function calculatePlatformFee(amountCents: number, isPro: boolean = false): number {
+  if (isPro) return 0;
   return Math.round(amountCents * (STRIPE_CONNECT_CONFIG.APPLICATION_FEE_PERCENT / 100));
 }
 
