@@ -509,7 +509,19 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           // Banner layout
           <div className="mb-8">
             {/* Banner image area */}
-            <div className={`h-32 rounded-lg mb-6 relative ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`} style={{ backgroundColor: `${creatorTheme.primary}20` }}>
+            <div 
+              className={`h-32 rounded-lg mb-6 relative ${isDark ? 'bg-gray-800' : 'bg-gray-100'} overflow-hidden`} 
+              style={{
+                ...(creatorTheme.headerImage 
+                  ? { 
+                      backgroundImage: `url(${creatorTheme.headerImage})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }
+                  : { backgroundColor: `${creatorTheme.primary}20` }
+                )
+              }}
+            >
               {/* Avatar overlapping bottom edge */}
               <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
                 {isFromDB && creator.avatar_url ? (

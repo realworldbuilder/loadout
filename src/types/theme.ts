@@ -15,6 +15,7 @@ export interface CreatorTheme {
   
   // FEATURE 3: Avatar/Header Layout
   headerStyle?: 'classic' | 'banner' | 'minimal';
+  headerImage?: string;
   
   // FEATURE 4: Card Transparency/Blur (Glassmorphism)
   cardStyle?: 'solid' | 'glass' | 'transparent';

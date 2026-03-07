@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES, PRESET_GRADIENTS } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
+import ImageUpload from '@/components/ImageUpload';
 
 // Product types
 interface Product {
@@ -978,15 +979,14 @@ export default function PageBuilder() {
                   </div>
                 )}
 
-                {/* Image URL */}
+                {/* Image Upload */}
                 {theme.backgroundType === 'image' && (
                   <div>
-                    <input
-                      type="url"
-                      value={theme.backgroundImage || ''}
-                      onChange={(e) => setTheme({ ...theme, backgroundImage: e.target.value })}
-                      placeholder="image url"
-                      className="w-full bg-[#1a1a1a] border border-white/5 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                    <ImageUpload
+                      onUpload={(url) => setTheme({ ...theme, backgroundImage: url })}
+                      currentImage={theme.backgroundImage}
+                      label="background image"
+                      aspectRatio="16/9"
                     />
                   </div>
                 )}
@@ -1022,6 +1022,19 @@ export default function PageBuilder() {
                     </button>
                   ))}
                 </div>
+
+                {/* Banner Image Upload */}
+                {theme.headerStyle === 'banner' && (
+                  <div className="mt-4 pt-4 border-t border-white/5">
+                    <h3 className="text-sm font-medium text-white mb-3 lowercase">banner image</h3>
+                    <ImageUpload
+                      onUpload={(url) => setTheme({ ...theme, headerImage: url })}
+                      currentImage={theme.headerImage}
+                      label="banner image"
+                      aspectRatio="16/6"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* FEATURE 4: Card Transparency/Blur */}
