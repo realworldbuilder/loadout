@@ -29,6 +29,68 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  
+  // Stripe Connect state
+  const [stripeStatus, setStripeStatus] = useState<'loading' | 'not_connected' | 'pending' | 'complete'>('loading');
+  const [stripeLoading, setStripeLoading] = useState(false);
+
+  // Check Stripe status on mount
+  useEffect(() => {
+    if (user?.id) {
+      checkStripeStatus();
+    }
+  }, [user?.id]);
+
+  // Handle stripe callback query params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stripeParam = params.get('stripe');
+    if (stripeParam === 'success') {
+      setStripeStatus('complete');
+      refreshProfile();
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard/settings');
+    } else if (stripeParam === 'pending') {
+      setStripeStatus('pending');
+      window.history.replaceState({}, '', '/dashboard/settings');
+    } else if (stripeParam === 'refresh' || stripeParam === 'error') {
+      checkStripeStatus();
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+  }, []);
+
+  async function checkStripeStatus() {
+    if (!user?.id) return;
+    try {
+      const res = await fetch(`/api/stripe/connect?userId=${user.id}`);
+      const data = await res.json();
+      setStripeStatus(data.status || 'not_connected');
+    } catch {
+      setStripeStatus('not_connected');
+    }
+  }
+
+  async function handleStripeConnect() {
+    if (!user?.id) return;
+    setStripeLoading(true);
+    try {
+      const res = await fetch('/api/stripe/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Failed to start Stripe setup: ' + (data.error || 'Unknown error'));
+        setStripeLoading(false);
+      }
+    } catch (err) {
+      alert('Failed to connect Stripe');
+      setStripeLoading(false);
+    }
+  }
 
   // Load profile data when component mounts or profile changes
   useEffect(() => {
@@ -487,15 +549,36 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-lg">
                 <div>
-                  <p className="text-white font-medium">connect stripe</p>
-                  <p className="text-gray-400 text-sm">enable payments for your products</p>
+                  <p className="text-white font-medium">
+                    {stripeStatus === 'complete' ? '✅ stripe connected' : 'connect stripe'}
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    {stripeStatus === 'complete' 
+                      ? 'payments are enabled — you\'re ready to sell'
+                      : stripeStatus === 'pending'
+                      ? 'onboarding started — click to continue'
+                      : 'enable payments for your products'}
+                  </p>
                 </div>
-                <button 
-                  disabled 
-                  className="px-4 py-2 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed"
-                >
-                  coming soon
-                </button>
+                {stripeStatus === 'complete' ? (
+                  <button
+                    onClick={handleStripeConnect}
+                    disabled={stripeLoading}
+                    className="px-4 py-2 bg-[#635bff] text-white rounded-lg hover:bg-[#5851db] transition-colors disabled:opacity-50"
+                  >
+                    {stripeLoading ? 'opening...' : 'stripe dashboard'}
+                  </button>
+                ) : stripeStatus === 'loading' ? (
+                  <div className="px-4 py-2 text-gray-400 text-sm">checking...</div>
+                ) : (
+                  <button
+                    onClick={handleStripeConnect}
+                    disabled={stripeLoading}
+                    className="px-4 py-2 bg-[#635bff] text-white rounded-lg hover:bg-[#5851db] transition-colors disabled:opacity-50"
+                  >
+                    {stripeLoading ? 'connecting...' : stripeStatus === 'pending' ? 'continue setup' : 'connect stripe'}
+                  </button>
+                )}
               </div>
               
               <div className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-lg">

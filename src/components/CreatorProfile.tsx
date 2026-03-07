@@ -369,6 +369,30 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
     }
   };
 
+  // Checkout handler for paid products
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  
+  const handleCheckout = async (productId: string) => {
+    setCheckoutLoading(productId);
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Checkout unavailable');
+      }
+    } catch {
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
+
   const getEmbedComponent = (url: string, title: string) => {
     if (!url) return null;
 
@@ -853,6 +877,23 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                       </TrackClick>
                     );
                   }
+                  // Paid product with no external URL — trigger checkout
+                  if (p.price > 0) {
+                    return (
+                      <TrackClick key={i} creatorId={creator.id} productId={p.id}>
+                        <div onClick={() => handleCheckout(p.id)} className="cursor-pointer">
+                          {checkoutLoading === p.id ? (
+                            <div className="relative">
+                              {featuredCard}
+                              <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center">
+                                <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full"></div>
+                              </div>
+                            </div>
+                          ) : featuredCard}
+                        </div>
+                      </TrackClick>
+                    );
+                  }
                   return <TrackClick key={i} creatorId={creator.id} productId={p.id}>{featuredCard}</TrackClick>;
                 }
 
@@ -925,6 +966,23 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                   return (
                     <TrackClick key={i} creatorId={creator.id} productId={p.id}>
                       <Link href={url} target="_blank" rel="noopener noreferrer">{productCard}</Link>
+                    </TrackClick>
+                  );
+                }
+                // Paid product with no external URL — trigger checkout
+                if (p.price > 0) {
+                  return (
+                    <TrackClick key={i} creatorId={creator.id} productId={p.id}>
+                      <div onClick={() => handleCheckout(p.id)} className="cursor-pointer">
+                        {checkoutLoading === p.id ? (
+                          <div className="relative">
+                            {productCard}
+                            <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center">
+                              <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full"></div>
+                            </div>
+                          </div>
+                        ) : productCard}
+                      </div>
                     </TrackClick>
                   );
                 }

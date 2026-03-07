@@ -65,9 +65,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Show loading skeleton while auth is initializing
   if (initializing) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#212121] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-white/60 lowercase">loading dashboard...</p>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex">
+    <div className="min-h-screen bg-[#212121] flex">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div 
@@ -88,20 +88,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className={`
         fixed top-0 left-0 z-50 h-screen
         ${sidebarCollapsed ? 'w-16' : 'w-64'}
-        bg-[#111] border-r border-white/5
+        bg-[#171717] border-r border-white/10
         flex flex-col
         transform transition-all duration-200 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-5 border-b border-white/5">
+        <div className="p-5 border-b border-white/10">
           <Link href="/" className="flex items-center gap-2">
             {sidebarCollapsed ? (
               <span className="text-xl font-bold text-white tracking-tight">L</span>
             ) : (
               <>
                 <span className="text-xl font-bold text-white tracking-tight">loadout</span>
-                <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">beta</span>
+                <span className="text-[10px] font-medium text-white/40 bg-white/5 px-1.5 py-0.5 rounded">beta</span>
               </>
             )}
           </Link>
