@@ -184,7 +184,8 @@ export default function PageBuilder() {
 
   // Add new item
   const handleAdd = async () => {
-    if (!addForm.type || !addForm.title.trim() || !profile?.id) return;
+    const isAutoTitled = ['codes', 'picks'].includes(addForm.type || '');
+    if (!addForm.type || (!isAutoTitled && !addForm.title.trim()) || !profile?.id) return;
     
     setSaving(true);
     try {
