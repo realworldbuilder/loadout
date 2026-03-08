@@ -26,9 +26,6 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center gap-3">
-              <Link href="/demo" className="text-sm text-gray-500 hover:text-white transition-colors px-3 py-1.5 hidden sm:block">
-                examples
-              </Link>
               <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5">
                 log in
               </Link>
@@ -66,8 +63,8 @@ export default function HomePage() {
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             
-            <Link href="/demo" className="flex items-center gap-2 text-gray-400 font-medium px-8 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:text-white transition-all text-base">
-              see example loadouts
+            <Link href="/login" className="flex items-center gap-2 text-gray-400 font-medium px-8 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:text-white transition-all text-base">
+              already a creator? log in
             </Link>
           </div>
           
