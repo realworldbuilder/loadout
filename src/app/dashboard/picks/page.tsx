@@ -541,8 +541,6 @@ function PickModal({
   });
   const [loading, setLoading] = useState(false);
   const [scrapingUrl, setScrapingUrl] = useState(false);
-  const [urlScrapeDebounce, setUrlScrapeDebounce] = useState<NodeJS.Timeout | null>(null);
-  const [scrapedData, setScrapedData] = useState<{title?: string, image?: string} | null>(null);
 
   useEffect(() => {
     if (pick) {
@@ -562,18 +560,8 @@ function PickModal({
         collection: ''
       });
     }
-    setScrapedData(null);
     setScrapingUrl(false);
   }, [pick, isOpen]);
-
-  // Cleanup debounce on unmount
-  useEffect(() => {
-    return () => {
-      if (urlScrapeDebounce) {
-        clearTimeout(urlScrapeDebounce);
-      }
-    };
-  }, [urlScrapeDebounce]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -625,22 +613,13 @@ function PickModal({
       }
 
       const result = await res.json();
-      setScrapedData(result);
       
-      // Auto-fill title and image if they're not already filled
-      const updates: Partial<typeof formData> = {};
-      
-      if (result.title && !formData.title.trim()) {
-        updates.title = result.title;
-      }
-      
-      if (result.image && !formData.image_url.trim()) {
-        updates.image_url = result.image;
-      }
-
-      if (Object.keys(updates).length > 0) {
-        setFormData(prev => ({ ...prev, ...updates }));
-      }
+      // Always fill from scrape results
+      setFormData(prev => ({
+        ...prev,
+        title: result.title || prev.title,
+        image_url: result.image || prev.image_url,
+      }));
     } catch (error) {
       console.error('Error scraping URL:', error);
     } finally {
@@ -648,33 +627,10 @@ function PickModal({
     }
   }
 
-  function handleProductUrlChange(url: string) {
-    setFormData({ ...formData, product_url: url });
-
-    // Clear existing debounce
-    if (urlScrapeDebounce) {
-      clearTimeout(urlScrapeDebounce);
-    }
-
-    // Set new debounce for URL scraping
-    if (url && url.startsWith('http')) {
-      const timeout = setTimeout(() => {
-        scrapeUrl(url);
-      }, 1000); // 1 second debounce
-      setUrlScrapeDebounce(timeout);
-    }
-  }
-
-  function useScrapedTitle() {
-    if (scrapedData?.title) {
-      setFormData(prev => ({ ...prev, title: scrapedData.title! }));
-    }
-  }
-
-  function useScrapedImage() {
-    if (scrapedData?.image) {
-      setFormData(prev => ({ ...prev, image_url: scrapedData.image! }));
-    }
+  async function handleFetchUrl() {
+    const url = formData.product_url.trim();
+    if (!url || !url.startsWith('http')) return;
+    await scrapeUrl(url);
   }
 
   if (!isOpen) return null;
@@ -689,98 +645,84 @@ function PickModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Step 1: Paste URL + Fetch */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-1 lowercase">
               product url *
             </label>
-            <div className="relative">
+            <div className="flex gap-2">
               <input
                 type="text"
                 required
                 value={formData.product_url}
-                onChange={(e) => handleProductUrlChange(e.target.value)}
-                onPaste={(e) => {
-                  const pasted = e.clipboardData.getData('text');
-                  if (pasted) {
-                    setTimeout(() => handleProductUrlChange(pasted), 0);
-                  }
-                }}
-                className="w-full px-3 py-2 pr-8 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                placeholder="https://nike.com/product..."
+                onChange={(e) => setFormData({ ...formData, product_url: e.target.value })}
+                className="flex-1 px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                placeholder="paste product link..."
                 autoComplete="off"
               />
-              {scrapingUrl && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div className="animate-spin h-4 w-4 border-2 border-emerald-500 border-t-transparent rounded-full"></div>
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={handleFetchUrl}
+                disabled={scrapingUrl || !formData.product_url.startsWith('http')}
+                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/30 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors lowercase flex items-center gap-2"
+              >
+                {scrapingUrl ? (
+                  <>
+                    <div className="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full"></div>
+                    fetching...
+                  </>
+                ) : (
+                  'fetch'
+                )}
+              </button>
             </div>
-            {formData.product_url && formData.product_url.startsWith('http') && (
-              <p className="text-xs text-gray-500 dark:text-white/60 mt-1">
-                💡 we'll auto-fill title & image from this url
-              </p>
-            )}
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700 dark:text-white/80 lowercase">
-                title *
-              </label>
-              {scrapedData?.title && scrapedData.title !== formData.title && (
-                <button
-                  type="button"
-                  onClick={useScrapedTitle}
-                  className="text-xs text-emerald-500 hover:text-emerald-600 lowercase"
-                >
-                  use: "{scrapedData.title.substring(0, 30)}..."
-                </button>
+          {/* Preview card after fetch */}
+          {(formData.title || formData.image_url) && (
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3 flex gap-3 items-start">
+              {formData.image_url && (
+                <img
+                  src={formData.image_url}
+                  alt="preview"
+                  className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
               )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{formData.title || 'untitled'}</p>
+                <p className="text-xs text-gray-500 dark:text-white/40 truncate">{formData.product_url}</p>
+              </div>
             </div>
+          )}
+
+          {/* Title (editable, auto-filled by fetch) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-1 lowercase">
+              title *
+            </label>
             <input
               type="text"
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
-              placeholder="nike air max 90"
+              placeholder="auto-filled from url, or type manually"
             />
           </div>
 
+          {/* Image URL (hidden unless they want to override) */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700 dark:text-white/80 lowercase">
-                image url
-              </label>
-              {scrapedData?.image && scrapedData.image !== formData.image_url && (
-                <button
-                  type="button"
-                  onClick={useScrapedImage}
-                  className="text-xs text-emerald-500 hover:text-emerald-600 lowercase"
-                >
-                  use scraped image
-                </button>
-              )}
-            </div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-1 lowercase">
+              image url <span className="text-white/40">(auto-filled)</span>
+            </label>
             <input
-              type="url"
+              type="text"
               value={formData.image_url}
               onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
               className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
-              placeholder="https://..."
+              placeholder="auto-filled from url"
             />
-            {formData.image_url && (
-              <div className="mt-2">
-                <img
-                  src={formData.image_url}
-                  alt="preview"
-                  className="w-16 h-16 object-cover rounded-lg"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
           </div>
 
           <div>
