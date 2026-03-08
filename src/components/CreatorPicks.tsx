@@ -128,7 +128,7 @@ export default function CreatorPicks({ creator_id, filterCollection }: CreatorPi
     : basePicks;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-6">
       {/* Section label */}
       <div className="flex items-center space-x-2">
         <Heart className="h-4 w-4 text-gray-500 dark:text-white/50" />
