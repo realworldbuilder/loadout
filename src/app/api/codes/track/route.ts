@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
       // Increment pick click count
       const { data: currentPick, error: fetchError } = await supabase
-        .from('creator_code_picks')
+        .from('creator_picks')
         .select('click_count')
         .eq('id', pickId)
         .single();
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       const newCount = (currentPick.click_count || 0) + 1;
       
       const { error: updateError } = await supabase
-        .from('creator_code_picks')
+        .from('creator_picks')
         .update({ click_count: newCount })
         .eq('id', pickId);
 

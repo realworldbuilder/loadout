@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag, Mail, Play } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
 import CreatorCodes from '@/components/CreatorCodes';
+import CreatorPicks from '@/components/CreatorPicks';
 import { CreatorTheme, DEFAULT_THEME } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass, getButtonClasses, getCardClasses, getSocialIconClasses } from '@/lib/utils';
 
@@ -674,6 +675,11 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           <CreatorCodes creator_id={creator.id} />
         )}
 
+        {/* Creator Picks Section - only show for real DB creators if no picks_block exists in products */}
+        {isFromDB && creator?.id && !products.some((p: any) => p.product_type === 'picks_block') && (
+          <CreatorPicks creator_id={creator.id} />
+        )}
+
         {/* Items section - mixed links and products */}
         {products.length > 0 && (
           <div className="space-y-3 mb-8">
@@ -683,6 +689,15 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 return (
                   <div key={i} className="mb-6">
                     <CreatorCodes creator_id={creator?.id || ''} />
+                  </div>
+                );
+              }
+
+              // Picks block type - render CreatorPicks component
+              if (p.product_type === 'picks_block') {
+                return (
+                  <div key={i} className="mb-6">
+                    <CreatorPicks creator_id={creator?.id || ''} />
                   </div>
                 );
               }
