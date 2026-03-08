@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag, Mail, Play } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
@@ -53,6 +53,81 @@ const TikTokIcon = ({ className }: { className?: string }) => (
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
   </svg>
 );
+
+// Countdown Block Component
+const CountdownBlock = ({ product, textColor }: { product: DBProduct; textColor: string }) => {
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    expired: boolean;
+  }>({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: false });
+
+  useEffect(() => {
+    if (!product.description) return;
+
+    const updateCountdown = () => {
+      const targetDate = new Date(product.description!).getTime();
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: true });
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds, expired: false });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [product.description]);
+
+  return (
+    <div className="py-4">
+      <h3 className={`font-medium ${textColor} text-center mb-4 text-lg`}>
+        {product.title}
+      </h3>
+      
+      {timeLeft.expired ? (
+        <div className="text-center py-8">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-lg font-medium">
+            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+            live now
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { label: 'days', value: timeLeft.days },
+            { label: 'hrs', value: timeLeft.hours },
+            { label: 'min', value: timeLeft.minutes },
+            { label: 'sec', value: timeLeft.seconds }
+          ].map(({ label, value }) => (
+            <div key={label} className="text-center">
+              <div className="bg-[#171717] border border-white/10 rounded-lg py-3 px-2 shadow-lg">
+                <div className="text-2xl font-bold text-white mb-1">
+                  {value.toString().padStart(2, '0')}
+                </div>
+              </div>
+              <div className={`text-xs mt-2 font-medium ${textColor} opacity-60`}>
+                {label}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Demo data removed - now fully dynamic from database
 
@@ -478,6 +553,27 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                     </h3>
                   </div>
                 );
+              }
+
+              // Text block type - clean text content
+              if (p.product_type === 'text_block') {
+                return (
+                  <div key={i} className="py-3">
+                    {p.title && (
+                      <h3 className={`font-medium ${textColor} mb-3 text-lg`}>
+                        {p.title}
+                      </h3>
+                    )}
+                    <div className={`${textColor} leading-relaxed whitespace-pre-line`}>
+                      {p.description || ''}
+                    </div>
+                  </div>
+                );
+              }
+
+              // Countdown timer block - live countdown with dark cards and emerald accent
+              if (p.product_type === 'countdown_block') {
+                return <CountdownBlock key={i} product={p} textColor={textColor} />;
               }
 
               // Email collector component

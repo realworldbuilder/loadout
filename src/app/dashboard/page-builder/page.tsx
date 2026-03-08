@@ -26,7 +26,9 @@ import {
   Shuffle,
   Check,
   Palette,
-  Heart
+  Heart,
+  AlignLeft,
+  Clock
 } from 'lucide-react';
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES, PRESET_GRADIENTS } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
@@ -39,7 +41,7 @@ interface Product {
   title: string;
   description?: string;
   price: number;
-  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block';
+  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block';
   file_url?: string;
   thumbnail_url?: string;
   external_url?: string;
@@ -54,7 +56,7 @@ interface Product {
 
 // Add form state
 interface AddFormState {
-  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | null;
+  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | null;
   title: string;
   description: string;
   price: string;
@@ -185,7 +187,7 @@ export default function PageBuilder() {
 
   // Add new item
   const handleAdd = async () => {
-    const isAutoTitled = ['codes', 'picks'].includes(addForm.type || '');
+    const isAutoTitled = ['codes', 'picks', 'countdown'].includes(addForm.type || '');
     if (!addForm.type || (!isAutoTitled && !addForm.title.trim()) || !profile?.id) return;
     
     setSaving(true);
@@ -193,13 +195,18 @@ export default function PageBuilder() {
       const newProduct = {
         creator_id: profile.id,
         title: addForm.type === 'codes' ? 'my codes' : 
-               addForm.type === 'picks' ? (selectedPicksCollection === 'all' ? 'my picks' : `picks: ${selectedPicksCollection}`) : addForm.title,
+               addForm.type === 'picks' ? (selectedPicksCollection === 'all' ? 'my picks' : `picks: ${selectedPicksCollection}`) : 
+               addForm.type === 'countdown' ? 'countdown timer' : 
+               addForm.title,
         description: addForm.type === 'picks' ? (selectedPicksCollection || 'all') : (addForm.description || ''),
-        price: addForm.type === 'header' ? 0 : Number(addForm.price) || 0,
+        price: ['header', 'text', 'countdown'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
         product_type: addForm.type === 'link' ? 'link' : 
                       addForm.type === 'header' ? 'header' :
                       addForm.type === 'codes' ? 'codes_block' :
-                      addForm.type === 'picks' ? 'picks_block' : 'digital_product',
+                      addForm.type === 'picks' ? 'picks_block' :
+                      addForm.type === 'text' ? 'text_block' :
+                      addForm.type === 'countdown' ? 'countdown_block' :
+                      'digital_product',
         external_url: addForm.external_url || '',
         cta_text: addForm.type === 'product' ? 'Purchase' : 'Visit',
         is_active: true,
@@ -333,6 +340,10 @@ export default function PageBuilder() {
         return Tag;
       case 'picks_block':
         return Heart;
+      case 'text_block':
+        return AlignLeft;
+      case 'countdown_block':
+        return Clock;
       default:
         return Package;
     }
@@ -349,6 +360,10 @@ export default function PageBuilder() {
         return 'bg-amber-500/10 text-amber-400';
       case 'picks_block':
         return 'bg-rose-500/10 text-rose-400';
+      case 'text_block':
+        return 'bg-gray-500/10 text-gray-400';
+      case 'countdown_block':
+        return 'bg-orange-500/10 text-orange-400';
       default:
         return 'bg-emerald-500/10 text-emerald-400';
     }
@@ -467,6 +482,24 @@ export default function PageBuilder() {
                 <span className="text-sm lowercase">add header</span>
               </button>
               <button
+                onClick={() => setAddForm({ ...addForm, type: 'text' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-500/10 text-gray-400 hover:bg-gray-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                <AlignLeft size={20} />
+                <span className="text-sm lowercase">add text</span>
+              </button>
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'countdown' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                <Clock size={20} />
+                <span className="text-sm lowercase">add countdown</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-3">
+              <button
                 onClick={() => setAddForm({ ...addForm, type: 'codes' })}
                 className="flex flex-col items-center gap-2 p-3 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors"
                 disabled={!!addForm.type || products.some(p => p.product_type === 'codes_block')}
@@ -535,16 +568,56 @@ export default function PageBuilder() {
                   </div>
                 )}
 
-                {addForm.type !== 'codes' && addForm.type !== 'picks' && (
+                {/* Title field - required for most types except auto-titled ones */}
+                {!['codes', 'picks', 'countdown'].includes(addForm.type || '') && (
                   <div>
                     <input
                       type="text"
-                      placeholder="title"
+                      placeholder={addForm.type === 'text' ? "heading (optional)" : "title"}
                       value={addForm.title}
                       onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
                       className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50"
                     />
                   </div>
+                )}
+
+                {/* Text block content */}
+                {addForm.type === 'text' && (
+                  <div>
+                    <textarea
+                      placeholder="write your text content here..."
+                      value={addForm.description}
+                      onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50 resize-none h-24"
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* Countdown block inputs */}
+                {addForm.type === 'countdown' && (
+                  <>
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="countdown title (e.g., 'program drops march 15')"
+                        value={addForm.title}
+                        onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">target date</label>
+                      <input
+                        type="datetime-local"
+                        value={addForm.description}
+                        onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500/50"
+                        required
+                      />
+                    </div>
+                  </>
                 )}
                 {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && (
                   <div>
@@ -618,7 +691,21 @@ export default function PageBuilder() {
                 )}
                 <button
                   onClick={handleAdd}
-                  disabled={(addForm.type !== 'codes' && addForm.type !== 'picks' && !addForm.title.trim()) || saving}
+                  disabled={(() => {
+                    if (saving) return true;
+                    
+                    // Auto-titled types that don't require a title
+                    if (['codes', 'picks'].includes(addForm.type || '')) return false;
+                    
+                    // Text blocks require description content
+                    if (addForm.type === 'text') return !addForm.description.trim();
+                    
+                    // Countdown blocks require title and date
+                    if (addForm.type === 'countdown') return !addForm.title.trim() || !addForm.description.trim();
+                    
+                    // Other types require title
+                    return !addForm.title.trim();
+                  })()}
                   className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-gray-900 dark:text-white rounded-lg transition-colors"
                 >
                   <Save size={16} />
@@ -658,16 +745,43 @@ export default function PageBuilder() {
                                 {isEditing ? (
                                   // Edit form
                                   <div className="space-y-3">
-                                    {product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && (
+                                    {!['codes_block', 'picks_block'].includes(product.product_type) && (
                                       <div>
                                         <input
                                           type="text"
+                                          placeholder={product.product_type === 'text_block' ? "heading (optional)" : "title"}
                                           value={editForm.title}
                                           onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                                           className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm"
                                         />
                                       </div>
                                     )}
+                                    
+                                    {/* Text block content editing */}
+                                    {product.product_type === 'text_block' && (
+                                      <div>
+                                        <textarea
+                                          value={editForm.description}
+                                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                          placeholder="text content..."
+                                          className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm resize-none h-20"
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    {/* Countdown block editing */}
+                                    {product.product_type === 'countdown_block' && (
+                                      <div>
+                                        <label className="text-white/50 text-xs mb-1 block">target date</label>
+                                        <input
+                                          type="datetime-local"
+                                          value={editForm.description}
+                                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                          className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm"
+                                        />
+                                      </div>
+                                    )}
+                                    
                                     {product.product_type === 'digital_product' && (
                                       <>
                                         <div>
@@ -773,7 +887,7 @@ export default function PageBuilder() {
                                       >
                                         {product.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
                                       </button>
-                                      {product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && (
+                                      {!['codes_block', 'picks_block'].includes(product.product_type) && (
                                         <button
                                           onClick={() => startEdit(product)}
                                           className="p-1 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:text-white"
@@ -1365,6 +1479,52 @@ export default function PageBuilder() {
                                 <div key={i}>
                                   <div className="aspect-square rounded-lg" style={{ backgroundColor: `${theme.textColor}10` }} />
                                   <div className="mt-1 h-2 rounded" style={{ backgroundColor: `${theme.textColor}10`, width: '80%' }} />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'text_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            {product.title && (
+                              <h4 className="font-medium text-sm mb-2" style={{ color: theme.textColor }}>
+                                {product.title}
+                              </h4>
+                            )}
+                            <div className="text-sm leading-relaxed" style={{ color: `${theme.textColor}80` }}>
+                              {(product.description || '').split('\n').map((line, idx) => (
+                                <div key={idx}>{line || '\u00A0'}</div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'countdown_block') {
+                        return (
+                          <div key={product.id} className="py-3">
+                            <h4 className="font-medium text-center mb-3" style={{ color: theme.textColor }}>
+                              {product.title}
+                            </h4>
+                            <div className="grid grid-cols-4 gap-2">
+                              {[
+                                { label: 'days', value: '15' },
+                                { label: 'hrs', value: '08' },
+                                { label: 'min', value: '42' },
+                                { label: 'sec', value: '33' }
+                              ].map(({ label, value }) => (
+                                <div key={label} className="text-center">
+                                  <div className="bg-black/20 rounded-lg py-2 px-1 border border-white/10">
+                                    <div className="text-lg font-bold" style={{ color: theme.textColor }}>
+                                      {value}
+                                    </div>
+                                  </div>
+                                  <div className="text-xs mt-1" style={{ color: `${theme.textColor}60` }}>
+                                    {label}
+                                  </div>
                                 </div>
                               ))}
                             </div>
