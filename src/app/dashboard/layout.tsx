@@ -24,13 +24,15 @@ import {
   Layers,
   Dumbbell,
   Sun,
-  Moon
+  Moon,
+  Tag
 } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'overview', icon: LayoutDashboard },
   { href: '/dashboard/page-builder', label: 'page builder', icon: Layers },
   { href: '/dashboard/products', label: 'products', icon: Package },
+  { href: '/dashboard/codes', label: 'codes', icon: Tag },
   { href: '/dashboard/analytics', label: 'analytics', icon: BarChart3 },
   { href: '/dashboard/settings', label: 'settings', icon: Settings },
 ];

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag, Mail, Play } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
+import CreatorCodes from '@/components/CreatorCodes';
 import { CreatorTheme, DEFAULT_THEME } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass, getButtonClasses, getCardClasses, getSocialIconClasses } from '@/lib/utils';
 
@@ -1007,6 +1008,11 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
             <p className={`${textColor} font-semibold mb-1`}>no products yet</p>
             <p className={`text-sm ${mutedTextColor}`}>check back soon</p>
           </div>
+        )}
+
+        {/* Creator Codes Section - only show for real DB creators */}
+        {isFromDB && creator?.id && (
+          <CreatorCodes creator_id={creator.id} />
         )}
 
         {/* Footer */}
