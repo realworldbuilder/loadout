@@ -67,9 +67,9 @@ async function getCreatorData(handle: string) {
       ...p,
       price: (p.price_cents || 0) / 100,
       product_type: p.type,
-      layout: p.metadata?.layout || 'classic',
-      cta_text: p.metadata?.cta_text,
-      external_url: p.metadata?.external_url || p.file_url,
+      layout: p.layout || p.metadata?.layout || 'classic',
+      cta_text: p.cta_text || p.metadata?.cta_text,
+      external_url: p.external_url || p.metadata?.external_url || p.file_url,
     }));
 
     return { creator, products: mapped };

@@ -22,6 +22,7 @@ function mapToDb(body: any) {
   if (body.is_active !== undefined) mapped.is_active = body.is_active;
   if (body.sort_order !== undefined) mapped.sort_order = body.sort_order;
   if (body.layout !== undefined) mapped.layout = body.layout;
+  if (body.collection !== undefined) mapped.collection = body.collection;
   
   // price -> price_cents
   if (body.price !== undefined) {
