@@ -187,7 +187,7 @@ export default function PageBuilder() {
 
   // Add new item
   const handleAdd = async () => {
-    const isAutoTitled = ['codes', 'picks', 'countdown'].includes(addForm.type || '');
+    const isAutoTitled = ['codes', 'picks', 'text', 'countdown'].includes(addForm.type || '');
     if (!addForm.type || (!isAutoTitled && !addForm.title.trim()) || !profile?.id) return;
     
     setSaving(true);
