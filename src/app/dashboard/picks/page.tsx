@@ -699,12 +699,19 @@ function PickModal({
             </label>
             <div className="relative">
               <input
-                type="url"
+                type="text"
                 required
                 value={formData.product_url}
                 onChange={(e) => handleProductUrlChange(e.target.value)}
+                onPaste={(e) => {
+                  const pasted = e.clipboardData.getData('text');
+                  if (pasted) {
+                    setTimeout(() => handleProductUrlChange(pasted), 0);
+                  }
+                }}
                 className="w-full px-3 py-2 pr-8 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
                 placeholder="https://nike.com/product..."
+                autoComplete="off"
               />
               {scrapingUrl && (
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
