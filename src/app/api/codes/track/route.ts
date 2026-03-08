@@ -9,19 +9,69 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { codeId, action } = await request.json();
+    const { codeId, action, pickId } = await request.json();
 
     // Validate input
-    if (!codeId || !action) {
+    if (!action) {
       return NextResponse.json(
-        { error: 'codeId and action are required' },
+        { error: 'action is required' },
         { status: 400 }
       );
     }
 
-    if (!['copy', 'click'].includes(action)) {
+    if (!['copy', 'click', 'pick_click'].includes(action)) {
       return NextResponse.json(
-        { error: 'action must be "copy" or "click"' },
+        { error: 'action must be "copy", "click", or "pick_click"' },
+        { status: 400 }
+      );
+    }
+
+    // Handle pick click tracking
+    if (action === 'pick_click') {
+      if (!pickId) {
+        return NextResponse.json(
+          { error: 'pickId is required for pick_click action' },
+          { status: 400 }
+        );
+      }
+
+      // Increment pick click count
+      const { data: currentPick, error: fetchError } = await supabase
+        .from('creator_code_picks')
+        .select('click_count')
+        .eq('id', pickId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching current pick:', fetchError);
+        return NextResponse.json(
+          { error: 'Failed to track pick click' },
+          { status: 500 }
+        );
+      }
+
+      const newCount = (currentPick.click_count || 0) + 1;
+      
+      const { error: updateError } = await supabase
+        .from('creator_code_picks')
+        .update({ click_count: newCount })
+        .eq('id', pickId);
+
+      if (updateError) {
+        console.error('Error updating pick count:', updateError);
+        return NextResponse.json(
+          { error: 'Failed to track pick click' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
+    // Handle code copy/click tracking
+    if (!codeId) {
+      return NextResponse.json(
+        { error: 'codeId is required for copy and click actions' },
         { status: 400 }
       );
     }

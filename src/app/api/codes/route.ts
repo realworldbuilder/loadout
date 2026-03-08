@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       query = query.or(`expires_at.is.null,expires_at.gt.${now}`);
     }
 
-    const { data, error } = await query;
+    const { data: codes, error } = await query;
 
     if (error) {
       console.error('Error fetching codes:', error);
@@ -43,7 +43,36 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ data });
+    // Fetch picks for all codes in one query
+    if (codes && codes.length > 0) {
+      const codeIds = codes.map(code => code.id);
+      
+      const { data: picks, error: picksError } = await supabase
+        .from('creator_code_picks')
+        .select('*')
+        .in('code_id', codeIds)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+
+      if (picksError) {
+        console.error('Error fetching picks:', picksError);
+        // Continue without picks rather than failing
+      } else if (picks) {
+        // Group picks by code_id
+        const picksByCodeId = picks.reduce((acc: any, pick: any) => {
+          if (!acc[pick.code_id]) acc[pick.code_id] = [];
+          acc[pick.code_id].push(pick);
+          return acc;
+        }, {});
+
+        // Attach picks to each code
+        codes.forEach((code: any) => {
+          code.picks = picksByCodeId[code.id] || [];
+        });
+      }
+    }
+
+    return NextResponse.json({ data: codes });
   } catch (error) {
     console.error('Error in GET /api/codes:', error);
     return NextResponse.json(

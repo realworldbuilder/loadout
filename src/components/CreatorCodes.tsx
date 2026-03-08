@@ -1,24 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Copy, ExternalLink, Check, Star } from 'lucide-react';
-
-interface CreatorCode {
-  id: string;
-  creator_id: string;
-  brand_name: string;
-  brand_logo_url?: string;
-  code_text: string;
-  discount_description?: string;
-  store_url?: string;
-  category: string;
-  is_featured: boolean;
-  expires_at?: string;
-  click_count: number;
-  copy_count: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Copy, ExternalLink, Check, Star, Grid3X3, ChevronDown, ChevronUp } from 'lucide-react';
+import { CreatorCode, CodePick } from '@/types/codes';
 
 interface CreatorCodesProps {
   creator_id: string;
@@ -30,6 +14,7 @@ export default function CreatorCodes({ creator_id, compact = true }: CreatorCode
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());
 
   const categories = [
     { id: 'all', label: 'all' },
@@ -108,6 +93,28 @@ export default function CreatorCodes({ creator_id, compact = true }: CreatorCode
     window.open(storeUrl, '_blank');
   }
 
+  async function handlePickClick(pickId: string, productUrl: string) {
+    // Track the pick click
+    fetch('/api/codes/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'pick_click', pickId }),
+    }).catch(console.error);
+
+    // Open in new tab
+    window.open(productUrl, '_blank');
+  }
+
+  function toggleCodeExpanded(codeId: string) {
+    const newExpanded = new Set(expandedCodes);
+    if (newExpanded.has(codeId)) {
+      newExpanded.delete(codeId);
+    } else {
+      newExpanded.add(codeId);
+    }
+    setExpandedCodes(newExpanded);
+  }
+
   if (loading) {
     return (
       <div className="py-4">
@@ -155,76 +162,158 @@ export default function CreatorCodes({ creator_id, compact = true }: CreatorCode
         <p className="text-white/40 text-sm py-4 lowercase">no codes in this category</p>
       ) : (
         <div className="space-y-0">
-          {filteredCodes.map((code, index) => (
-            <div
-              key={code.id}
-              className={`relative flex items-center gap-3 h-12 px-0 py-2 bg-transparent border-white/10 ${
-                index < filteredCodes.length - 1 ? 'border-b' : ''
-              } ${code.is_featured ? 'border-l-2 border-l-emerald-500 pl-2' : ''}`}
-            >
-              {/* Brand logo */}
-              <div className="w-6 h-6 flex-shrink-0">
-                {code.brand_logo_url ? (
-                  <img
-                    src={code.brand_logo_url}
-                    alt={code.brand_name}
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-white/10 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-white/60">
-                      {code.brand_name.charAt(0).toUpperCase()}
+          {filteredCodes.map((code, index) => {
+            const isExpanded = expandedCodes.has(code.id);
+            const hasPicks = code.picks && code.picks.length > 0;
+            const isLastItem = index === filteredCodes.length - 1;
+            
+            return (
+              <div
+                key={code.id}
+                className={`relative bg-transparent border-white/10 ${
+                  (!isExpanded && !isLastItem) ? 'border-b' : ''
+                } ${code.is_featured ? 'border-l-2 border-l-emerald-500 pl-2' : ''}`}
+                style={{
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {/* Main code row */}
+                <div 
+                  className={`flex items-center gap-3 h-12 px-0 py-2 ${
+                    hasPicks ? 'cursor-pointer hover:bg-white/5' : ''
+                  }`}
+                  onClick={hasPicks ? () => toggleCodeExpanded(code.id) : undefined}
+                >
+                  {/* Brand logo */}
+                  <div className="w-6 h-6 flex-shrink-0">
+                    {code.brand_logo_url ? (
+                      <img
+                        src={code.brand_logo_url}
+                        alt={code.brand_name}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white/10 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-medium text-white/60">
+                          {code.brand_name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Brand name */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-white truncate lowercase">
+                        {code.brand_name}
+                      </p>
+                      {hasPicks && (
+                        <div className="flex items-center gap-1">
+                          <Grid3X3 className="h-3 w-3 text-white/40" />
+                          <span className="text-xs text-white/40">{code.picks?.length || 0}</span>
+                          {isExpanded ? (
+                            <ChevronUp className="h-3 w-3 text-white/40" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3 text-white/40" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Code in mono font */}
+                  <div className="flex-shrink-0">
+                    <span className="text-sm font-bold font-mono text-white bg-white/5 px-2 py-1 rounded border border-white/10">
+                      {code.code_text}
                     </span>
                   </div>
-                )}
-              </div>
 
-              {/* Brand name */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate lowercase">
-                  {code.brand_name}
-                </p>
-              </div>
+                  {/* Copy button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyCode(code.id, code.code_text);
+                    }}
+                    className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                    title="tap to copy"
+                  >
+                    {copiedCode === code.id ? (
+                      <Check className="h-3 w-3 text-emerald-400" />
+                    ) : (
+                      <Copy className="h-3 w-3 text-white/60" />
+                    )}
+                  </button>
 
-              {/* Code in mono font */}
-              <div className="flex-shrink-0">
-                <span className="text-sm font-bold font-mono text-white bg-white/5 px-2 py-1 rounded border border-white/10">
-                  {code.code_text}
-                </span>
-              </div>
+                  {/* Shop arrow */}
+                  {code.store_url && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShopClick(code.id, code.store_url!);
+                      }}
+                      className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                      title="shop"
+                    >
+                      <ExternalLink className="h-3 w-3 text-white/60" />
+                    </button>
+                  )}
 
-              {/* Copy button */}
-              <button
-                onClick={() => handleCopyCode(code.id, code.code_text)}
-                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                title="tap to copy"
-              >
-                {copiedCode === code.id ? (
-                  <Check className="h-3 w-3 text-emerald-400" />
-                ) : (
-                  <Copy className="h-3 w-3 text-white/60" />
-                )}
-              </button>
-
-              {/* Shop arrow */}
-              {code.store_url && (
-                <button
-                  onClick={() => handleShopClick(code.id, code.store_url!)}
-                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                  title="shop"
-                >
-                  <ExternalLink className="h-3 w-3 text-white/60" />
-                </button>
-              )}
-
-              {/* Featured star indicator */}
-              {code.is_featured && (
-                <div className="absolute -left-1 top-1/2 transform -translate-y-1/2">
-                  <Star className="h-3 w-3 text-emerald-500 fill-current" />
+                  {/* Featured star indicator */}
+                  {code.is_featured && (
+                    <div className="absolute -left-1 top-1/2 transform -translate-y-1/2">
+                      <Star className="h-3 w-3 text-emerald-500 fill-current" />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Expanded picks section */}
+                {hasPicks && (
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      isExpanded ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    <div className="py-3 pl-8">
+                      <div className="flex gap-2 overflow-x-auto pb-1">
+                        {code.picks?.map((pick) => (
+                          <button
+                            key={pick.id}
+                            onClick={() => handlePickClick(pick.id, pick.product_url)}
+                            className="flex-shrink-0 group"
+                            title={pick.title}
+                          >
+                            <div className="w-16 h-16 bg-white/10 rounded-lg overflow-hidden border border-white/10 group-hover:border-emerald-500/50 transition-colors">
+                              {pick.image_url ? (
+                                <img
+                                  src={pick.image_url}
+                                  alt={pick.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <span className="text-xs text-white/40 text-center px-1">
+                                    {pick.title.split(' ')[0]}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-xs text-white/60 mt-1 text-center truncate w-16 lowercase">
+                              {pick.title}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom border for expanded items or last item */}
+                {(isExpanded || isLastItem) && !isLastItem && (
+                  <div className="border-b border-white/10" />
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { BrandAutocomplete } from '@/components/BrandAutocomplete';
+import { CreatorCode, CodePick } from '@/types/codes';
 import { 
   Plus, 
   Search, 
@@ -19,25 +20,12 @@ import {
   Eye,
   Calendar,
   Star,
-  StarOff
+  StarOff,
+  Image,
+  X,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
-
-interface CreatorCode {
-  id: string;
-  creator_id: string;
-  brand_name: string;
-  brand_logo_url?: string;
-  code_text: string;
-  discount_description?: string;
-  store_url?: string;
-  category: string;
-  is_featured: boolean;
-  expires_at?: string;
-  click_count: number;
-  copy_count: number;
-  created_at: string;
-  updated_at: string;
-}
 
 type SortOption = 'newest' | 'featured' | 'brand' | 'copies' | 'clicks';
 type FilterOption = 'all' | 'featured' | 'apparel' | 'supplements' | 'skincare' | 'gear' | 'food' | 'other';
@@ -517,6 +505,13 @@ function CodeModal({
     expires_at: ''
   });
   const [loading, setLoading] = useState(false);
+  const [picks, setPicks] = useState<CodePick[]>([]);
+  const [showPickForm, setShowPickForm] = useState(false);
+  const [pickForm, setPickForm] = useState({
+    title: '',
+    product_url: '',
+    image_url: ''
+  });
 
   useEffect(() => {
     if (code) {
@@ -530,6 +525,7 @@ function CodeModal({
         is_featured: code.is_featured,
         expires_at: code.expires_at ? code.expires_at.split('T')[0] : ''
       });
+      setPicks(code.picks || []);
     } else {
       setFormData({
         brand_name: '',
@@ -541,7 +537,10 @@ function CodeModal({
         is_featured: false,
         expires_at: ''
       });
+      setPicks([]);
     }
+    setShowPickForm(false);
+    setPickForm({ title: '', product_url: '', image_url: '' });
   }, [code]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -573,6 +572,91 @@ function CodeModal({
       console.error('Error saving code:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleAddPick() {
+    if (!code?.id || !pickForm.title || !pickForm.product_url) return;
+    if (picks.length >= 6) return; // Enforce 6 pick limit
+
+    try {
+      const res = await fetch('/api/codes/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code_id: code.id,
+          title: pickForm.title,
+          product_url: pickForm.product_url,
+          image_url: pickForm.image_url || null,
+          sort_order: picks.length
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        console.error('Error adding pick:', error);
+        return;
+      }
+
+      const result = await res.json();
+      setPicks([...picks, result.data]);
+      setPickForm({ title: '', product_url: '', image_url: '' });
+      setShowPickForm(false);
+    } catch (error) {
+      console.error('Error adding pick:', error);
+    }
+  }
+
+  async function handleDeletePick(pickId: string) {
+    try {
+      const res = await fetch('/api/codes/picks', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: pickId }),
+      });
+
+      if (!res.ok) {
+        console.error('Error deleting pick');
+        return;
+      }
+
+      setPicks(picks.filter(pick => pick.id !== pickId));
+    } catch (error) {
+      console.error('Error deleting pick:', error);
+    }
+  }
+
+  async function movePick(pickId: string, direction: 'up' | 'down') {
+    const currentIndex = picks.findIndex(pick => pick.id === pickId);
+    if (currentIndex === -1) return;
+    if (direction === 'up' && currentIndex === 0) return;
+    if (direction === 'down' && currentIndex === picks.length - 1) return;
+
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const newPicks = [...picks];
+    [newPicks[currentIndex], newPicks[newIndex]] = [newPicks[newIndex], newPicks[currentIndex]];
+
+    // Update sort orders
+    const pick1 = newPicks[currentIndex];
+    const pick2 = newPicks[newIndex];
+
+    try {
+      await Promise.all([
+        fetch('/api/codes/picks', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: pick1.id, sort_order: currentIndex }),
+        }),
+        fetch('/api/codes/picks', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: pick2.id, sort_order: newIndex }),
+        })
+      ]);
+
+      setPicks(newPicks);
+    } catch (error) {
+      console.error('Error reordering picks:', error);
     }
   }
 
@@ -708,6 +792,148 @@ function CodeModal({
               mark as featured
             </label>
           </div>
+
+          {/* Picks section - only for existing codes */}
+          {code && (
+            <div className="border-t border-gray-200 dark:border-white/10 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-gray-700 dark:text-white/80 lowercase">
+                  my picks ({picks.length}/6)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPickForm(!showPickForm)}
+                  disabled={picks.length >= 6}
+                  className="px-3 py-1 bg-emerald-500 text-white text-sm rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors lowercase"
+                >
+                  <Plus className="h-3 w-3 inline mr-1" />
+                  add pick
+                </button>
+              </div>
+
+              {/* Add pick form */}
+              {showPickForm && (
+                <div className="mb-4 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
+                  <div className="space-y-3">
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="product title"
+                        value={pickForm.title}
+                        onChange={(e) => setPickForm({ ...pickForm, title: e.target.value })}
+                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="url"
+                        placeholder="product url"
+                        value={pickForm.product_url}
+                        onChange={(e) => setPickForm({ ...pickForm, product_url: e.target.value })}
+                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="url"
+                        placeholder="image url (optional)"
+                        value={pickForm.image_url}
+                        onChange={(e) => setPickForm({ ...pickForm, image_url: e.target.value })}
+                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleAddPick}
+                        disabled={!pickForm.title || !pickForm.product_url}
+                        className="px-3 py-1 bg-emerald-500 text-white text-sm rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors lowercase"
+                      >
+                        add
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowPickForm(false);
+                          setPickForm({ title: '', product_url: '', image_url: '' });
+                        }}
+                        className="px-3 py-1 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600 transition-colors lowercase"
+                      >
+                        cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Existing picks */}
+              <div className="space-y-2">
+                {picks.map((pick, index) => (
+                  <div key={pick.id} className="flex items-center gap-3 p-2 bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg">
+                    {/* Image thumbnail */}
+                    <div className="w-12 h-12 flex-shrink-0 bg-gray-200 dark:bg-white/10 rounded-lg overflow-hidden">
+                      {pick.image_url ? (
+                        <img
+                          src={pick.image_url}
+                          alt={pick.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Image className="h-4 w-4 text-gray-400 dark:text-white/40" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Pick info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate lowercase">
+                        {pick.title}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-white/60 truncate">
+                        {pick.product_url}
+                      </p>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => movePick(pick.id, 'up')}
+                        disabled={index === 0}
+                        className="p-1 text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="move up"
+                      >
+                        <ArrowUp className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => movePick(pick.id, 'down')}
+                        disabled={index === picks.length - 1}
+                        className="p-1 text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="move down"
+                      >
+                        <ArrowDown className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeletePick(pick.id)}
+                        className="p-1 text-red-400 hover:text-red-600"
+                        title="delete"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {picks.length === 0 && (
+                  <p className="text-sm text-gray-500 dark:text-white/60 text-center py-4 lowercase">
+                    no picks yet. add some product recommendations!
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-3 pt-4">
             <button
