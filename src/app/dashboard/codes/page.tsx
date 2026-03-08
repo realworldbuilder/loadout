@@ -512,6 +512,8 @@ function CodeModal({
     product_url: '',
     image_url: ''
   });
+  const [scrapingUrl, setScrapingUrl] = useState(false);
+  const [urlScrapeDebounce, setUrlScrapeDebounce] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (code) {
@@ -541,7 +543,21 @@ function CodeModal({
     }
     setShowPickForm(false);
     setPickForm({ title: '', product_url: '', image_url: '' });
-  }, [code]);
+    setScrapingUrl(false);
+    if (urlScrapeDebounce) {
+      clearTimeout(urlScrapeDebounce);
+      setUrlScrapeDebounce(null);
+    }
+  }, [code, urlScrapeDebounce]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (urlScrapeDebounce) {
+        clearTimeout(urlScrapeDebounce);
+      }
+    };
+  }, [urlScrapeDebounce]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -657,6 +673,65 @@ function CodeModal({
       setPicks(newPicks);
     } catch (error) {
       console.error('Error reordering picks:', error);
+    }
+  }
+
+  async function scrapeUrl(url: string) {
+    if (!url || !url.startsWith('http')) return;
+
+    try {
+      setScrapingUrl(true);
+      const res = await fetch('/api/scrape-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!res.ok) {
+        console.error('Error scraping URL');
+        return;
+      }
+
+      const result = await res.json();
+      
+      // Auto-fill title and image if they're not already filled or if they match the URL domain
+      const currentTitle = pickForm.title.trim();
+      const currentImage = pickForm.image_url.trim();
+      
+      const updates: Partial<typeof pickForm> = {};
+      
+      if (result.title && (!currentTitle || currentTitle === url)) {
+        updates.title = result.title;
+      }
+      
+      if (result.image && (!currentImage || currentImage === url)) {
+        updates.image_url = result.image;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        setPickForm(prev => ({ ...prev, ...updates }));
+      }
+    } catch (error) {
+      console.error('Error scraping URL:', error);
+    } finally {
+      setScrapingUrl(false);
+    }
+  }
+
+  function handleProductUrlChange(url: string) {
+    setPickForm({ ...pickForm, product_url: url });
+
+    // Clear existing debounce
+    if (urlScrapeDebounce) {
+      clearTimeout(urlScrapeDebounce);
+    }
+
+    // Set new debounce for URL scraping
+    if (url && url.startsWith('http')) {
+      const timeout = setTimeout(() => {
+        scrapeUrl(url);
+      }, 1000); // 1 second debounce
+      setUrlScrapeDebounce(timeout);
     }
   }
 
@@ -815,31 +890,45 @@ function CodeModal({
               {showPickForm && (
                 <div className="mb-4 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
                   <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60">
+                      <span>💡</span>
+                      <span>paste a product url and we'll auto-fill the title & image</span>
+                    </div>
                     <div>
                       <input
                         type="text"
-                        placeholder="product title"
+                        placeholder="product title (auto-filled from url)"
                         value={pickForm.title}
                         onChange={(e) => setPickForm({ ...pickForm, title: e.target.value })}
-                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 placeholder:text-gray-400 dark:placeholder:text-white/40"
                       />
                     </div>
-                    <div>
+                    <div className="relative">
                       <input
                         type="url"
                         placeholder="product url"
                         value={pickForm.product_url}
-                        onChange={(e) => setPickForm({ ...pickForm, product_url: e.target.value })}
-                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                        onChange={(e) => handleProductUrlChange(e.target.value)}
+                        onBlur={() => {
+                          if (pickForm.product_url && pickForm.product_url.startsWith('http')) {
+                            scrapeUrl(pickForm.product_url);
+                          }
+                        }}
+                        className="w-full px-3 py-2 pr-8 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
                       />
+                      {scrapingUrl && (
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                          <div className="animate-spin h-4 w-4 border-2 border-emerald-500 border-t-transparent rounded-full"></div>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <input
                         type="url"
-                        placeholder="image url (optional)"
+                        placeholder="image url (auto-filled from url)"
                         value={pickForm.image_url}
                         onChange={(e) => setPickForm({ ...pickForm, image_url: e.target.value })}
-                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                        className="w-full px-3 py-2 text-sm bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 placeholder:text-gray-400 dark:placeholder:text-white/40"
                       />
                     </div>
                     <div className="flex gap-2">
@@ -856,6 +945,11 @@ function CodeModal({
                         onClick={() => {
                           setShowPickForm(false);
                           setPickForm({ title: '', product_url: '', image_url: '' });
+                          setScrapingUrl(false);
+                          if (urlScrapeDebounce) {
+                            clearTimeout(urlScrapeDebounce);
+                            setUrlScrapeDebounce(null);
+                          }
                         }}
                         className="px-3 py-1 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600 transition-colors lowercase"
                       >
