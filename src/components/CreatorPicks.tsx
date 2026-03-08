@@ -164,8 +164,8 @@ export default function CreatorPicks({ creator_id, filterCollection }: CreatorPi
         </div>
       )}
 
-      {/* Picks carousel */}
-      <div className="flex space-x-4 overflow-x-auto pb-4">
+      {/* Picks grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {filteredPicks.map((pick) => {
           const linkedCode = codes.find(code => code.id === pick.code_id);
           
@@ -173,11 +173,11 @@ export default function CreatorPicks({ creator_id, filterCollection }: CreatorPi
             <div
               key={pick.id}
               onClick={() => handlePickClick(pick)}
-              className="flex-shrink-0 cursor-pointer group"
+              className="cursor-pointer group"
             >
               <div className="relative">
                 {/* Product image */}
-                <div className="w-20 h-20 bg-gray-100 dark:bg-white/10 rounded-lg overflow-hidden group-hover:scale-105 transition-transform duration-200">
+                <div className="aspect-square bg-gray-100 dark:bg-white/10 rounded-xl overflow-hidden group-hover:scale-[1.02] transition-transform duration-200">
                   {pick.image_url ? (
                     <img
                       src={pick.image_url}
@@ -186,25 +186,22 @@ export default function CreatorPicks({ creator_id, filterCollection }: CreatorPi
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Heart className="h-8 w-8 text-gray-300 dark:text-white/20" />
+                      <Heart className="h-10 w-10 text-gray-300 dark:text-white/20" />
                     </div>
                   )}
                 </div>
 
                 {/* Code badge overlay */}
                 {linkedCode && (
-                  <div className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                    {linkedCode.code_text.length > 4 
-                      ? linkedCode.code_text.substring(0, 2) 
-                      : linkedCode.code_text
-                    }
+                  <div className="absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-medium shadow-lg">
+                    {linkedCode.code_text}
                   </div>
                 )}
               </div>
 
               {/* Product title */}
-              <div className="mt-2 w-20">
-                <p className="text-xs text-gray-600 dark:text-white/60 text-center line-clamp-2 group-hover:text-gray-900 dark:group-hover:text-white transition-colors lowercase">
+              <div className="mt-2 px-1">
+                <p className="text-sm text-gray-600 dark:text-white/70 line-clamp-2 group-hover:text-gray-900 dark:group-hover:text-white transition-colors lowercase">
                   {pick.title}
                 </p>
               </div>
