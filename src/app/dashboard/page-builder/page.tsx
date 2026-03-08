@@ -47,6 +47,7 @@ interface Product {
   is_active: boolean;
   sort_order: number;
   layout?: 'classic' | 'featured';
+  collection?: string;
   created_at: string;
   updated_at: string;
 }
