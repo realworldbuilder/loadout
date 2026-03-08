@@ -59,7 +59,6 @@ interface AddFormState {
   price: string;
   external_url: string;
   layout: 'classic' | 'featured';
-  collection: string;
 }
 
 // Edit form state
@@ -93,7 +92,6 @@ export default function PageBuilder() {
     price: '',
     external_url: '',
     layout: 'classic',
-    collection: ''
   });
   
   // Edit form state
@@ -205,7 +203,7 @@ export default function PageBuilder() {
         is_active: true,
         sort_order: products.length,
         layout: addForm.layout,
-        collection: addForm.type === 'picks' ? (selectedPicksCollection || null) : (addForm.collection || null)
+        collection: addForm.type === 'picks' ? (selectedPicksCollection || null) : null
       };
 
       const res = await fetch('/api/products', {
@@ -222,8 +220,7 @@ export default function PageBuilder() {
           description: '',
           price: '',
           external_url: '',
-          layout: 'classic',
-          collection: ''
+          layout: 'classic'
         });
         
         // Refresh products
@@ -487,7 +484,7 @@ export default function PageBuilder() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white lowercase">add {addForm.type}</h3>
                 <button
-                  onClick={() => setAddForm({ type: null, title: '', description: '', price: '', external_url: '', layout: 'classic', collection: '' })}
+                  onClick={() => setAddForm({ type: null, title: '', description: '', price: '', external_url: '', layout: 'classic' })}
                   className="text-gray-500 dark:text-white/60 hover:text-gray-900 dark:text-white"
                 >
                   <X size={20} />
@@ -612,45 +609,6 @@ export default function PageBuilder() {
                     </div>
                   </>
                 )}
-                {/* Collection tag — for links, products, headers */}
-                {addForm.type !== 'codes' && addForm.type !== 'picks' && (
-                  <div>
-                    <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">collection <span className="text-white/30">(optional)</span></label>
-                    <div className="flex gap-2">
-                      <select
-                        value={addForm.collection}
-                        onChange={(e) => setAddForm({ ...addForm, collection: e.target.value })}
-                        className="flex-1 px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500/50"
-                      >
-                        <option value="">none</option>
-                        {picksCollections.map(col => (
-                          <option key={col} value={col}>{col}</option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const name = prompt('new collection name:');
-                          if (name && name.trim() && profile?.id) {
-                            const clean = name.toLowerCase().trim();
-                            fetch('/api/collections', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ creator_id: profile.id, name: clean }),
-                            }).then(() => {
-                              setPicksCollections(prev => prev.includes(clean) ? prev : [...prev, clean]);
-                            }).catch(() => {});
-                            setAddForm({ ...addForm, collection: clean });
-                          }
-                        }}
-                        className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60 hover:bg-white/10 text-sm transition-colors"
-                      >
-                        + new
-                      </button>
-                    </div>
-                  </div>
-                )}
-
                 <button
                   onClick={handleAdd}
                   disabled={(addForm.type !== 'codes' && addForm.type !== 'picks' && !addForm.title.trim()) || saving}
