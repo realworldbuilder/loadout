@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   Plus, 
@@ -14,7 +15,8 @@ import {
   Eye,
   Heart,
   X,
-  Image
+  Image,
+  Bookmark
 } from 'lucide-react';
 
 interface CreatorPick {
@@ -61,6 +63,27 @@ export default function PicksPage() {
   });
   const [editingPick, setEditingPick] = useState<CreatorPick | null>(null);
   const [codes, setCodes] = useState<CreatorCode[]>([]);
+
+  // Check for bookmarklet data in URL hash
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#add=')) {
+      try {
+        const data = JSON.parse(decodeURIComponent(window.location.hash.slice(5)));
+        if (data.product_url || data.title) {
+          sessionStorage.setItem('loadout-pick-draft', JSON.stringify({
+            title: data.title || '',
+            image_url: data.image_url || '',
+            product_url: data.product_url || '',
+            code_id: '',
+            collection: ''
+          }));
+          setShowModal(true);
+          // Clean the hash
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     if (profile) {
@@ -230,6 +253,13 @@ export default function PicksPage() {
           <Plus className="h-4 w-4 mr-2" />
           add pick
         </button>
+        <Link
+          href="/dashboard/picks/bookmarklet"
+          className="inline-flex items-center px-4 py-3 bg-white/5 border border-white/10 text-white/70 font-medium rounded-lg hover:bg-white/10 transition-colors lowercase mt-4 sm:mt-0"
+        >
+          <Bookmark className="h-4 w-4 mr-2" />
+          add from browser
+        </Link>
       </div>
 
       {picks.length === 0 ? (
