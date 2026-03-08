@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { BrandAutocomplete } from '@/components/BrandAutocomplete';
 import { 
   Plus, 
   Search, 
@@ -591,13 +592,22 @@ function CodeModal({
             <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-1 lowercase">
               brand name *
             </label>
-            <input
-              type="text"
-              required
+            <BrandAutocomplete
               value={formData.brand_name}
-              onChange={(e) => setFormData({ ...formData, brand_name: e.target.value })}
-              className="w-full px-3 py-2 bg-white dark:bg-[#171717] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
-              placeholder="nike"
+              onChange={(value) => setFormData({ ...formData, brand_name: value })}
+              onBrandSelect={(brand) => {
+                setFormData({
+                  ...formData,
+                  brand_name: brand.name,
+                  brand_logo_url: brand.logoUrl,
+                  store_url: brand.url,
+                  category: brand.category === 'energy-drinks' ? 'supplements' : 
+                           brand.category === 'protein-bars' ? 'supplements' :
+                           brand.category === 'gym-shoes' ? 'gear' :
+                           brand.category
+                });
+              }}
+              placeholder="search brands like nike, gorilla mind..."
             />
           </div>
 
