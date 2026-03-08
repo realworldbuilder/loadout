@@ -564,11 +564,7 @@ function PickModal({
     }
     setScrapedData(null);
     setScrapingUrl(false);
-    if (urlScrapeDebounce) {
-      clearTimeout(urlScrapeDebounce);
-      setUrlScrapeDebounce(null);
-    }
-  }, [pick, urlScrapeDebounce]);
+  }, [pick, isOpen]);
 
   // Cleanup debounce on unmount
   useEffect(() => {
