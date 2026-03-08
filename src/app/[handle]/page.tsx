@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import CreatorProfile from '@/components/CreatorProfile';
 import TrackPageView from '@/components/TrackPageView';
 
@@ -9,62 +10,27 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 // Revalidate every 10 seconds so new products show up quickly
 export const revalidate = 10;
 
-// Demo creators for fallback
-const DEMO_CREATORS: Record<string, any> = {
-  demo: {
-    handle: 'demo',
-    display_name: 'Choose a Loadout',
-    bio: 'See what different fitness creators can build with Loadout',
-    avatar_url: null,
-  },
-  alexrivera: {
-    handle: 'alexrivera',
-    display_name: 'Alex Rivera',
-    bio: 'online coach · NASM-CPT · helping you get strong without the bs',
-    avatar_url: null,
-  },
-  mayafit: {
-    handle: 'mayafit', 
-    display_name: 'Maya Thompson',
-    bio: 'glute queen 🍑 · certified PT · my programs have built 10,000+ booties',
-    avatar_url: null,
-  },
-  ironmike: {
-    handle: 'ironmike',
-    display_name: 'Mike Castellano', 
-    bio: 'powerlifter · 600/405/650 · raw w/ wraps · making you strong as hell since 2019',
-    avatar_url: null,
-  },
-  zenlifts: {
-    handle: 'zenlifts',
-    display_name: 'Priya Sharma',
-    bio: 'yoga × strength · RYT-500 · proving you can be flexible AND strong · mind-muscle connection is real',
-    avatar_url: null,
-  },
-  coachdre: {
-    handle: 'coachdre',
-    display_name: 'Dre Williams',
-    bio: 'CSCS · former D1 athlete · athletic performance coach · speed kills 💨',
-    avatar_url: null,
-  },
-  macrosbymel: {
-    handle: 'macrosbymel',
-    display_name: 'Mel Garcia',
-    bio: 'registered dietitian · macro coach · ate 2800cal today and still have abs · food freedom advocate',
-    avatar_url: null,
-  },
-};
-
-export function generateStaticParams() {
-  return [
-    { handle: 'demo' },
-    { handle: 'alexrivera' },
-    { handle: 'mayafit' },
-    { handle: 'ironmike' },
-    { handle: 'zenlifts' },
-    { handle: 'coachdre' },
-    { handle: 'macrosbymel' },
-  ];
+export async function generateStaticParams() {
+  try {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    
+    // Generate static params for active creators in the database
+    const { data: creators, error } = await supabase
+      .from('creators')
+      .select('handle')
+      .eq('is_active', true)
+      .limit(50); // Limit for build performance
+    
+    if (error || !creators) {
+      console.error('Error fetching creators for static generation:', error);
+      return [];
+    }
+    
+    return creators.map(creator => ({ handle: creator.handle }));
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    return [];
+  }
 }
 
 async function getCreatorData(handle: string) {
@@ -76,13 +42,14 @@ async function getCreatorData(handle: string) {
       .from('creators')
       .select('*')
       .eq('handle', handle)
+      .eq('is_active', true)
       .single();
 
     if (creatorError || !creator) {
-      return null; // Fall back to demo data
+      throw new Error('Creator not found');
     }
 
-    // Fetch creator's products
+    // Fetch creator's products (including page blocks)
     const { data: products, error: productsError } = await supabase
       .from('products')
       .select('*')
@@ -99,68 +66,73 @@ async function getCreatorData(handle: string) {
     const mapped = (products || []).map((p: any) => ({
       ...p,
       price: (p.price_cents || 0) / 100,
-      product_type: p.type === 'digital' ? 'digital_product' : p.type,
-      layout: p.layout || 'classic', // Ensure layout is passed through
+      product_type: p.type,
+      layout: p.metadata?.layout || 'classic',
+      cta_text: p.metadata?.cta_text,
+      external_url: p.metadata?.external_url || p.file_url,
     }));
+
     return { creator, products: mapped };
   } catch (error) {
     console.error('Error fetching creator data:', error);
-    return null; // Fall back to demo data
+    throw error;
   }
 }
 
 export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
-  const dbData = await getCreatorData(params.handle);
-  
-  // Use DB data if available, otherwise fallback to demo data
-  const creator = dbData?.creator || DEMO_CREATORS[params.handle];
-  
-  if (!creator) {
+  try {
+    const dbData = await getCreatorData(params.handle);
+    const creator = dbData.creator;
+    
+    const title = `${creator.display_name} | loadout`;
+    const description = creator.bio || `${creator.display_name} on loadout`;
+    const ogImage = creator.avatar_url || 'https://loadout.fit/og-default.png';
+
     return {
-      title: `@${params.handle} | Loadout`,
-      description: `${params.handle} on Loadout`,
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: [
+          {
+            url: ogImage,
+            width: 1200,
+            height: 630,
+            alt: `${creator.display_name} on loadout`,
+          },
+        ],
+        type: 'profile',
+        siteName: 'loadout',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImage],
+      },
+    };
+  } catch (error) {
+    // Creator not found, return minimal metadata
+    return {
+      title: `@${params.handle} | loadout`,
+      description: `fitness creator profile on loadout`,
     };
   }
-
-  const title = `${creator.display_name} | Loadout`;
-  const description = creator.bio || `${creator.display_name} on Loadout`;
-  const ogImage = creator.avatar_url || 'https://loadout.fit/og-default.png';
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: `${creator.display_name} on Loadout`,
-        },
-      ],
-      type: 'profile',
-      siteName: 'Loadout',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImage],
-    },
-  };
 }
 
 export default async function CreatorProfilePage({ params }: { params: { handle: string } }) {
-  const dbData = await getCreatorData(params.handle);
-  
-  return (
-    <>
-      <CreatorProfile handle={params.handle} dbData={dbData} />
-      {dbData?.creator?.id && (
+  try {
+    const dbData = await getCreatorData(params.handle);
+    
+    return (
+      <>
+        <CreatorProfile handle={params.handle} dbData={dbData} />
         <TrackPageView creatorId={dbData.creator.id} />
-      )}
-    </>
-  );
+      </>
+    );
+  } catch (error) {
+    // Creator not found - show 404
+    notFound();
+  }
 }
