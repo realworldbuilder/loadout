@@ -596,8 +596,8 @@ function PickModal({
     }
   }
 
-  async function scrapeUrl(url: string) {
-    if (!url || !url.startsWith('http')) return;
+  async function scrapeUrl(url: string): Promise<boolean> {
+    if (!url || !url.startsWith('http')) return false;
 
     try {
       setScrapingUrl(true);
@@ -607,21 +607,22 @@ function PickModal({
         body: JSON.stringify({ url }),
       });
 
-      if (!res.ok) {
-        console.error('Error scraping URL');
-        return;
-      }
-
       const result = await res.json();
       
-      // Always fill from scrape results
-      setFormData(prev => ({
-        ...prev,
-        title: result.title || prev.title,
-        image_url: result.image || prev.image_url,
-      }));
+      const hasData = !!(result.title || result.image);
+      
+      if (hasData) {
+        setFormData(prev => ({
+          ...prev,
+          title: result.title || prev.title,
+          image_url: result.image || prev.image_url,
+        }));
+      }
+      
+      return hasData;
     } catch (error) {
       console.error('Error scraping URL:', error);
+      return false;
     } finally {
       setScrapingUrl(false);
     }
@@ -630,7 +631,44 @@ function PickModal({
   async function handleFetchUrl() {
     const url = formData.product_url.trim();
     if (!url || !url.startsWith('http')) return;
-    await scrapeUrl(url);
+    
+    // Try server-side scrape first
+    const serverWorked = await scrapeUrl(url);
+    
+    // If server scrape returned nothing, try client-side approach
+    if (!serverWorked) {
+      try {
+        setScrapingUrl(true);
+        // Open URL in hidden iframe and try to extract og tags via proxy
+        // For now, try fetching via cors-anywhere style or just show manual entry message
+        setFormData(prev => ({
+          ...prev,
+          title: prev.title || extractTitleFromUrl(url),
+        }));
+      } finally {
+        setScrapingUrl(false);
+      }
+    }
+  }
+  
+  // Extract a reasonable title from the URL path as fallback
+  function extractTitleFromUrl(url: string): string {
+    try {
+      const u = new URL(url);
+      const path = u.pathname;
+      // /products/4243-raw-edge-joggers → "raw edge joggers"
+      // /products/4243 → ""
+      const slug = path.split('/').pop() || '';
+      // Remove product IDs and clean up
+      const cleaned = slug
+        .replace(/^\d+[-_]?/, '') // remove leading numbers
+        .replace(/[-_]/g, ' ')
+        .replace(/\.(html?|php|aspx?)$/i, '')
+        .trim();
+      return cleaned || '';
+    } catch {
+      return '';
+    }
   }
 
   if (!isOpen) return null;
@@ -707,7 +745,7 @@ function PickModal({
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
-              placeholder="auto-filled from url, or type manually"
+              placeholder="product name (auto-filled if possible)"
             />
           </div>
 
