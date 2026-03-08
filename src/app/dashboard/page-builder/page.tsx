@@ -108,16 +108,13 @@ export default function PageBuilder() {
   const [picksCollections, setPicksCollections] = useState<string[]>([]);
   const [selectedPicksCollection, setSelectedPicksCollection] = useState<string>('all');
 
-  // Fetch picks collections
+  // Fetch collections from collections API
   useEffect(() => {
     if (!profile?.id) return;
-    fetch(`/api/picks?creator_id=${profile.id}`)
+    fetch(`/api/collections?creator_id=${profile.id}`)
       .then(res => res.json())
       .then(result => {
-        const collections = Array.from(new Set(
-          (result.data || []).map((p: any) => p.collection).filter(Boolean)
-        )) as string[];
-        setPicksCollections(collections);
+        setPicksCollections((result.data || []).map((c: any) => c.name));
       })
       .catch(() => {});
   }, [profile?.id]);

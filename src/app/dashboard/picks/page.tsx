@@ -63,6 +63,19 @@ export default function PicksPage() {
   });
   const [editingPick, setEditingPick] = useState<CreatorPick | null>(null);
   const [codes, setCodes] = useState<CreatorCode[]>([]);
+  const [allCollections, setAllCollections] = useState<string[]>([]);
+
+  // Load collections
+  async function loadCollections() {
+    if (!profile) return;
+    try {
+      const res = await fetch(`/api/collections?creator_id=${profile.id}`);
+      const result = await res.json();
+      if (res.ok) {
+        setAllCollections((result.data || []).map((c: any) => c.name));
+      }
+    } catch {}
+  }
 
   // Check for bookmarklet data in URL hash
   useEffect(() => {
@@ -89,6 +102,7 @@ export default function PicksPage() {
     if (profile) {
       loadPicks();
       loadCodes();
+      loadCollections();
     }
   }, [profile]);
 
@@ -526,6 +540,7 @@ export default function PicksPage() {
         <PickModal
           pick={editingPick}
           codes={codes}
+          allCollections={allCollections}
           isOpen={showModal}
           onClose={() => {
             setShowModal(false);
@@ -533,8 +548,12 @@ export default function PicksPage() {
           }}
           onSave={() => {
             loadPicks();
+            loadCollections();
             setShowModal(false);
             setEditingPick(null);
+          }}
+          onCollectionCreated={(name) => {
+            setAllCollections(prev => prev.includes(name) ? prev : [...prev, name]);
           }}
           creatorId={profile?.id}
         />
@@ -558,16 +577,20 @@ export default function PicksPage() {
 function PickModal({ 
   pick, 
   codes,
+  allCollections,
   isOpen, 
   onClose, 
   onSave, 
+  onCollectionCreated,
   creatorId 
 }: { 
   pick: CreatorPick | null;
   codes: CreatorCode[];
+  allCollections: string[];
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
+  onCollectionCreated?: (name: string) => void;
   creatorId?: string;
 }) {
   const DRAFT_KEY = 'loadout-pick-draft';
@@ -851,13 +874,42 @@ function PickModal({
             <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-1 lowercase">
               collection
             </label>
-            <input
-              type="text"
-              value={formData.collection}
-              onChange={(e) => setFormData({ ...formData, collection: e.target.value })}
-              className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
-              placeholder="gym bag, supplement stack..."
-            />
+            <div className="flex gap-2">
+              <select
+                value={formData.collection}
+                onChange={(e) => setFormData({ ...formData, collection: e.target.value })}
+                className="flex-1 px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              >
+                <option value="">none</option>
+                {(allCollections || []).map((col: string) => (
+                  <option key={col} value={col}>{col}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  const name = prompt('new collection name:');
+                  if (name && name.trim()) {
+                    const clean = name.toLowerCase().trim();
+                    // Create collection in API
+                    if (creatorId) {
+                      fetch('/api/collections', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ creator_id: creatorId, name: clean }),
+                      }).catch(() => {});
+                    }
+                    setFormData({ ...formData, collection: clean });
+                    // Trigger parent to refetch collections
+                    if (onCollectionCreated) onCollectionCreated(clean);
+                  }
+                }}
+                className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60 hover:bg-white/10 text-sm transition-colors"
+                title="create new collection"
+              >
+                + new
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
