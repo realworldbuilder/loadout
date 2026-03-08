@@ -22,9 +22,10 @@ interface CreatorCode {
 
 interface CreatorCodesProps {
   creator_id: string;
+  compact?: boolean;
 }
 
-export default function CreatorCodes({ creator_id }: CreatorCodesProps) {
+export default function CreatorCodes({ creator_id, compact = true }: CreatorCodesProps) {
   const [codes, setCodes] = useState<CreatorCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -95,7 +96,7 @@ export default function CreatorCodes({ creator_id }: CreatorCodesProps) {
     }
   }
 
-  async function handleShopNowClick(codeId: string, storeUrl: string) {
+  async function handleShopClick(codeId: string, storeUrl: string) {
     // Track the click
     fetch('/api/codes/track', {
       method: 'POST',
@@ -109,158 +110,123 @@ export default function CreatorCodes({ creator_id }: CreatorCodesProps) {
 
   if (loading) {
     return (
-      <section className="py-16 bg-gray-50 dark:bg-[#171717]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin h-8 w-8 border-2 border-gray-400 dark:border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-500 dark:text-white/60 lowercase">loading codes...</p>
-          </div>
-        </div>
-      </section>
+      <div className="py-4">
+        <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white/60 rounded-full mx-auto"></div>
+      </div>
     );
   }
 
   if (codes.length === 0) {
-    return null; // Don't render section if no codes
+    return null; // Don't render if no codes
   }
 
+  const availableCategories = categories.filter(cat => {
+    if (cat.id === 'all') return true;
+    if (cat.id === 'featured') return codes.some(code => code.is_featured);
+    return codes.some(code => code.category === cat.id);
+  });
+
   return (
-    <section className="py-16 bg-gray-50 dark:bg-[#171717]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 lowercase">exclusive codes</h2>
-          <p className="text-lg text-gray-600 dark:text-white/70 lowercase">
-            save on my favorite brands and products
-          </p>
+    <div className="mb-6">
+      {/* Small label */}
+      <h3 className="text-sm font-medium text-white/60 mb-3 lowercase">codes</h3>
+      
+      {/* Category filter pills - only show if multiple categories */}
+      {availableCategories.length > 1 && (
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {availableCategories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setActiveCategory(category.id)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors lowercase ${
+                activeCategory === category.id
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
+              }`}
+            >
+              {category.label}
+            </button>
+          ))}
         </div>
+      )}
 
-        {/* Category filters */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories
-            .filter(cat => {
-              // Only show categories that have codes, plus 'all' and 'featured'
-              if (cat.id === 'all') return true;
-              if (cat.id === 'featured') return codes.some(code => code.is_featured);
-              return codes.some(code => code.category === cat.id);
-            })
-            .map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors lowercase ${
-                  activeCategory === category.id
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-white/80 border border-gray-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/50'
-                }`}
-              >
-                {category.label}
-              </button>
-            ))}
-        </div>
-
-        {/* Codes grid */}
-        {filteredCodes.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-white/60 lowercase">no codes in this category</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCodes.map((code) => (
-              <div
-                key={code.id}
-                className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-lg overflow-hidden transition-all duration-200 hover:border-emerald-300 dark:hover:border-emerald-500/50 hover:shadow-lg group"
-              >
-                {/* Header with brand */}
-                <div className="p-6 text-center">
-                  <div className="flex items-center justify-center mb-4">
-                    {code.brand_logo_url ? (
-                      <img
-                        src={code.brand_logo_url}
-                        alt={code.brand_name}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-white/10 rounded-full flex items-center justify-center">
-                        <span className="text-lg font-medium text-gray-600 dark:text-white/60">
-                          {code.brand_name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                    {code.is_featured && (
-                      <div className="ml-2">
-                        <Star className="h-5 w-5 text-emerald-500 fill-current" />
-                      </div>
-                    )}
+      {/* Codes list */}
+      {filteredCodes.length === 0 ? (
+        <p className="text-white/40 text-sm py-4 lowercase">no codes in this category</p>
+      ) : (
+        <div className="space-y-0">
+          {filteredCodes.map((code, index) => (
+            <div
+              key={code.id}
+              className={`relative flex items-center gap-3 h-12 px-0 py-2 bg-transparent border-white/10 ${
+                index < filteredCodes.length - 1 ? 'border-b' : ''
+              } ${code.is_featured ? 'border-l-2 border-l-emerald-500 pl-2' : ''}`}
+            >
+              {/* Brand logo */}
+              <div className="w-6 h-6 flex-shrink-0">
+                {code.brand_logo_url ? (
+                  <img
+                    src={code.brand_logo_url}
+                    alt={code.brand_name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-white/10 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-medium text-white/60">
+                      {code.brand_name.charAt(0).toUpperCase()}
+                    </span>
                   </div>
-                  
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 lowercase">
-                    {code.brand_name}
-                  </h3>
-                  
-                  <span className="inline-block px-3 py-1 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 text-sm rounded-full lowercase">
-                    {code.category}
-                  </span>
-                </div>
-
-                {/* Code section */}
-                <div className="px-6 pb-6">
-                  <button
-                    onClick={() => handleCopyCode(code.id, code.code_text)}
-                    className="w-full mb-4 group/code"
-                  >
-                    <div className="relative bg-emerald-50 dark:bg-emerald-500/10 border-2 border-dashed border-emerald-200 dark:border-emerald-500/20 rounded-lg p-4 transition-colors group-hover/code:border-emerald-300 dark:group-hover/code:border-emerald-400">
-                      <div className="flex items-center justify-center space-x-2">
-                        <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-mono tracking-wider">
-                          {code.code_text}
-                        </span>
-                        {copiedCode === code.id ? (
-                          <Check className="h-5 w-5 text-emerald-500" />
-                        ) : (
-                          <Copy className="h-5 w-5 text-emerald-500 opacity-60 group-hover/code:opacity-100 transition-opacity" />
-                        )}
-                      </div>
-                      
-                      <div className="absolute inset-0 bg-emerald-500/10 rounded-lg opacity-0 group-hover/code:opacity-100 transition-opacity"></div>
-                    </div>
-                  </button>
-                  
-                  {copiedCode === code.id && (
-                    <p className="text-center text-emerald-600 dark:text-emerald-400 text-sm mb-4 lowercase">
-                      copied to clipboard!
-                    </p>
-                  )}
-
-                  {code.discount_description && (
-                    <p className="text-center text-gray-600 dark:text-white/70 mb-6 lowercase">
-                      {code.discount_description}
-                    </p>
-                  )}
-
-                  {/* Expiry and shop button */}
-                  <div className="space-y-4">
-                    {code.expires_at && (
-                      <p className="text-center text-sm text-gray-500 dark:text-white/50 lowercase">
-                        expires {new Date(code.expires_at).toLocaleDateString()}
-                      </p>
-                    )}
-                    
-                    {code.store_url && (
-                      <button
-                        onClick={() => handleShopNowClick(code.id, code.store_url!)}
-                        className="w-full bg-emerald-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-emerald-600 transition-colors flex items-center justify-center space-x-2 lowercase"
-                      >
-                        <span>shop now</span>
-                        <ExternalLink className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
+
+              {/* Brand name */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate lowercase">
+                  {code.brand_name}
+                </p>
+              </div>
+
+              {/* Code in mono font */}
+              <div className="flex-shrink-0">
+                <span className="text-sm font-bold font-mono text-white bg-white/5 px-2 py-1 rounded border border-white/10">
+                  {code.code_text}
+                </span>
+              </div>
+
+              {/* Copy button */}
+              <button
+                onClick={() => handleCopyCode(code.id, code.code_text)}
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                title="tap to copy"
+              >
+                {copiedCode === code.id ? (
+                  <Check className="h-3 w-3 text-emerald-400" />
+                ) : (
+                  <Copy className="h-3 w-3 text-white/60" />
+                )}
+              </button>
+
+              {/* Shop arrow */}
+              {code.store_url && (
+                <button
+                  onClick={() => handleShopClick(code.id, code.store_url!)}
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                  title="shop"
+                >
+                  <ExternalLink className="h-3 w-3 text-white/60" />
+                </button>
+              )}
+
+              {/* Featured star indicator */}
+              {code.is_featured && (
+                <div className="absolute -left-1 top-1/2 transform -translate-y-1/2">
+                  <Star className="h-3 w-3 text-emerald-500 fill-current" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

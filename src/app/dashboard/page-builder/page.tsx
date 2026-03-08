@@ -18,6 +18,7 @@ import {
   Link as LinkIcon,
   Package,
   Type,
+  Tag,
   ExternalLink,
   User,
   Save,
@@ -37,7 +38,7 @@ interface Product {
   title: string;
   description?: string;
   price: number;
-  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header';
+  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block';
   file_url?: string;
   thumbnail_url?: string;
   external_url?: string;
@@ -51,7 +52,7 @@ interface Product {
 
 // Add form state
 interface AddFormState {
-  type: 'link' | 'product' | 'header' | null;
+  type: 'link' | 'product' | 'header' | 'codes' | null;
   title: string;
   description: string;
   price: string;
@@ -173,11 +174,12 @@ export default function PageBuilder() {
     try {
       const newProduct = {
         creator_id: profile.id,
-        title: addForm.title,
+        title: addForm.type === 'codes' ? 'my codes' : addForm.title,
         description: addForm.description || '',
         price: addForm.type === 'header' ? 0 : Number(addForm.price) || 0,
         product_type: addForm.type === 'link' ? 'link' : 
-                      addForm.type === 'header' ? 'header' : 'digital_product',
+                      addForm.type === 'header' ? 'header' :
+                      addForm.type === 'codes' ? 'codes_block' : 'digital_product',
         external_url: addForm.external_url || '',
         cta_text: addForm.type === 'product' ? 'Purchase' : 'Visit',
         is_active: true,
@@ -301,6 +303,8 @@ export default function PageBuilder() {
         return LinkIcon;
       case 'header':
         return Type;
+      case 'codes_block':
+        return Tag;
       default:
         return Package;
     }
@@ -313,6 +317,8 @@ export default function PageBuilder() {
         return 'bg-blue-500/10 text-blue-400';
       case 'header':
         return 'bg-purple-500/10 text-purple-400';
+      case 'codes_block':
+        return 'bg-amber-500/10 text-amber-400';
       default:
         return 'bg-emerald-500/10 text-emerald-400';
     }
@@ -405,7 +411,7 @@ export default function PageBuilder() {
           {/* Add Buttons */}
           <div className="bg-white dark:bg-[#2f2f2f] rounded-lg border border-gray-200 dark:border-white/10 p-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 lowercase">add blocks</h2>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               <button
                 onClick={() => setAddForm({ ...addForm, type: 'link' })}
                 className="flex flex-col items-center gap-2 p-3 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
@@ -430,6 +436,14 @@ export default function PageBuilder() {
                 <Type size={20} />
                 <span className="text-sm lowercase">add header</span>
               </button>
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'codes' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors"
+                disabled={!!addForm.type || products.some(p => p.product_type === 'codes_block')}
+              >
+                <Tag size={20} />
+                <span className="text-sm lowercase">add codes</span>
+              </button>
             </div>
           </div>
 
@@ -446,16 +460,18 @@ export default function PageBuilder() {
                 </button>
               </div>
               <div className="space-y-3">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="title"
-                    value={addForm.title}
-                    onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50"
-                  />
-                </div>
-                {addForm.type !== 'header' && (
+                {addForm.type !== 'codes' && (
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="title"
+                      value={addForm.title}
+                      onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                    />
+                  </div>
+                )}
+                {addForm.type !== 'header' && addForm.type !== 'codes' && (
                   <div>
                     <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">layout</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -527,7 +543,7 @@ export default function PageBuilder() {
                 )}
                 <button
                   onClick={handleAdd}
-                  disabled={!addForm.title.trim() || saving}
+                  disabled={(addForm.type !== 'codes' && !addForm.title.trim()) || saving}
                   className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-gray-900 dark:text-white rounded-lg transition-colors"
                 >
                   <Save size={16} />
@@ -567,14 +583,16 @@ export default function PageBuilder() {
                                 {isEditing ? (
                                   // Edit form
                                   <div className="space-y-3">
-                                    <div>
-                                      <input
-                                        type="text"
-                                        value={editForm.title}
-                                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                                        className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm"
-                                      />
-                                    </div>
+                                    {product.product_type !== 'codes_block' && (
+                                      <div>
+                                        <input
+                                          type="text"
+                                          value={editForm.title}
+                                          onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                          className="w-full px-3 py-1 bg-white/10 border border-white/20 rounded text-gray-900 dark:text-white text-sm"
+                                        />
+                                      </div>
+                                    )}
                                     {product.product_type === 'digital_product' && (
                                       <>
                                         <div>
@@ -605,7 +623,7 @@ export default function PageBuilder() {
                                         />
                                       </div>
                                     )}
-                                    {product.product_type !== 'header' && (
+                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && (
                                       <div>
                                         <label className="text-white/50 text-xs mb-1 block">layout</label>
                                         <div className="grid grid-cols-2 gap-2">
@@ -680,12 +698,14 @@ export default function PageBuilder() {
                                       >
                                         {product.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
                                       </button>
-                                      <button
-                                        onClick={() => startEdit(product)}
-                                        className="p-1 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:text-white"
-                                      >
-                                        <Edit2 size={16} />
-                                      </button>
+                                      {product.product_type !== 'codes_block' && (
+                                        <button
+                                          onClick={() => startEdit(product)}
+                                          className="p-1 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:text-white"
+                                        >
+                                          <Edit2 size={16} />
+                                        </button>
+                                      )}
                                       <button
                                         onClick={() => handleDelete(product.id)}
                                         className="p-1 text-gray-400 dark:text-white/40 hover:text-red-400"

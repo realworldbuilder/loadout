@@ -669,10 +669,24 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           </div>
         )}
 
+        {/* Creator Codes Section - only show for real DB creators if no codes_block exists in products */}
+        {isFromDB && creator?.id && !products.some((p: any) => p.product_type === 'codes_block') && (
+          <CreatorCodes creator_id={creator.id} />
+        )}
+
         {/* Items section - mixed links and products */}
         {products.length > 0 && (
           <div className="space-y-3 mb-8">
             {products.map((p: any, i: number) => {
+              // Codes block type - render CreatorCodes component
+              if (p.product_type === 'codes_block') {
+                return (
+                  <div key={i} className="mb-6">
+                    <CreatorCodes creator_id={creator?.id || ''} />
+                  </div>
+                );
+              }
+
               // Header type - simple text divider
               if (p.product_type === 'header' || p.type === 'header') {
                 return (
@@ -1010,10 +1024,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           </div>
         )}
 
-        {/* Creator Codes Section - only show for real DB creators */}
-        {isFromDB && creator?.id && (
-          <CreatorCodes creator_id={creator.id} />
-        )}
+        {/* Creator Codes moved above */}
 
         {/* Footer */}
         <div className="text-center">
