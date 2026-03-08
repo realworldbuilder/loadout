@@ -52,7 +52,13 @@ export default function PicksPage() {
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showCollectionDropdown, setShowCollectionDropdown] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(() => {
+    // Auto-open modal if there's a draft saved
+    if (typeof window !== 'undefined') {
+      return !!sessionStorage.getItem('loadout-pick-draft');
+    }
+    return false;
+  });
   const [editingPick, setEditingPick] = useState<CreatorPick | null>(null);
   const [codes, setCodes] = useState<CreatorCode[]>([]);
 
@@ -532,16 +538,43 @@ function PickModal({
   onSave: () => void;
   creatorId?: string;
 }) {
-  const [formData, setFormData] = useState({
-    title: '',
-    image_url: '',
-    product_url: '',
-    code_id: '',
-    collection: ''
-  });
+  const DRAFT_KEY = 'loadout-pick-draft';
+
+  // Load draft from sessionStorage on mount
+  const getInitialFormData = () => {
+    if (pick) {
+      return {
+        title: pick.title,
+        image_url: pick.image_url || '',
+        product_url: pick.product_url,
+        code_id: pick.code_id || '',
+        collection: pick.collection || ''
+      };
+    }
+    if (typeof window !== 'undefined') {
+      const draft = sessionStorage.getItem(DRAFT_KEY);
+      if (draft) {
+        try { return JSON.parse(draft); } catch {}
+      }
+    }
+    return { title: '', image_url: '', product_url: '', code_id: '', collection: '' };
+  };
+
+  const [formData, setFormData] = useState(getInitialFormData);
   const [loading, setLoading] = useState(false);
   const [scrapingUrl, setScrapingUrl] = useState(false);
 
+  // Save draft to sessionStorage on every change (only for new picks)
+  useEffect(() => {
+    if (!pick && isOpen) {
+      const hasData = formData.title || formData.product_url || formData.image_url;
+      if (hasData) {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
+      }
+    }
+  }, [formData, pick, isOpen]);
+
+  // Reset form when editing a different pick or opening fresh
   useEffect(() => {
     if (pick) {
       setFormData({
@@ -551,14 +584,14 @@ function PickModal({
         code_id: pick.code_id || '',
         collection: pick.collection || ''
       });
-    } else {
-      setFormData({
-        title: '',
-        image_url: '',
-        product_url: '',
-        code_id: '',
-        collection: ''
-      });
+    } else if (isOpen) {
+      // Check for draft
+      const draft = typeof window !== 'undefined' ? sessionStorage.getItem(DRAFT_KEY) : null;
+      if (draft) {
+        try { setFormData(JSON.parse(draft)); } catch {}
+      } else {
+        setFormData({ title: '', image_url: '', product_url: '', code_id: '', collection: '' });
+      }
     }
     setScrapingUrl(false);
   }, [pick, isOpen]);
@@ -588,6 +621,7 @@ function PickModal({
         return;
       }
 
+      sessionStorage.removeItem(DRAFT_KEY);
       onSave();
     } catch (error) {
       console.error('Error saving pick:', error);
@@ -612,7 +646,7 @@ function PickModal({
       const hasData = !!(result.title || result.image);
       
       if (hasData) {
-        setFormData(prev => ({
+        setFormData((prev: typeof formData) => ({
           ...prev,
           title: result.title || prev.title,
           image_url: result.image || prev.image_url,
@@ -641,7 +675,7 @@ function PickModal({
         setScrapingUrl(true);
         // Open URL in hidden iframe and try to extract og tags via proxy
         // For now, try fetching via cors-anywhere style or just show manual entry message
-        setFormData(prev => ({
+        setFormData((prev: typeof formData) => ({
           ...prev,
           title: prev.title || extractTitleFromUrl(url),
         }));
