@@ -235,7 +235,7 @@ export default function PicksPage() {
   return (
     <div className="px-6 py-8 lg:px-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 lowercase">picks</h1>
           <p className="text-gray-500 dark:text-white/60 lowercase">
@@ -243,23 +243,25 @@ export default function PicksPage() {
           </p>
         </div>
         
-        <button
-          onClick={() => {
-            setEditingPick(null);
-            setShowModal(true);
-          }}
-          className="inline-flex items-center px-4 py-3 bg-emerald-500 text-white font-medium rounded-lg hover:bg-emerald-600 transition-colors lowercase mt-4 sm:mt-0"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          add pick
-        </button>
-        <Link
-          href="/dashboard/picks/bookmarklet"
-          className="inline-flex items-center px-4 py-3 bg-white/5 border border-white/10 text-white/70 font-medium rounded-lg hover:bg-white/10 transition-colors lowercase mt-4 sm:mt-0"
-        >
-          <Bookmark className="h-4 w-4 mr-2" />
-          add from browser
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setEditingPick(null);
+              setShowModal(true);
+            }}
+            className="inline-flex items-center px-4 py-2.5 bg-emerald-500 text-white font-medium rounded-lg hover:bg-emerald-600 transition-colors lowercase text-sm"
+          >
+            <Plus className="h-4 w-4 mr-1.5" />
+            add pick
+          </button>
+          <Link
+            href="/dashboard/picks/bookmarklet"
+            className="inline-flex items-center px-4 py-2.5 bg-white/5 border border-white/10 text-white/70 font-medium rounded-lg hover:bg-white/10 transition-colors lowercase text-sm"
+          >
+            <Bookmark className="h-4 w-4 mr-1.5" />
+            add from browser
+          </Link>
+        </div>
       </div>
 
       {picks.length === 0 ? (
