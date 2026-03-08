@@ -213,6 +213,7 @@ export default function PageBuilder() {
         body: JSON.stringify(newProduct)
       });
 
+      const result = await res.json();
       if (res.ok) {
         // Reset form
         setAddForm({
@@ -223,9 +224,13 @@ export default function PageBuilder() {
           external_url: '',
           layout: 'classic'
         });
+        setSelectedPicksCollection('all');
         
         // Refresh products
         fetchProducts();
+      } else {
+        console.error('Save failed:', result);
+        alert(`failed to save: ${result.error || 'unknown error'}`);
       }
     } catch (error) {
       console.error('Error adding product:', error);
@@ -1327,6 +1332,41 @@ export default function PageBuilder() {
                             <h4 className="font-medium text-center text-sm uppercase tracking-wide" style={{ color: `${theme.textColor}80` }}>
                               {product.title}
                             </h4>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'codes_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <p className="text-xs font-medium lowercase mb-2" style={{ color: `${theme.textColor}60` }}>codes</p>
+                            <div className="space-y-1">
+                              {[1,2,3].map(i => (
+                                <div key={i} className="flex items-center gap-2 py-2 px-3 rounded-lg" style={{ backgroundColor: `${theme.textColor}08`, border: `1px solid ${theme.textColor}10` }}>
+                                  <div className="w-5 h-5 rounded-full" style={{ backgroundColor: `${theme.primary}30` }} />
+                                  <div className="flex-1 h-3 rounded" style={{ backgroundColor: `${theme.textColor}15`, width: '40%' }} />
+                                  <div className="px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: `${theme.primary}20`, color: theme.primary }}>CODE</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'picks_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <p className="text-xs font-medium lowercase mb-2" style={{ color: `${theme.textColor}60` }}>
+                              {product.collection && product.collection !== 'all' ? product.collection : 'picks'}
+                            </p>
+                            <div className="grid grid-cols-3 gap-2">
+                              {[1,2,3].map(i => (
+                                <div key={i}>
+                                  <div className="aspect-square rounded-lg" style={{ backgroundColor: `${theme.textColor}10` }} />
+                                  <div className="mt-1 h-2 rounded" style={{ backgroundColor: `${theme.textColor}10`, width: '80%' }} />
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         );
                       }
