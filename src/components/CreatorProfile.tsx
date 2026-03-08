@@ -443,15 +443,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
           </div>
         )}
 
-        {/* Creator Codes Section - only show if no codes_block exists in products */}
-        {creator.id && !products.some((p: any) => p.product_type === 'codes_block') && (
-          <CreatorCodes creator_id={creator.id} />
-        )}
-
-        {/* Creator Picks Section - only show if no picks_block exists in products */}
-        {creator.id && !products.some((p: any) => p.product_type === 'picks_block') && (
-          <CreatorPicks creator_id={creator.id} />
-        )}
+        {/* Codes and picks only render when explicitly added via page builder blocks */}
 
         {/* Items section - mixed links and products */}
         {products.length > 0 && (
