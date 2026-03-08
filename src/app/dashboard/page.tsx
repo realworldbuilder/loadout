@@ -3,297 +3,286 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { type Product, type Order } from '@/lib/supabase';
-import StatsCard from '@/components/dashboard/StatsCard';
 import Link from 'next/link';
 import { 
-  DollarSign, 
-  Package, 
-  ShoppingCart, 
   Eye,
-  Plus,
   ExternalLink,
-  Share2,
-  Bot,
-  TrendingUp
+  Copy,
+  Check,
+  Tag,
+  Heart,
+  Layers,
+  MousePointerClick,
+  LinkIcon,
+  Paintbrush,
+  ArrowRight,
+  Plus
 } from 'lucide-react';
 
-interface DashboardStats {
-  totalRevenue: number;
-  totalProducts: number;
-  totalSold: number;
+interface Stats {
   pageViews: number;
+  codeClicks: number;
+  pickClicks: number;
+  totalCodes: number;
+  totalPicks: number;
+  totalLinks: number;
 }
 
 export default function DashboardPage() {
   const { user, profile, loading: authLoading, initializing } = useAuth();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalRevenue: 0,
-    totalProducts: 0,
-    totalSold: 0,
+  const [stats, setStats] = useState<Stats>({
     pageViews: 0,
+    codeClicks: 0,
+    pickClicks: 0,
+    totalCodes: 0,
+    totalPicks: 0,
+    totalLinks: 0,
   });
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Auth guards
   useEffect(() => {
-    // Wait for initial auth check to complete
     if (initializing) return;
-    
-    // If still loading profile updates, wait
     if (authLoading) return;
-    
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    
-    // undefined = still loading profile, null = no profile exists
+    if (!user) { router.push('/login'); return; }
     if (profile === undefined) return;
-    
-    if (profile === null) {
-      router.push('/onboarding');
-      return;
-    }
-
-    // Load dashboard data once we have a profile
-    loadDashboardData();
+    if (profile === null) { router.push('/onboarding'); return; }
+    loadStats();
   }, [user, profile, authLoading, initializing, router]);
 
-  async function loadDashboardData() {
+  async function loadStats() {
     if (!profile) return;
-
     try {
       setLoading(true);
-      
-      await Promise.all([
-        loadStats(profile.id),
-        loadRecentOrders(profile.id),
+      const [productsRes, codesRes, picksRes] = await Promise.all([
+        fetch(`/api/products?creator_id=${profile.id}`),
+        fetch(`/api/codes?creator_id=${profile.id}`),
+        fetch(`/api/picks?creator_id=${profile.id}`),
       ]);
+
+      let totalLinks = 0;
+      if (productsRes.ok) {
+        const r = await productsRes.json();
+        totalLinks = (r.data || []).filter((p: any) => p.product_type === 'link' && p.is_active).length;
+      }
+
+      let totalCodes = 0;
+      let codeClicks = 0;
+      if (codesRes.ok) {
+        const r = await codesRes.json();
+        const codes = r.data || [];
+        totalCodes = codes.length;
+        codeClicks = codes.reduce((sum: number, c: any) => sum + (c.click_count || 0), 0);
+      }
+
+      let totalPicks = 0;
+      let pickClicks = 0;
+      if (picksRes.ok) {
+        const r = await picksRes.json();
+        const picks = r.data || [];
+        totalPicks = picks.length;
+        pickClicks = picks.reduce((sum: number, p: any) => sum + (p.click_count || 0), 0);
+      }
+
+      setStats({ pageViews: 0, codeClicks, pickClicks, totalCodes, totalPicks, totalLinks });
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error('Error loading stats:', error);
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadStats(creatorId: string) {
-    try {
-      // Get product count by fetching all products and counting active ones
-      const response = await fetch(`/api/products?creator_id=${creatorId}`);
-      
-      let productCount = 0;
-      if (response.ok) {
-        const result = await response.json();
-        productCount = (result.data || []).filter((p: Product) => p.is_active).length;
-      }
-
-      // For Phase 1, use placeholder stats since orders/revenue may not be implemented yet
-      setStats({
-        totalRevenue: 0, // Placeholder - will be real when orders are implemented
-        totalProducts: productCount,
-        totalSold: 0, // Placeholder - will be real when orders are implemented
-        pageViews: 0, // Placeholder - will be real when analytics are implemented
-      });
-    } catch (error) {
-      console.error('Error loading stats:', error);
-      // Fallback to placeholder stats
-      setStats({
-        totalRevenue: 0,
-        totalProducts: 0,
-        totalSold: 0,
-        pageViews: 0,
-      });
-    }
+  function handleCopyLink() {
+    if (!profile) return;
+    navigator.clipboard.writeText(`https://loadout.fit/${profile.handle}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
-
-  async function loadRecentOrders(creatorId: string) {
-    try {
-      // For Phase 1, just show empty orders since there's no orders API route yet
-      // When orders are implemented, this will be replaced with:
-      // const response = await fetch(`/api/orders?creator_id=${creatorId}&limit=5`);
-      setRecentOrders([]);
-    } catch (error) {
-      console.error('Error loading recent orders:', error);
-      // Ignore error since orders table might not exist yet in Phase 1
-      setRecentOrders([]);
-    }
-  }
-
-  const formatPrice = (cents: number) => {
-    return `$${(cents / 100).toFixed(2)}`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
-
-  // Revenue chart data removed for Phase 1 - will be added when real analytics are implemented
 
   if (initializing || authLoading || loading || !profile) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-gray-400 dark:border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-500 dark:text-white/60 lowercase">
-            {initializing ? 'checking auth...' : authLoading ? 'loading profile...' : 'loading dashboard...'}
-          </p>
+          <div className="animate-spin h-8 w-8 border-2 border-white/60 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-white/60 lowercase">loading...</p>
         </div>
       </div>
     );
   }
 
+  const pageUrl = `loadout.fit/${profile.handle}`;
+
   return (
-    <div className="px-6 py-8 lg:px-8">
-      {/* Welcome section */}
+    <div className="px-6 py-8 lg:px-8 max-w-4xl">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 lowercase">
-          welcome back, {profile.display_name}
+        <h1 className="text-2xl font-bold text-white mb-1 lowercase">
+          hey, {profile.display_name?.split(' ')[0]?.toLowerCase() || profile.handle}
         </h1>
-        <p className="text-gray-500 dark:text-white/60 lowercase">
-          @{profile.handle} • here's how your page is performing
-        </p>
+        <div className="flex items-center gap-3 mt-3">
+          <div className="flex items-center gap-2 bg-[#171717] border border-white/10 rounded-lg px-3 py-2 flex-1 max-w-sm">
+            <LinkIcon className="h-4 w-4 text-white/40 flex-shrink-0" />
+            <span className="text-white/70 text-sm truncate">{pageUrl}</span>
+          </div>
+          <button
+            onClick={handleCopyLink}
+            className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-sm hover:bg-emerald-500/20 transition-colors"
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? 'copied' : 'copy'}
+          </button>
+          <Link
+            href={`/${profile.handle}`}
+            target="_blank"
+            className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 text-white/70 rounded-lg text-sm hover:bg-white/10 transition-colors"
+          >
+            <ExternalLink className="h-4 w-4" />
+            view
+          </Link>
+        </div>
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        <div className="bg-[#171717] border border-white/10 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Tag className="h-4 w-4 text-yellow-400" />
+            <span className="text-xs text-white/50 lowercase">codes</span>
+          </div>
+          <p className="text-2xl font-bold text-white">{stats.totalCodes}</p>
+          <p className="text-xs text-white/40 mt-1">{stats.codeClicks} clicks</p>
+        </div>
+        <div className="bg-[#171717] border border-white/10 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="h-4 w-4 text-pink-400" />
+            <span className="text-xs text-white/50 lowercase">picks</span>
+          </div>
+          <p className="text-2xl font-bold text-white">{stats.totalPicks}</p>
+          <p className="text-xs text-white/40 mt-1">{stats.pickClicks} clicks</p>
+        </div>
+        <div className="bg-[#171717] border border-white/10 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <LinkIcon className="h-4 w-4 text-blue-400" />
+            <span className="text-xs text-white/50 lowercase">links</span>
+          </div>
+          <p className="text-2xl font-bold text-white">{stats.totalLinks}</p>
+        </div>
+        <div className="bg-[#171717] border border-white/10 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Eye className="h-4 w-4 text-emerald-400" />
+            <span className="text-xs text-white/50 lowercase">views</span>
+          </div>
+          <p className="text-2xl font-bold text-white">{stats.pageViews}</p>
+          <p className="text-xs text-white/40 mt-1">coming soon</p>
+        </div>
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Link
-          href="/dashboard/products/new"
-          className="bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg p-6 hover:border-gray-300 dark:hover:border-white/15 transition-all duration-200 group"
-        >
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-white/5 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
-              <Plus className="h-5 w-5 text-gray-500 dark:text-white/60" />
+      <div className="mb-8">
+        <h2 className="text-sm font-medium text-white/50 lowercase mb-3">quick actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Link
+            href="/dashboard/page-builder"
+            className="group bg-[#171717] border border-white/10 rounded-xl p-4 hover:border-emerald-500/30 transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-500/10 rounded-lg">
+                  <Paintbrush className="h-5 w-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-white text-sm lowercase">edit page</h3>
+                  <p className="text-xs text-white/40 lowercase">customize your storefront</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-white/20 group-hover:text-emerald-400 transition-colors" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white lowercase">add product</h3>
-          </div>
-          <p className="text-sm text-gray-500 dark:text-white/60 lowercase">create a new product to sell</p>
-        </Link>
+          </Link>
 
-        <Link
-          href={`/${profile.handle}`}
-          target="_blank"
-          className="bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg p-6 hover:border-gray-300 dark:hover:border-white/15 transition-all duration-200 group"
-        >
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-white/5 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
-              <ExternalLink className="h-5 w-5 text-gray-500 dark:text-white/60" />
+          <Link
+            href="/dashboard/codes"
+            className="group bg-[#171717] border border-white/10 rounded-xl p-4 hover:border-yellow-500/30 transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-yellow-500/10 rounded-lg">
+                  <Tag className="h-5 w-5 text-yellow-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-white text-sm lowercase">manage codes</h3>
+                  <p className="text-xs text-white/40 lowercase">{stats.totalCodes > 0 ? `${stats.totalCodes} active codes` : 'add discount codes'}</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-white/20 group-hover:text-yellow-400 transition-colors" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white lowercase">view my page</h3>
-          </div>
-          <p className="text-sm text-gray-500 dark:text-white/60 lowercase">see how visitors see your page</p>
-        </Link>
+          </Link>
 
-        <button className="bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg p-6 hover:border-gray-300 dark:hover:border-white/15 transition-all duration-200 group text-left">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-white/5 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
-              <Share2 className="h-5 w-5 text-gray-500 dark:text-white/60" />
+          <Link
+            href="/dashboard/picks"
+            className="group bg-[#171717] border border-white/10 rounded-xl p-4 hover:border-pink-500/30 transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-pink-500/10 rounded-lg">
+                  <Heart className="h-5 w-5 text-pink-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-white text-sm lowercase">manage picks</h3>
+                  <p className="text-xs text-white/40 lowercase">{stats.totalPicks > 0 ? `${stats.totalPicks} product recs` : 'recommend products'}</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-white/20 group-hover:text-pink-400 transition-colors" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white lowercase">share link</h3>
-          </div>
-          <p className="text-sm text-gray-500 dark:text-white/60 lowercase">copy your page link to share</p>
-        </button>
+          </Link>
+
+          <Link
+            href="/dashboard/picks/bookmarklet"
+            className="group bg-[#171717] border border-white/10 rounded-xl p-4 hover:border-purple-500/30 transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-500/10 rounded-lg">
+                  <MousePointerClick className="h-5 w-5 text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-white text-sm lowercase">browser tool</h3>
+                  <p className="text-xs text-white/40 lowercase">add picks from any site</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-white/20 group-hover:text-purple-400 transition-colors" />
+            </div>
+          </Link>
+        </div>
       </div>
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatsCard
-          title="total revenue"
-          value={formatPrice(stats.totalRevenue)}
-          icon={DollarSign}
-        />
-        <StatsCard
-          title="products"
-          value={stats.totalProducts}
-          icon={Package}
-        />
-        <StatsCard
-          title="total sold"
-          value={stats.totalSold}
-          icon={ShoppingCart}
-        />
-        <StatsCard
-          title="page views"
-          value={stats.pageViews.toLocaleString()}
-          icon={Eye}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Empty state for products */}
-        {stats.totalProducts === 0 && (
-          <div className="bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg p-8">
-            <div className="text-center">
-              <Package className="h-12 w-12 text-gray-300 dark:text-white/20 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 lowercase">start selling</h3>
-              <p className="text-gray-500 dark:text-white/60 text-sm mb-6 lowercase">
-                create your first product to start earning
-              </p>
-              <Link 
-                href="/dashboard/products/new"
-                className="inline-flex items-center px-4 py-2 bg-gray-900 dark:bg-white text-gray-900 dark:text-black hover:bg-gray-800 dark:hover:bg-white/90 font-medium rounded transition-colors duration-200 lowercase"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                add your first product
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* AI suggestion + Recent orders */}
-        <div className="space-y-8">
-          {/* Recent orders */}
-          <div className="bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white lowercase">recent orders</h2>
-              <Link href="/dashboard/orders" className="text-sm text-gray-500 dark:text-white/50 hover:text-gray-900 dark:text-white transition-colors lowercase">
-                view all
-              </Link>
-            </div>
-
-            {recentOrders.length === 0 ? (
-              <div className="text-center py-8">
-                <ShoppingCart className="h-12 w-12 text-gray-300 dark:text-white/20 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-white/60 lowercase">no orders yet</p>
-                <p className="text-sm text-gray-400 dark:text-white/40 mt-1 lowercase">
-                  orders will appear here when customers purchase
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#3f3f3f] rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-2 h-2 rounded-full ${
-                        order.status === 'completed' ? 'bg-emerald-500' : 
-                        order.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
-                      }`} />
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">
-                          {(order as any).products?.title || 'unknown product'}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-white/60">{order.buyer_email}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900 dark:text-white text-sm">{formatPrice(order.amount_cents)}</p>
-                      <p className="text-xs text-gray-400 dark:text-white/40">
-                        {formatDate(order.created_at)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* Getting started checklist */}
+      <div className="bg-[#171717] border border-white/10 rounded-xl p-5">
+        <h2 className="text-sm font-medium text-white/50 lowercase mb-4">getting started</h2>
+        <div className="space-y-3">
+          <ChecklistItem done={true} label="create your account" />
+          <ChecklistItem done={stats.totalLinks > 0 || stats.totalCodes > 0 || stats.totalPicks > 0} label="add content to your page" href="/dashboard/page-builder" />
+          <ChecklistItem done={stats.totalCodes > 0} label="add your first discount code" href="/dashboard/codes" />
+          <ChecklistItem done={stats.totalPicks > 0} label="add your first product pick" href="/dashboard/picks" />
+          <ChecklistItem done={false} label="share your page link" onClick={handleCopyLink} />
         </div>
       </div>
     </div>
   );
+}
+
+function ChecklistItem({ done, label, href, onClick }: { done: boolean; label: string; href?: string; onClick?: () => void }) {
+  const content = (
+    <div className={`flex items-center gap-3 py-2 px-3 rounded-lg transition-colors ${done ? 'opacity-60' : 'hover:bg-white/5 cursor-pointer'}`} onClick={onClick}>
+      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${done ? 'border-emerald-500 bg-emerald-500' : 'border-white/20'}`}>
+        {done && <Check className="h-3 w-3 text-white" />}
+      </div>
+      <span className={`text-sm lowercase ${done ? 'text-white/50 line-through' : 'text-white/80'}`}>{label}</span>
+    </div>
+  );
+
+  if (href && !done) {
+    return <Link href={href}>{content}</Link>;
+  }
+  return content;
 }
