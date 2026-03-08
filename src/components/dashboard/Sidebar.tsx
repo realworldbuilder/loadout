@@ -35,11 +35,6 @@ export default function Sidebar({ className }: SidebarProps) {
       icon: Home,
     },
     {
-      label: 'page builder',
-      href: '/dashboard/page-builder',
-      icon: Layers,
-    },
-    {
       label: 'products',
       href: '/dashboard/products',
       icon: Package,
