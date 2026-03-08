@@ -24,9 +24,10 @@ interface CreatorCode {
 
 interface CreatorPicksProps {
   creator_id: string;
+  filterCollection?: string; // if set, only show picks from this collection
 }
 
-export default function CreatorPicks({ creator_id }: CreatorPicksProps) {
+export default function CreatorPicks({ creator_id, filterCollection }: CreatorPicksProps) {
   const [picks, setPicks] = useState<CreatorPick[]>([]);
   const [codes, setCodes] = useState<CreatorCode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,13 +112,20 @@ export default function CreatorPicks({ creator_id }: CreatorPicksProps) {
     return null;
   }
 
-  // Get unique collections
-  const collections = Array.from(new Set(picks.map(pick => pick.collection).filter(Boolean))) as string[];
-  
-  // Filter picks by selected collection
-  const filteredPicks = selectedCollection 
-    ? picks.filter(pick => pick.collection === selectedCollection)
+  // Pre-filter by collection prop if set
+  const basePicks = filterCollection 
+    ? picks.filter(pick => pick.collection === filterCollection)
     : picks;
+
+  // Get unique collections (only relevant if no filterCollection set)
+  const collections = filterCollection 
+    ? [] 
+    : Array.from(new Set(basePicks.map(pick => pick.collection).filter(Boolean))) as string[];
+  
+  // Filter picks by selected collection tab
+  const filteredPicks = selectedCollection 
+    ? basePicks.filter(pick => pick.collection === selectedCollection)
+    : basePicks;
 
   return (
     <div className="space-y-4">

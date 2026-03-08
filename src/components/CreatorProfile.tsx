@@ -695,9 +695,11 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
 
               // Picks block type - render CreatorPicks component
               if (p.product_type === 'picks_block') {
+                // description field stores the collection filter (if any)
+                const collection = p.description && p.description !== 'all' ? p.description : undefined;
                 return (
                   <div key={i} className="mb-6">
-                    <CreatorPicks creator_id={creator?.id || ''} />
+                    <CreatorPicks creator_id={creator?.id || ''} filterCollection={collection} />
                   </div>
                 );
               }

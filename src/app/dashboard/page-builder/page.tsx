@@ -104,6 +104,24 @@ export default function PageBuilder() {
     layout: 'classic'
   });
 
+  // Picks collections for the picks block selector
+  const [picksCollections, setPicksCollections] = useState<string[]>([]);
+  const [selectedPicksCollection, setSelectedPicksCollection] = useState<string>('all');
+
+  // Fetch picks collections
+  useEffect(() => {
+    if (!profile?.id) return;
+    fetch(`/api/picks?creator_id=${profile.id}`)
+      .then(res => res.json())
+      .then(result => {
+        const collections = Array.from(new Set(
+          (result.data || []).map((p: any) => p.collection).filter(Boolean)
+        )) as string[];
+        setPicksCollections(collections);
+      })
+      .catch(() => {});
+  }, [profile?.id]);
+
   // Fetch products
   const fetchProducts = useCallback(async () => {
     if (!profile?.id) return;
@@ -176,8 +194,8 @@ export default function PageBuilder() {
       const newProduct = {
         creator_id: profile.id,
         title: addForm.type === 'codes' ? 'my codes' : 
-               addForm.type === 'picks' ? 'my picks' : addForm.title,
-        description: addForm.description || '',
+               addForm.type === 'picks' ? (selectedPicksCollection === 'all' ? 'my picks' : `picks: ${selectedPicksCollection}`) : addForm.title,
+        description: addForm.type === 'picks' ? (selectedPicksCollection || 'all') : (addForm.description || ''),
         price: addForm.type === 'header' ? 0 : Number(addForm.price) || 0,
         product_type: addForm.type === 'link' ? 'link' : 
                       addForm.type === 'header' ? 'header' :
@@ -454,7 +472,7 @@ export default function PageBuilder() {
               <button
                 onClick={() => setAddForm({ ...addForm, type: 'picks' })}
                 className="flex flex-col items-center gap-2 p-3 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors"
-                disabled={!!addForm.type || products.some(p => p.product_type === 'picks_block')}
+                disabled={!!addForm.type}
               >
                 <Heart size={20} />
                 <span className="text-sm lowercase">add picks</span>
@@ -475,6 +493,43 @@ export default function PageBuilder() {
                 </button>
               </div>
               <div className="space-y-3">
+                {/* Picks collection selector */}
+                {addForm.type === 'picks' && (
+                  <div>
+                    <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">show collection</label>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPicksCollection('all')}
+                        className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                          selectedPicksCollection === 'all'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'
+                        }`}
+                      >
+                        all picks
+                      </button>
+                      {picksCollections.map(col => (
+                        <button
+                          key={col}
+                          type="button"
+                          onClick={() => setSelectedPicksCollection(col)}
+                          className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                            selectedPicksCollection === col
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'
+                          }`}
+                        >
+                          {col}
+                        </button>
+                      ))}
+                    </div>
+                    {picksCollections.length === 0 && (
+                      <p className="text-white/40 text-xs mt-2">no collections yet — add collections in the picks page</p>
+                    )}
+                  </div>
+                )}
+
                 {addForm.type !== 'codes' && addForm.type !== 'picks' && (
                   <div>
                     <input
