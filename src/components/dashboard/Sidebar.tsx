@@ -15,7 +15,8 @@ import {
   X,
   ChevronDown,
   ChevronRight,
-  Dumbbell
+  Dumbbell,
+  Layers
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -29,9 +30,14 @@ export default function Sidebar({ className }: SidebarProps) {
 
   const navItems = [
     {
-      label: 'home',
+      label: 'overview',
       href: '/dashboard',
       icon: Home,
+    },
+    {
+      label: 'page builder',
+      href: '/dashboard/page-builder',
+      icon: Layers,
     },
     {
       label: 'products',
