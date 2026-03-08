@@ -69,11 +69,19 @@ export default function PicksPage() {
   async function loadCollections() {
     if (!profile) return;
     try {
+      // Fetch from collections table
       const res = await fetch(`/api/collections?creator_id=${profile.id}`);
       const result = await res.json();
-      if (res.ok) {
-        setAllCollections((result.data || []).map((c: any) => c.name));
-      }
+      const fromTable = res.ok ? (result.data || []).map((c: any) => c.name) : [];
+      
+      // Also gather any freetext collections from existing picks
+      const fromPicks = picks
+        .map(p => p.collection)
+        .filter((c): c is string => !!c);
+      
+      // Merge and dedupe
+      const all = Array.from(new Set([...fromTable, ...fromPicks]));
+      setAllCollections(all);
     } catch {}
   }
 
@@ -109,6 +117,11 @@ export default function PicksPage() {
   useEffect(() => {
     applyFiltersAndSort();
   }, [picks, searchTerm, sortBy, filterBy, selectedCollection]);
+
+  // Reload collections when picks change (picks may have freetext collections)
+  useEffect(() => {
+    if (picks.length > 0) loadCollections();
+  }, [picks]);
 
   async function loadPicks() {
     if (!profile) return;
