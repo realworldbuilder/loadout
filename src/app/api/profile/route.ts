@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
         ...profileData,
         is_active: true,
         tier: 'free',
+        subscription_tier: 'free',
         stripe_onboarding_complete: false,
         theme: {
           primary: '#10a37f',

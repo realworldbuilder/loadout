@@ -8,6 +8,7 @@ import { uploadAvatar } from '@/lib/storage';
 // Removed unused Supabase import - settings page now uses API routes
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
+import CustomDomainSettings from '@/components/CustomDomainSettings';
 
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -541,6 +542,9 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+
+          {/* Custom Domain Section */}
+          <CustomDomainSettings onSave={refreshProfile} />
 
           {/* Account Section */}
           <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
