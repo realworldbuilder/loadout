@@ -57,8 +57,8 @@ export default function ProductsPage() {
         return;
       }
 
-      const BLOCK_TYPES = ['codes_block', 'picks_block', 'text_block', 'countdown_block', 'header', 'video_block'];
-      setProducts((result.data || []).filter((p: Product) => !BLOCK_TYPES.includes(p.product_type)));
+      const REAL_PRODUCT_TYPES = ['digital_product', 'coaching', 'subscription'];
+      setProducts((result.data || []).filter((p: Product) => REAL_PRODUCT_TYPES.includes(p.product_type)));
     } catch (error) {
       console.error('Error loading products:', error);
     } finally {
