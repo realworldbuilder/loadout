@@ -72,16 +72,16 @@ export default function HomePage() {
           <div className="max-w-md mx-auto mb-16">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 text-sm font-mono">
+                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/40 text-sm font-mono pointer-events-none select-none">
                   loadout.fit/
                 </span>
                 <input
                   type="text"
                   placeholder="yourhandle"
                   value={handle}
-                  onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                  onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                   onKeyDown={(e) => e.key === 'Enter' && handleClaimHandle()}
-                  className="w-full pl-[88px] pr-4 py-4 bg-[#171717] border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                  className="w-full pl-[108px] pr-4 py-4 bg-[#171717] border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50 transition-colors"
                 />
               </div>
               <button
