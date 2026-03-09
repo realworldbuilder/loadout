@@ -84,32 +84,36 @@ export async function generateMetadata({ params }: { params: { handle: string } 
     const dbData = await getCreatorData(params.handle);
     const creator = dbData.creator;
     
-    const title = `${creator.display_name} | loadout`;
-    const description = creator.bio || `${creator.display_name} on loadout`;
-    const ogImage = creator.avatar_url || 'https://loadout.fit/og-default.png';
+    const title = creator.display_name;
+    const description = creator.bio || `${creator.display_name}'s fitness brand on loadout`;
+    const ogImage = creator.avatar_url;
+    const url = `https://loadout.fit/${params.handle}`;
 
     return {
-      title,
+      title: `${title} | loadout`,
       description,
       openGraph: {
         title,
         description,
-        images: [
-          {
-            url: ogImage,
-            width: 1200,
-            height: 630,
-            alt: `${creator.display_name} on loadout`,
-          },
-        ],
-        type: 'profile',
+        url,
         siteName: 'loadout',
+        type: 'profile',
+        ...(ogImage && {
+          images: [
+            {
+              url: ogImage,
+              width: 1200,
+              height: 630,
+              alt: `${creator.display_name} on loadout`,
+            },
+          ],
+        }),
       },
       twitter: {
-        card: 'summary_large_image',
+        card: 'summary',
         title,
         description,
-        images: [ogImage],
+        ...(ogImage && { images: [ogImage] }),
       },
     };
   } catch (error) {

@@ -619,7 +619,7 @@ export default function PageBuilder() {
                     </div>
                   </>
                 )}
-                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && (
+                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && addForm.type !== 'text' && addForm.type !== 'countdown' && (
                   <div>
                     <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">layout</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -812,7 +812,7 @@ export default function PageBuilder() {
                                         />
                                       </div>
                                     )}
-                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && (
+                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && product.product_type !== 'text_block' && product.product_type !== 'countdown_block' && (
                                       <div>
                                         <label className="text-white/50 text-xs mb-1 block">layout</label>
                                         <div className="grid grid-cols-2 gap-2">

@@ -105,7 +105,7 @@ const CountdownBlock = ({ product, textColor }: { product: DBProduct; textColor:
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           {[
             { label: 'days', value: timeLeft.days },
             { label: 'hrs', value: timeLeft.hours },
@@ -113,12 +113,12 @@ const CountdownBlock = ({ product, textColor }: { product: DBProduct; textColor:
             { label: 'sec', value: timeLeft.seconds }
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
-              <div className="bg-[#171717] border border-white/10 rounded-lg py-3 px-2 shadow-lg">
-                <div className="text-2xl font-bold text-white mb-1">
+              <div className="bg-[#171717] border border-white/10 rounded-lg py-3 px-1 sm:px-2 shadow-lg">
+                <div className="text-xl sm:text-2xl font-bold text-white mb-1">
                   {value.toString().padStart(2, '0')}
                 </div>
               </div>
-              <div className={`text-xs mt-2 font-medium ${textColor} opacity-60`}>
+              <div className={`text-xs sm:text-sm mt-2 font-medium ${textColor} opacity-60`}>
                 {label}
               </div>
             </div>
@@ -375,7 +375,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
 
   return (
     <div className={`min-h-screen ${fontClass}`} style={pageStyle}>
-      <div className="max-w-[480px] mx-auto px-4 py-8">
+      <div className="max-w-[480px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* No back link needed for database creators */}
 
         {/* FEATURE 3: Profile header with different layouts */}
@@ -426,16 +426,16 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               
               {/* Social icons */}
               {socialLinks.length > 0 && (
-                <div className="flex justify-center gap-3">
+                <div className="flex justify-center gap-4">
                   {socialLinks.map(({ platform, url, icon: Icon }) => (
                     <a
                       key={platform}
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)}
+                      className={`${getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)} min-w-[44px] min-h-[44px] flex items-center justify-center`}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-5 w-5" />
                     </a>
                   ))}
                 </div>
@@ -455,16 +455,16 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
             
             {/* Social icons */}
             {socialLinks.length > 0 && (
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-center gap-4">
                 {socialLinks.map(({ platform, url, icon: Icon }) => (
                   <a
                     key={platform}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)}
+                    className={`${getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)} min-w-[44px] min-h-[44px] flex items-center justify-center`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-5 w-5" />
                   </a>
                 ))}
               </div>
@@ -499,18 +499,18 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               </p>
             )}
 
-            {/* Social icons - 40x40 circles */}
+            {/* Social icons - 44x44 minimum for touch targets */}
             {socialLinks.length > 0 && (
-              <div className="flex justify-center gap-3 mb-6">
+              <div className="flex justify-center gap-4 mb-6">
                 {socialLinks.map(({ platform, url, icon: Icon }) => (
                   <a
                     key={platform}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)}
+                    className={`${getSocialIconClasses(creatorTheme.socialStyle, platform, isDark)} min-w-[44px] min-h-[44px] flex items-center justify-center`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-5 w-5" />
                   </a>
                 ))}
               </div>
@@ -657,7 +657,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               // Link style - Linktree pill buttons (only for classic layout)
               if (isLink && layout !== 'featured') {
                 const linkCard = (
-                  <div className={`${getCardClasses(creatorTheme.cardStyle, isDark)} rounded-xl p-4 transition-all duration-200 cursor-pointer group hover:scale-[1.02] hover:shadow-lg h-14 flex items-center`}
+                  <div className={`${getCardClasses(creatorTheme.cardStyle, isDark)} rounded-xl p-4 transition-all duration-200 cursor-pointer group hover:scale-[1.02] hover:shadow-lg min-h-[60px] flex items-center`}
                        style={{ 
                          backgroundColor: creatorTheme.cardStyle === 'transparent' ? 'transparent' : (creatorTheme.cardStyle === 'glass' ? undefined : creatorTheme.cardBg)
                        }}>
@@ -740,7 +740,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                       
                       {/* CTA button - full width, colored */}
                       <button 
-                        className={`w-full ${getButtonClasses(creatorTheme.buttonStyle, primaryColor, isDark)} hover:scale-[1.02]`}
+                        className={`w-full min-h-[44px] ${getButtonClasses(creatorTheme.buttonStyle, primaryColor, isDark)} hover:scale-[1.02]`}
                         style={{ 
                           backgroundColor: creatorTheme.buttonStyle === 'outline' ? 'transparent' : 
                                           creatorTheme.buttonStyle === 'soft' ? `${primaryColor}1A` : primaryColor,
@@ -829,7 +829,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                   
                   {/* CTA button - full width, colored */}
                   <button 
-                    className={`w-full ${getButtonClasses(creatorTheme.buttonStyle, primaryColor, isDark)} hover:scale-[1.02]`}
+                    className={`w-full min-h-[44px] ${getButtonClasses(creatorTheme.buttonStyle, primaryColor, isDark)} hover:scale-[1.02]`}
                     style={{ 
                       backgroundColor: creatorTheme.buttonStyle === 'outline' ? 'transparent' : 
                                       creatorTheme.buttonStyle === 'soft' ? `${primaryColor}1A` : primaryColor,
@@ -893,9 +893,14 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
         {/* Creator Codes moved above */}
 
         {/* Footer */}
-        <div className="text-center">
-          <Link href="/" className={`text-xs ${mutedTextColor} hover:${textColor} transition-colors`}>
-            ⚡ loadout.fit
+        <div className="text-center pt-8 pb-4">
+          <Link 
+            href="https://loadout.fit" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-1 text-xs text-white/40 hover:text-white/60 transition-colors`}
+          >
+            powered by loadout.fit
           </Link>
         </div>
       </div>

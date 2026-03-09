@@ -1,35 +1,46 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   ArrowRight,
   Check,
-  X,
-  Zap,
   BarChart3,
   Package,
-  Calendar,
-  Link as LinkIcon,
+  Code2,
+  Heart,
+  Palette,
 } from 'lucide-react';
 
 export default function HomePage() {
+  const [handle, setHandle] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
+  const router = useRouter();
+
+  const handleClaimHandle = () => {
+    if (!handle.trim()) return;
+    setIsChecking(true);
+    router.push(`/signup?handle=${encodeURIComponent(handle.toLowerCase().replace(/[^a-z0-9]/g, ''))}`);
+  };
+
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 backdrop-blur-xl bg-white dark:bg-[#0a0a0a]/80">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex justify-between items-center h-14">
+      <nav className="fixed top-0 w-full z-50 border-b border-white/5 backdrop-blur-xl bg-[#0a0a0a]/80">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
               <span className="text-xl">🏋️</span>
-              <span className="text-lg font-bold tracking-tight">loadout</span>
-              <span className="text-[10px] font-mono text-emerald-500 border border-emerald-500/30 px-1.5 py-0.5 rounded-full">.fit</span>
+              <span className="text-lg font-bold tracking-tight lowercase">loadout</span>
+              <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded-full">.fit</span>
             </div>
             
             <div className="flex items-center gap-3">
-              <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5">
+              <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors px-3 py-2 lowercase">
                 log in
               </Link>
-              <Link href="/signup" className="text-sm font-medium bg-white text-black px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
+              <Link href="/signup" className="text-sm font-medium bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors lowercase">
                 get started
               </Link>
             </div>
@@ -37,346 +48,244 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ========== HERO ========== */}
-      <section className="pt-32 pb-20 px-6">
+      {/* Hero */}
+      <section className="pt-32 pb-16 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-3 py-1.5 rounded-full mb-8">
+          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium px-3 py-2 rounded-full mb-8 lowercase">
             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-            the storefront for fitness creators
+            free to start
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.05]">
-            turn followers
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 leading-tight lowercase">
+            your fitness brand,
             <br />
             <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-              into customers.
+              one link.
             </span>
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            sell workout plans, coaching, and digital products from a clean link-in-bio page built for the gym.
+          <p className="text-lg md:text-xl text-white/60 mb-12 max-w-2xl mx-auto leading-relaxed lowercase">
+            sell programs, coaching, and digital products from your own storefront. built for fitness creators.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-12">
-            <Link href="/signup" className="group flex items-center gap-2 bg-white text-black font-semibold px-8 py-3.5 rounded-xl hover:bg-gray-100 transition-all text-base">
-              create your loadout
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            
-            <Link href="/login" className="flex items-center gap-2 text-gray-400 font-medium px-8 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:text-white transition-all text-base">
-              already a creator? log in
-            </Link>
+          {/* Claim Handle CTA */}
+          <div className="max-w-md mx-auto mb-16">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 text-sm font-mono">
+                  loadout.fit/
+                </span>
+                <input
+                  type="text"
+                  placeholder="yourhandle"
+                  value={handle}
+                  onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleClaimHandle()}
+                  className="w-full pl-[88px] pr-4 py-4 bg-[#171717] border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                />
+              </div>
+              <button
+                onClick={handleClaimHandle}
+                disabled={!handle.trim() || isChecking}
+                className="group flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-white font-medium px-6 py-4 rounded-lg transition-colors whitespace-nowrap lowercase"
+              >
+                {isChecking ? 'checking...' : 'claim handle'}
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+            <p className="text-xs text-white/40 mt-3 lowercase">free forever · no credit card required</p>
           </div>
           
-          <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-emerald-500" />
-              free to start
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-emerald-500" />
+          {/* Key Benefits */}
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-white/50">
+            <span className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-emerald-500" />
               live in 5 minutes
             </span>
-            <span className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-emerald-500" />
-              built for the gym
+            <span className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-emerald-500" />
+              built for fitness
+            </span>
+            <span className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-emerald-500" />
+              mobile optimized
             </span>
           </div>
         </div>
       </section>
 
-      {/* ========== MOCKUP ========== */}
-      <section className="pb-24 px-6">
-        <div className="max-w-md mx-auto">
-          <div className="bg-[#111] rounded-2xl border border-white/10 p-6 shadow-2xl shadow-emerald-500/5">
+      {/* Preview */}
+      <section className="pb-20 px-4 sm:px-6">
+        <div className="max-w-sm mx-auto">
+          <div className="bg-[#171717] rounded-2xl border border-white/10 p-6 shadow-2xl">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-2xl">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-2xl">
                 💪
               </div>
               <div>
-                <h3 className="font-bold text-lg">@fitcreator</h3>
-                <p className="text-sm text-gray-400">online coach · 47k followers</p>
+                <h3 className="font-bold text-lg lowercase">@fitcreator</h3>
+                <p className="text-sm text-white/60 lowercase">transform your physique</p>
               </div>
             </div>
             
             <div className="space-y-3">
               {[
-                { name: '12-Week Shred Program', meta: 'PDF · 847 sold', price: '$29' },
-                { name: 'Meal Prep Masterclass', meta: 'PDF · 412 sold', price: '$19' },
-                { name: '1:1 Coaching (Monthly)', meta: 'coaching · 23 active', price: '$149' },
+                { name: '12-week shred program', price: '$29' },
+                { name: 'meal prep masterclass', price: '$19' },
+                { name: '1:1 coaching', price: '$149' },
               ].map((p) => (
-                <div key={p.name} className="bg-[#1a1a1a] rounded-xl p-4 border border-white/5 flex justify-between items-center">
-                  <div>
-                    <p className="font-medium text-sm">{p.name}</p>
-                    <p className="text-xs text-gray-500">{p.meta}</p>
-                  </div>
+                <div key={p.name} className="bg-[#0a0a0a] rounded-lg p-4 border border-white/5 flex justify-between items-center">
+                  <span className="font-medium text-sm lowercase">{p.name}</span>
                   <span className="text-emerald-400 font-bold text-sm">{p.price}</span>
                 </div>
               ))}
             </div>
 
             <div className="flex justify-center gap-3 mt-6">
-              {['IG', 'TK', 'YT', 'X'].map((s) => (
-                <div key={s} className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-gray-500 text-[10px] font-mono">
+              {['ig', 'tk', 'yt', 'x'].map((s) => (
+                <div key={s} className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-white/60 text-[10px] font-mono lowercase">
                   {s}
                 </div>
               ))}
             </div>
-
-            <p className="text-center text-[10px] text-gray-600 mt-4 font-mono">loadout.fit/@fitcreator</p>
           </div>
         </div>
       </section>
 
-      {/* ========== FEATURES — CREATOR LANGUAGE ========== */}
-      <section className="py-24 px-6 border-t border-white/5">
-        <div className="max-w-4xl mx-auto">
+      {/* Features */}
+      <section className="py-20 px-4 sm:px-6 border-t border-white/5">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-              everything a fitness creator
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 lowercase">
+              everything you need to
               <br />
-              <span className="text-gray-500">needs to monetize.</span>
+              <span className="text-white/50">monetize your following.</span>
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Sell Programs */}
-            <div className="bg-[#111] rounded-2xl border border-white/5 p-8 hover:border-emerald-500/20 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Page Builder */}
+            <div className="bg-[#171717] rounded-xl border border-white/10 p-6 hover:border-emerald-500/30 transition-all group">
+              <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+                <Palette className="h-6 w-6 text-emerald-400" />
+              </div>
+              <h3 className="text-lg font-bold mb-2 group-hover:text-emerald-400 transition-colors lowercase">page builder</h3>
+              <p className="text-white/60 text-sm leading-relaxed lowercase">
+                drag and drop to build your perfect storefront. custom themes, layouts, and branding.
+              </p>
+            </div>
+
+            {/* Products */}
+            <div className="bg-[#171717] rounded-xl border border-white/10 p-6 hover:border-emerald-500/30 transition-all group">
+              <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
                 <Package className="h-6 w-6 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 group-hover:text-emerald-400 transition-colors">sell programs</h3>
-              <p className="text-gray-400 leading-relaxed">
-                upload workout plans, coaching packages, meal plans, or digital products. get paid instantly. no middleman.
+              <h3 className="text-lg font-bold mb-2 group-hover:text-emerald-400 transition-colors lowercase">sell products</h3>
+              <p className="text-white/60 text-sm leading-relaxed lowercase">
+                workout plans, coaching packages, meal plans. upload once, sell unlimited.
               </p>
             </div>
 
-            {/* Creator Link Page */}
-            <div className="bg-[#111] rounded-2xl border border-white/5 p-8 hover:border-emerald-500/20 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-5">
-                <LinkIcon className="h-6 w-6 text-emerald-400" />
+            {/* Codes */}
+            <div className="bg-[#171717] rounded-xl border border-white/10 p-6 hover:border-emerald-500/30 transition-all group">
+              <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+                <Code2 className="h-6 w-6 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 group-hover:text-emerald-400 transition-colors">creator link page</h3>
-              <p className="text-gray-400 leading-relaxed">
-                one clean page for everything. instagram bio → storefront. no more linktree + payhip + google sites.
+              <h3 className="text-lg font-bold mb-2 group-hover:text-emerald-400 transition-colors lowercase">discount codes</h3>
+              <p className="text-white/60 text-sm leading-relaxed lowercase">
+                promote brands you love. share discount codes and earn commissions.
               </p>
             </div>
 
-            {/* Built for Fitness */}
-            <div className="bg-[#111] rounded-2xl border border-white/5 p-8 hover:border-emerald-500/20 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-5">
-                <Zap className="h-6 w-6 text-emerald-400" />
+            {/* Picks */}
+            <div className="bg-[#171717] rounded-xl border border-white/10 p-6 hover:border-emerald-500/30 transition-all group">
+              <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+                <Heart className="h-6 w-6 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 group-hover:text-emerald-400 transition-colors">built for fitness</h3>
-              <p className="text-gray-400 leading-relaxed">
-                workout programs, splits, PDFs, coaching — not generic digital products. we speak your language.
+              <h3 className="text-lg font-bold mb-2 group-hover:text-emerald-400 transition-colors lowercase">gear picks</h3>
+              <p className="text-white/60 text-sm leading-relaxed lowercase">
+                curate your favorite supplements, gear, and equipment. earn affiliate revenue.
               </p>
             </div>
+          </div>
 
-            {/* Creator Analytics */}
-            <div className="bg-[#111] rounded-2xl border border-white/5 p-8 hover:border-emerald-500/20 transition-all group">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-5">
-                <BarChart3 className="h-6 w-6 text-emerald-400" />
+          {/* Analytics */}
+          <div className="mt-6">
+            <div className="bg-[#171717] rounded-xl border border-white/10 p-8 text-center">
+              <div className="w-16 h-16 rounded-lg bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="h-8 w-8 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 group-hover:text-emerald-400 transition-colors">creator analytics</h3>
-              <p className="text-gray-400 leading-relaxed">
-                see what sells. track clicks, conversions, and revenue. know which content drives purchases.
+              <h3 className="text-xl font-bold mb-3 lowercase">creator analytics</h3>
+              <p className="text-white/60 max-w-md mx-auto lowercase">
+                track clicks, conversions, and revenue. see what content drives sales and optimize your strategy.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ========== SOCIAL PROOF / NICHE POSITIONING ========== */}
-      <section className="py-20 px-6 border-t border-white/5">
+      {/* Social Proof */}
+      <section className="py-20 px-4 sm:px-6 border-t border-white/5">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 lowercase">
+            trusted by fitness creators
+          </h2>
+          <p className="text-white/60 text-lg mb-12 lowercase">
+            join thousands of creators already building their fitness empires on loadout.
+          </p>
+          
+          {/* Placeholder social proof stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div>
+              <div className="text-3xl font-bold text-emerald-400 mb-2">2,400+</div>
+              <p className="text-white/60 lowercase">active creators</p>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-emerald-400 mb-2">$1.2M+</div>
+              <p className="text-white/60 lowercase">creator earnings</p>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-emerald-400 mb-2">4.9/5</div>
+              <p className="text-white/60 lowercase">creator rating</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 px-4 sm:px-6 border-t border-white/5">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            made for gymfluencers.
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 lowercase">
+            ready to monetize
             <br />
-            <span className="text-gray-500">not generic creators.</span>
+            <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+              your expertise?
+            </span>
           </h2>
-          <p className="text-gray-400 text-lg mb-12 max-w-xl mx-auto">
-            stan, gumroad, linktree — they serve everyone. we only serve fitness. that&apos;s the difference.
+          <p className="text-white/60 text-lg mb-10 lowercase">
+            start for free. no credit card required. your storefront live in minutes.
           </p>
-          
-          {/* Comparison */}
-          <div className="bg-[#111] rounded-2xl border border-white/5 p-8 text-left">
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div></div>
-              <div className="text-center">
-                <span className="text-xs font-mono text-gray-600">them</span>
-              </div>
-              <div className="text-center">
-                <span className="text-xs font-mono text-emerald-500">loadout</span>
-              </div>
-            </div>
-            
-            {[
-              { feature: 'fitness-specific templates', them: false, us: true },
-              { feature: 'workout plan builder', them: false, us: true },
-              { feature: 'AI product writer', them: false, us: true },
-              { feature: 'trend-powered pricing', them: false, us: true },
-              { feature: 'coaching calendar', them: false, us: true },
-              { feature: 'free tier', them: false, us: true },
-              { feature: 'under $20/mo', them: false, us: true },
-            ].map((row) => (
-              <div key={row.feature} className="grid grid-cols-3 gap-4 py-3 border-t border-white/5">
-                <span className="text-sm text-gray-400">{row.feature}</span>
-                <div className="text-center">
-                  <X className="h-4 w-4 text-red-400/40 mx-auto" />
-                </div>
-                <div className="text-center">
-                  <Check className="h-4 w-4 text-emerald-500 mx-auto" />
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/signup" className="group inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-8 py-4 rounded-lg transition-colors lowercase">
+              start for free
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link href="/login" className="inline-flex items-center justify-center gap-2 text-white/60 font-medium px-8 py-4 rounded-lg border border-white/10 hover:border-white/20 hover:text-white transition-all lowercase">
+              existing creator? log in
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ========== AI TOOLS — ONLY ON LOADOUT ========== */}
-      <section className="py-24 px-6 border-t border-white/5">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 text-xs font-mono uppercase tracking-widest mb-3">only on loadout</p>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              AI tools that actually get fitness.
-            </h2>
-            <p className="text-gray-400 text-lg">powered by loadout.</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { emoji: '🤖', title: 'AI Product Writer', desc: 'describe your program in 2 sentences. full listing in 10 seconds.' },
-              { emoji: '💰', title: 'Trend-Powered Pricing', desc: '"creators in your niche charge $24-34 for shred programs. you\'re undercharging."' },
-              { emoji: '🎯', title: 'Smart Promote Alerts', desc: '"cutting season trending 92% — push your shred program NOW"' },
-              { emoji: '📐', title: 'Workout Plan Builder', desc: 'drag-and-drop program design. export as PDF or deliver in-app.' },
-              { emoji: '📈', title: 'Competitor Intel', desc: 'see what similar creators sell, at what price, and what\'s converting.' },
-              { emoji: '🧠', title: 'Content Lab', desc: 'AI generates posts and captions using real-time trend data. not templates.' },
-            ].map((f) => (
-              <div key={f.title} className="bg-[#111] rounded-xl border border-white/5 p-6 hover:border-emerald-500/20 transition-colors">
-                <span className="text-2xl mb-3 block">{f.emoji}</span>
-                <h3 className="font-semibold mb-2 text-white">{f.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========== PRICING ========== */}
-      <section className="py-24 px-6 border-t border-white/5">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">simple pricing.</h2>
-            <p className="text-gray-400">start free. upgrade when you&apos;re making money.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            {/* Free */}
-            <div className="bg-[#111] rounded-xl border border-white/5 p-7">
-              <div className="mb-6">
-                <h3 className="text-base font-semibold mb-1 text-gray-400">starter</h3>
-                <div className="text-4xl font-bold">$0</div>
-                <p className="text-sm text-gray-600 mt-1">forever free</p>
-              </div>
-              
-              <ul className="space-y-2.5 mb-8 text-sm">
-                {[
-                  'launch your creator page',
-                  'sell up to 3 products',
-                  'basic analytics',
-                  'stripe payments',
-                  '5% transaction fee',
-                  'start monetizing today',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-gray-400">
-                    <Check className="h-3.5 w-3.5 text-emerald-500/60 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              
-              <Link href="/signup" className="block text-center text-sm font-medium py-2.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-colors">
-                start free
-              </Link>
-            </div>
-            
-            {/* Pro */}
-            <div className="bg-[#111] rounded-xl border border-emerald-500/30 p-7 relative">
-              <div className="absolute -top-3 left-6">
-                <span className="bg-emerald-500 text-black text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  pro
-                </span>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-base font-semibold mb-1 text-white">creator pro</h3>
-                <div className="text-4xl font-bold">
-                  $19
-                  <span className="text-base font-normal text-gray-500">/mo</span>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">the full loadout</p>
-              </div>
-              
-              <ul className="space-y-2.5 mb-8 text-sm">
-                {[
-                  'everything in starter',
-                  '0% transaction fee',
-                  'unlimited products',
-                  'AI product writer',
-                  'AI content lab',
-                  'coaching calendar',
-                  'workout plan builder',
-                  'advanced analytics',
-                  'custom themes',
-                  'smart promote alerts',
-                  'remove loadout branding',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-gray-300">
-                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              
-              <Link href="/signup?plan=pro" className="block text-center text-sm font-semibold py-2.5 rounded-lg bg-emerald-500 text-black hover:bg-emerald-400 transition-colors">
-                start pro trial
-              </Link>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ========== FINAL CTA ========== */}
-      <section className="py-24 px-6 border-t border-white/5">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="text-emerald-400 text-sm font-medium mb-4">your content builds the audience.</p>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-            loadout turns it
-            <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">into revenue.</span>
-          </h2>
-          <p className="text-gray-400 text-lg mb-10">
-            free to start. no credit card. your storefront live in 5 minutes.
-          </p>
-          <Link href="/signup" className="group inline-flex items-center gap-2 bg-white text-black font-semibold px-10 py-4 rounded-xl hover:bg-gray-100 transition-all text-lg">
-            create your loadout
-            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </section>
-
-      {/* ========== FOOTER ========== */}
-      <footer className="py-8 px-6 border-t border-white/5">
+      {/* Footer */}
+      <footer className="py-8 px-4 sm:px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
             <span>🏋️</span>
-            <span className="text-sm font-semibold">loadout.fit</span>
-            <span className="text-xs text-gray-600">— the storefront for fitness creators.</span>
+            <span className="text-sm font-semibold lowercase">loadout.fit</span>
+            <span className="text-xs text-white/40 lowercase">— the storefront for fitness creators</span>
           </div>
-          <p className="text-xs text-gray-600">&copy; 2026 loadout.</p>
+          <p className="text-xs text-white/40">&copy; 2026 loadout</p>
         </div>
       </footer>
     </div>
