@@ -57,7 +57,8 @@ export default function ProductsPage() {
         return;
       }
 
-      setProducts(result.data || []);
+      const BLOCK_TYPES = ['codes_block', 'picks_block', 'text_block', 'countdown_block', 'header', 'video_block'];
+      setProducts((result.data || []).filter((p: Product) => !BLOCK_TYPES.includes(p.product_type)));
     } catch (error) {
       console.error('Error loading products:', error);
     } finally {
