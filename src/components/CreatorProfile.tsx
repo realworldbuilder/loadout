@@ -603,7 +603,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
 
                 if (embedUrl) {
                   return (
-                    <div key={i} className="mb-6">
+                    <div key={i} className="mb-8">
                       <div className="aspect-video rounded-xl overflow-hidden">
                         <iframe
                           src={embedUrl}
