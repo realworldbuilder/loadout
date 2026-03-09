@@ -271,15 +271,21 @@ export default function HomePage() {
                 </tr>
                 <tr className="border-b border-white/5">
                   <td className="text-left py-3 px-4 text-white/70 lowercase">link-in-bio</td>
-                  <td className="py-3 px-4 text-emerald-400">✓</td>
+                  <td className="py-3 px-4 text-emerald-400">✓ free</td>
                   <td className="py-3 px-4 text-white/50">✓</td>
                   <td className="py-3 px-4 text-white/50">✓</td>
                 </tr>
                 <tr className="border-b border-white/5">
                   <td className="text-left py-3 px-4 text-white/70 lowercase">sell digital products</td>
-                  <td className="py-3 px-4 text-emerald-400">soon</td>
+                  <td className="py-3 px-4 text-emerald-400">✓</td>
                   <td className="py-3 px-4 text-white/50">✓</td>
                   <td className="py-3 px-4 text-white/30">✗</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">custom domains</td>
+                  <td className="py-3 px-4 text-emerald-400">✓ pro</td>
+                  <td className="py-3 px-4 text-white/50">✓ paid</td>
+                  <td className="py-3 px-4 text-white/50">✓ paid</td>
                 </tr>
                 <tr>
                   <td className="text-left py-3 px-4 text-white/70 lowercase">built for fitness</td>
