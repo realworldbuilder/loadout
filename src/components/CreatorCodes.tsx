@@ -139,7 +139,7 @@ export default function CreatorCodes({ creator_id, compact = true }: CreatorCode
       <h3 className="text-sm font-medium text-white/60 mb-3 lowercase">codes</h3>
       
       {/* Category filter pills - only show if multiple categories */}
-      {availableCategories.length > 1 && (
+      {availableCategories.length > 1 && codes.length >= 5 && (
         <div className="flex gap-2 mb-4 flex-wrap">
           {availableCategories.map((category) => (
             <button
