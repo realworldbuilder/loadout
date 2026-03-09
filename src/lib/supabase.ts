@@ -31,6 +31,7 @@ export interface Creator {
   stripe_account_id?: string;
   stripe_onboarding_complete: boolean;
   tier: 'free' | 'pro' | 'studio';
+  subscription_tier?: 'free' | 'pro';
   subscription_ends_at?: string;
   is_active: boolean;
   created_at: string;

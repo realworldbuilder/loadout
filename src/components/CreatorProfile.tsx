@@ -935,18 +935,20 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
 
         {/* Creator Codes moved above */}
 
-        {/* Footer CTA */}
-        <div className="pt-10 pb-6 space-y-3">
-          <Link 
-            href="https://loadout.fit/signup" 
-            className="block w-full py-3 px-4 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.06] rounded-full text-center transition-all duration-200 group"
-          >
-            <span className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
-              claim your page on <span className="font-semibold text-emerald-400/80 group-hover:text-emerald-400">loadout.fit</span>
-            </span>
-          </Link>
-          <p className="text-center text-[10px] text-white/20">free forever • no credit card</p>
-        </div>
+        {/* Footer CTA - hidden for Pro creators */}
+        {creator.subscription_tier !== 'pro' && (
+          <div className="pt-10 pb-6 space-y-3">
+            <Link 
+              href="https://loadout.fit/signup" 
+              className="block w-full py-3 px-4 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.06] rounded-full text-center transition-all duration-200 group"
+            >
+              <span className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
+                claim your page on <span className="font-semibold text-emerald-400/80 group-hover:text-emerald-400">loadout.fit</span>
+              </span>
+            </Link>
+            <p className="text-center text-[10px] text-white/20">free forever • no credit card</p>
+          </div>
+        )}
       </div>
     </div>
   );
