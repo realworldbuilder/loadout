@@ -29,7 +29,8 @@ import {
   Heart,
   AlignLeft,
   Clock,
-  Play
+  Play,
+  ClipboardList
 } from 'lucide-react';
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES, PRESET_GRADIENTS } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
@@ -42,7 +43,7 @@ interface Product {
   title: string;
   description?: string;
   price: number;
-  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block' | 'video_block';
+  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block' | 'video_block' | 'coaching_form';
   file_url?: string;
   thumbnail_url?: string;
   external_url?: string;
@@ -57,7 +58,7 @@ interface Product {
 
 // Add form state
 interface AddFormState {
-  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | 'video' | null;
+  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | 'video' | 'coaching' | null;
   title: string;
   description: string;
   price: string;
@@ -188,7 +189,7 @@ export default function PageBuilder() {
 
   // Add new item
   const handleAdd = async () => {
-    const isAutoTitled = ['codes', 'picks', 'text', 'countdown', 'video'].includes(addForm.type || '');
+    const isAutoTitled = ['codes', 'picks', 'text', 'countdown', 'video', 'coaching'].includes(addForm.type || '');
     if (!addForm.type || (!isAutoTitled && !addForm.title.trim()) || !profile?.id) return;
     
     setSaving(true);
@@ -199,10 +200,11 @@ export default function PageBuilder() {
                addForm.type === 'picks' ? (selectedPicksCollection === 'all' ? 'my picks' : `picks: ${selectedPicksCollection}`) : 
                addForm.type === 'countdown' ? 'countdown timer' : 
                addForm.type === 'video' ? (addForm.title || 'video') :
+               addForm.type === 'coaching' ? 'coaching application' :
                addForm.title,
         description: addForm.type === 'picks' ? (selectedPicksCollection || 'all') : 
                      addForm.type === 'video' ? (addForm.external_url || '') : (addForm.description || ''),
-        price: ['header', 'text', 'countdown', 'video'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
+        price: ['header', 'text', 'countdown', 'video', 'coaching'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
         product_type: addForm.type === 'link' ? 'link' : 
                       addForm.type === 'header' ? 'header' :
                       addForm.type === 'codes' ? 'codes_block' :
@@ -210,6 +212,7 @@ export default function PageBuilder() {
                       addForm.type === 'text' ? 'text_block' :
                       addForm.type === 'countdown' ? 'countdown_block' :
                       addForm.type === 'video' ? 'video_block' :
+                      addForm.type === 'coaching' ? 'coaching_form' :
                       'digital_product',
         external_url: addForm.external_url || '',
         cta_text: addForm.type === 'product' ? 'Purchase' : 'Visit',
@@ -350,6 +353,8 @@ export default function PageBuilder() {
         return Clock;
       case 'video_block':
         return Play;
+      case 'coaching_form':
+        return ClipboardList;
       default:
         return Package;
     }
@@ -372,6 +377,8 @@ export default function PageBuilder() {
         return 'bg-orange-500/10 text-orange-400';
       case 'video_block':
         return 'bg-red-500/10 text-red-400';
+      case 'coaching_form':
+        return 'bg-teal-500/10 text-teal-400';
       default:
         return 'bg-emerald-500/10 text-emerald-400';
     }
@@ -514,7 +521,7 @@ export default function PageBuilder() {
                 <span className="text-sm lowercase">add video</span>
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3 mt-3">
+            <div className="grid grid-cols-3 gap-3 mt-3">
               <button
                 onClick={() => setAddForm({ ...addForm, type: 'codes' })}
                 className="flex flex-col items-center gap-2 p-3 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors"
@@ -530,6 +537,14 @@ export default function PageBuilder() {
               >
                 <Heart size={20} />
                 <span className="text-sm lowercase">add picks</span>
+              </button>
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'coaching' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-teal-500/10 text-teal-400 hover:bg-teal-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                <ClipboardList size={20} />
+                <span className="text-sm lowercase">coaching form</span>
               </button>
             </div>
           </div>
@@ -842,7 +857,7 @@ export default function PageBuilder() {
                                         />
                                       </div>
                                     )}
-                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && product.product_type !== 'text_block' && product.product_type !== 'countdown_block' && (
+                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && product.product_type !== 'text_block' && product.product_type !== 'countdown_block' && product.product_type !== 'coaching_form' && (
                                       <div>
                                         <label className="text-white/50 text-xs mb-1 block">layout</label>
                                         <div className="grid grid-cols-2 gap-2">
@@ -1567,6 +1582,26 @@ export default function PageBuilder() {
                           <div key={product.id} className="py-2">
                             <div className="aspect-video rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.textColor}08`, border: `1px solid ${theme.textColor}10` }}>
                               <Play size={24} style={{ color: `${theme.textColor}30` }} />
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'coaching_form') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <div className="rounded-lg border" style={{ backgroundColor: `${theme.textColor}03`, borderColor: `${theme.textColor}10` }}>
+                              <div className="px-4 py-3 border-b" style={{ borderColor: `${theme.textColor}08` }}>
+                                <h4 className="font-medium text-sm" style={{ color: theme.textColor }}>{product.title}</h4>
+                              </div>
+                              <div className="p-4 space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="h-8 rounded" style={{ backgroundColor: `${theme.textColor}08` }} />
+                                  <div className="h-8 rounded" style={{ backgroundColor: `${theme.textColor}08` }} />
+                                </div>
+                                <div className="h-16 rounded" style={{ backgroundColor: `${theme.textColor}08` }} />
+                                <div className="h-8 rounded" style={{ backgroundColor: theme.primary, opacity: 0.9 }} />
+                              </div>
                             </div>
                           </div>
                         );
