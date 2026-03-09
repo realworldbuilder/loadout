@@ -28,7 +28,8 @@ import {
   Palette,
   Heart,
   AlignLeft,
-  Clock
+  Clock,
+  Play
 } from 'lucide-react';
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES, PRESET_GRADIENTS } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
@@ -41,7 +42,7 @@ interface Product {
   title: string;
   description?: string;
   price: number;
-  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block';
+  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block' | 'video_block';
   file_url?: string;
   thumbnail_url?: string;
   external_url?: string;
@@ -56,7 +57,7 @@ interface Product {
 
 // Add form state
 interface AddFormState {
-  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | null;
+  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | 'video' | null;
   title: string;
   description: string;
   price: string;
@@ -187,7 +188,7 @@ export default function PageBuilder() {
 
   // Add new item
   const handleAdd = async () => {
-    const isAutoTitled = ['codes', 'picks', 'text', 'countdown'].includes(addForm.type || '');
+    const isAutoTitled = ['codes', 'picks', 'text', 'countdown', 'video'].includes(addForm.type || '');
     if (!addForm.type || (!isAutoTitled && !addForm.title.trim()) || !profile?.id) return;
     
     setSaving(true);
@@ -197,15 +198,18 @@ export default function PageBuilder() {
         title: addForm.type === 'codes' ? 'my codes' : 
                addForm.type === 'picks' ? (selectedPicksCollection === 'all' ? 'my picks' : `picks: ${selectedPicksCollection}`) : 
                addForm.type === 'countdown' ? 'countdown timer' : 
+               addForm.type === 'video' ? (addForm.title || 'video') :
                addForm.title,
-        description: addForm.type === 'picks' ? (selectedPicksCollection || 'all') : (addForm.description || ''),
-        price: ['header', 'text', 'countdown'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
+        description: addForm.type === 'picks' ? (selectedPicksCollection || 'all') : 
+                     addForm.type === 'video' ? (addForm.external_url || '') : (addForm.description || ''),
+        price: ['header', 'text', 'countdown', 'video'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
         product_type: addForm.type === 'link' ? 'link' : 
                       addForm.type === 'header' ? 'header' :
                       addForm.type === 'codes' ? 'codes_block' :
                       addForm.type === 'picks' ? 'picks_block' :
                       addForm.type === 'text' ? 'text_block' :
                       addForm.type === 'countdown' ? 'countdown_block' :
+                      addForm.type === 'video' ? 'video_block' :
                       'digital_product',
         external_url: addForm.external_url || '',
         cta_text: addForm.type === 'product' ? 'Purchase' : 'Visit',
@@ -344,6 +348,8 @@ export default function PageBuilder() {
         return AlignLeft;
       case 'countdown_block':
         return Clock;
+      case 'video_block':
+        return Play;
       default:
         return Package;
     }
@@ -364,6 +370,8 @@ export default function PageBuilder() {
         return 'bg-gray-500/10 text-gray-400';
       case 'countdown_block':
         return 'bg-orange-500/10 text-orange-400';
+      case 'video_block':
+        return 'bg-red-500/10 text-red-400';
       default:
         return 'bg-emerald-500/10 text-emerald-400';
     }
@@ -497,6 +505,14 @@ export default function PageBuilder() {
                 <Clock size={20} />
                 <span className="text-sm lowercase">add countdown</span>
               </button>
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'video' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                <Play size={20} />
+                <span className="text-sm lowercase">add video</span>
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-3 mt-3">
               <button
@@ -619,7 +635,21 @@ export default function PageBuilder() {
                     </div>
                   </>
                 )}
-                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && addForm.type !== 'text' && addForm.type !== 'countdown' && (
+                {/* Video block input */}
+                {addForm.type === 'video' && (
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="paste youtube or tiktok url..."
+                      value={addForm.external_url}
+                      onChange={(e) => setAddForm({ ...addForm, external_url: e.target.value })}
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                      required
+                    />
+                    <p className="text-white/30 text-xs mt-1">supports youtube and tiktok links</p>
+                  </div>
+                )}
+                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && addForm.type !== 'text' && addForm.type !== 'countdown' && addForm.type !== 'video' && (
                   <div>
                     <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">layout</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -1527,6 +1557,16 @@ export default function PageBuilder() {
                                   </div>
                                 </div>
                               ))}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'video_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <div className="aspect-video rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.textColor}08`, border: `1px solid ${theme.textColor}10` }}>
+                              <Play size={24} style={{ color: `${theme.textColor}30` }} />
                             </div>
                           </div>
                         );

@@ -576,6 +576,41 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 return <CountdownBlock key={i} product={p} textColor={textColor} />;
               }
 
+              // Video embed block
+              if (p.product_type === 'video_block') {
+                const videoUrl = p.description || p.external_url || '';
+                let embedUrl = '';
+                
+                // YouTube
+                const ytMatch = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                if (ytMatch) {
+                  embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
+                }
+                
+                // TikTok
+                const tkMatch = videoUrl.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+                if (tkMatch) {
+                  embedUrl = `https://www.tiktok.com/embed/v2/${tkMatch[1]}`;
+                }
+
+                if (embedUrl) {
+                  return (
+                    <div key={i} className="mb-4">
+                      <div className="aspect-video rounded-xl overflow-hidden">
+                        <iframe
+                          src={embedUrl}
+                          className="w-full h-full"
+                          allowFullScreen
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          frameBorder="0"
+                        />
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }
+
               // Email collector component
               if (p.product_type === 'email_collector' || p.type === 'email_collector') {
                 const state = emailStates[p.id] || { email: '', isSubmitting: false, success: false, error: '' };
