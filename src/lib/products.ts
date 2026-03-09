@@ -1,6 +1,6 @@
 // Removed direct Supabase client import - now using API routes
 
-export type ProductType = 'digital' | 'coaching' | 'link' | 'subscription' | 'affiliate_link' | 'header' | 'email_collector' | 'embed';
+export type ProductType = 'digital' | 'coaching' | 'link' | 'subscription' | 'affiliate_link' | 'header' | 'email_collector' | 'embed' | 'coaching_form';
 
 export interface Product {
   id: string;

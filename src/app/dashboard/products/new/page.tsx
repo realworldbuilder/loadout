@@ -46,7 +46,7 @@ function NewProductInner() {
 
   // Set price to 0 for links, email collectors, and headers
   useEffect(() => {
-    if (productType === 'link' || productType === 'email_collector' || productType === 'header') {
+    if (productType === 'link' || productType === 'email_collector' || productType === 'header' || productType === 'coaching_form') {
       setPrice('0');
     }
   }, [productType]);
@@ -93,7 +93,7 @@ function NewProductInner() {
 
     setLoading(true);
     try {
-      const priceNum = (productType === 'link' || productType === 'email_collector' || productType === 'header') ? 0 : parseFloat(price);
+      const priceNum = (productType === 'link' || productType === 'email_collector' || productType === 'header' || productType === 'coaching_form') ? 0 : parseFloat(price);
       if (productType !== 'link' && productType !== 'email_collector' && productType !== 'header' && (isNaN(priceNum) || priceNum < 0)) {
         alert('Please enter a valid price');
         setLoading(false);
@@ -164,6 +164,7 @@ function NewProductInner() {
       case 'header': return 'header';
       case 'email_collector': return 'email signup';
       case 'embed': return 'embed';
+      case 'coaching_form': return 'coaching form';
     }
   };
 
@@ -222,7 +223,7 @@ function NewProductInner() {
                       </div>
                     </div>
                   )}
-                  <div className={(productType === 'link' || productType === 'email_collector' || productType === 'header') ? 'col-span-full' : ''}>
+                  <div className={(productType === 'link' || productType === 'email_collector' || productType === 'header' || productType === 'coaching_form') ? 'col-span-full' : ''}>
                     <label className="block text-sm font-medium text-white/80 mb-2 lowercase">type *</label>
                     <select value={productType} onChange={(e) => setProductType(e.target.value as ProductType)}
                       className="w-full px-4 py-3 bg-white dark:bg-[#2f2f2f] border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-white/20">
@@ -234,6 +235,7 @@ function NewProductInner() {
                       <option value="header">header</option>
                       <option value="email_collector">email signup</option>
                       <option value="embed">embed</option>
+                      <option value="coaching_form">coaching application form</option>
                     </select>
                   </div>
                 </div>

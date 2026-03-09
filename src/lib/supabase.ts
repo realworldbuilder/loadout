@@ -27,6 +27,10 @@ export interface Creator {
     tiktok?: string;
     youtube?: string;
     twitter?: string;
+    snapchat?: string;
+    facebook?: string;
+    spotify?: string;
+    twitch?: string;
   };
   stripe_account_id?: string;
   stripe_onboarding_complete: boolean;

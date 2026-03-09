@@ -21,6 +21,10 @@ export default function SettingsPage() {
       tiktok: '',
       youtube: '',
       twitter: '',
+      snapchat: '',
+      facebook: '',
+      spotify: '',
+      twitch: '',
     },
   });
 
@@ -104,6 +108,10 @@ export default function SettingsPage() {
           tiktok: profile.social_links?.tiktok || '',
           youtube: profile.social_links?.youtube || '',
           twitter: profile.social_links?.twitter || '',
+          snapchat: profile.social_links?.snapchat || '',
+          facebook: profile.social_links?.facebook || '',
+          spotify: profile.social_links?.spotify || '',
+          twitch: profile.social_links?.twitch || '',
         },
       });
       
@@ -388,6 +396,62 @@ export default function SettingsPage() {
                   })}
                   className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                   placeholder="@username"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">snapchat</label>
+                <input
+                  type="text"
+                  value={formData.social_links.snapchat}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    social_links: { ...formData.social_links, snapchat: e.target.value }
+                  })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  placeholder="https://snapchat.com/add/username"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">facebook</label>
+                <input
+                  type="text"
+                  value={formData.social_links.facebook}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    social_links: { ...formData.social_links, facebook: e.target.value }
+                  })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  placeholder="https://facebook.com/yourpage"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">spotify</label>
+                <input
+                  type="text"
+                  value={formData.social_links.spotify}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    social_links: { ...formData.social_links, spotify: e.target.value }
+                  })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  placeholder="https://open.spotify.com/user/..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">twitch</label>
+                <input
+                  type="text"
+                  value={formData.social_links.twitch}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    social_links: { ...formData.social_links, twitch: e.target.value }
+                  })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  placeholder="https://twitch.tv/username"
                 />
               </div>
             </div>

@@ -26,7 +26,8 @@ import {
   Sun,
   Moon,
   Tag,
-  Heart
+  Heart,
+  ClipboardList
 } from 'lucide-react';
 
 const navItems = [
@@ -35,6 +36,7 @@ const navItems = [
   { href: '/dashboard/products', label: 'products', icon: Package },
   { href: '/dashboard/codes', label: 'codes', icon: Tag },
   { href: '/dashboard/picks', label: 'picks', icon: Heart },
+  { href: '/dashboard/coaching', label: 'coaching', icon: ClipboardList },
   { href: '/dashboard/analytics', label: 'analytics', icon: BarChart3 },
   { href: '/dashboard/settings', label: 'settings', icon: Settings },
 ];

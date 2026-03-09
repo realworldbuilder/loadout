@@ -196,6 +196,10 @@ export const createCreatorProfile = async (profileData: {
     tiktok?: string;
     youtube?: string;
     twitter?: string;
+    snapchat?: string;
+    facebook?: string;
+    spotify?: string;
+    twitch?: string;
   };
 }) => {
   try {
@@ -235,6 +239,10 @@ export const updateCreatorProfile = async (userId: string, updates: Partial<{
     tiktok?: string;
     youtube?: string;
     twitter?: string;
+    snapchat?: string;
+    facebook?: string;
+    spotify?: string;
+    twitch?: string;
   };
 }>) => {
   try {

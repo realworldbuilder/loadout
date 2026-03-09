@@ -40,6 +40,7 @@ function mapToDb(body: any) {
       'header': 'header',
       'email_collector': 'email_collector',
       'embed': 'embed',
+      'coaching_form': 'coaching_form',
     };
     mapped.type = typeMap[body.product_type] || body.product_type;
   }
