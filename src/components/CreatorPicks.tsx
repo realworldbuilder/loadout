@@ -132,7 +132,7 @@ export default function CreatorPicks({ creator_id, filterCollection }: CreatorPi
       {/* Section label */}
       <div className="flex items-center space-x-2">
         <Heart className="h-4 w-4 text-gray-500 dark:text-white/50" />
-        <h3 className="text-sm font-medium text-gray-700 dark:text-white/70 lowercase">picks</h3>
+        <h3 className="text-sm font-medium text-gray-700 dark:text-white/70 lowercase">{filterCollection || 'picks'}</h3>
       </div>
 
       {/* Collection tabs */}
