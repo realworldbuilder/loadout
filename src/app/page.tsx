@@ -224,30 +224,71 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Social Proof */}
+      {/* Comparison Table */}
       <section className="py-20 px-4 sm:px-6 border-t border-white/5">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 lowercase">
-            trusted by fitness creators
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-center lowercase">
+            why switch to loadout?
           </h2>
-          <p className="text-white/60 text-lg mb-12 lowercase">
-            join thousands of creators already building their fitness empires on loadout.
+          <p className="text-white/60 text-lg mb-12 text-center lowercase">
+            you&apos;re probably paying too much for too little.
           </p>
           
-          {/* Placeholder social proof stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            <div>
-              <div className="text-3xl font-bold text-emerald-400 mb-2">2,400+</div>
-              <p className="text-white/60 lowercase">active creators</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-emerald-400 mb-2">$1.2M+</div>
-              <p className="text-white/60 lowercase">creator earnings</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-emerald-400 mb-2">4.9/5</div>
-              <p className="text-white/60 lowercase">creator rating</p>
-            </div>
+          <div className="overflow-hidden rounded-xl border border-white/10">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10 bg-white/[0.03]">
+                  <th className="text-left py-4 px-4 text-white/50 font-medium lowercase"></th>
+                  <th className="py-4 px-4 text-emerald-400 font-bold lowercase">loadout</th>
+                  <th className="py-4 px-4 text-white/40 font-medium lowercase">stan store</th>
+                  <th className="py-4 px-4 text-white/40 font-medium lowercase">linktree</th>
+                </tr>
+              </thead>
+              <tbody className="text-center">
+                <tr className="border-b border-white/5">
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">free tier</td>
+                  <td className="py-3 px-4 text-emerald-400">✓</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                  <td className="py-3 px-4 text-white/50">limited</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">pro price</td>
+                  <td className="py-3 px-4 text-emerald-400 font-semibold">$19/mo</td>
+                  <td className="py-3 px-4 text-white/50">$29/mo</td>
+                  <td className="py-3 px-4 text-white/50">$24/mo</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">discount codes</td>
+                  <td className="py-3 px-4 text-emerald-400">✓ free</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">product picks</td>
+                  <td className="py-3 px-4 text-emerald-400">✓ free</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">link-in-bio</td>
+                  <td className="py-3 px-4 text-emerald-400">✓</td>
+                  <td className="py-3 px-4 text-white/50">✓</td>
+                  <td className="py-3 px-4 text-white/50">✓</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">sell digital products</td>
+                  <td className="py-3 px-4 text-emerald-400">soon</td>
+                  <td className="py-3 px-4 text-white/50">✓</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                </tr>
+                <tr>
+                  <td className="text-left py-3 px-4 text-white/70 lowercase">built for fitness</td>
+                  <td className="py-3 px-4 text-emerald-400">✓</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                  <td className="py-3 px-4 text-white/30">✗</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
