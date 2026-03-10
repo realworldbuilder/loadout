@@ -13,7 +13,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 
       creator_id, 
-      product_id, 
+      product_id,
+      form_id,
+      form_data,
       name, 
       email, 
       phone, 
@@ -63,6 +65,8 @@ export async function POST(request: NextRequest) {
       .insert({
         creator_id,
         product_id: product_id || null,
+        form_id: form_id || null,
+        form_data: form_data || {},
         name,
         email,
         phone: phone || null,

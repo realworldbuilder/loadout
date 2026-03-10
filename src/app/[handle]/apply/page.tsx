@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import CoachingApplicationForm from '@/components/CoachingApplicationForm';
+import DynamicApplicationForm from '@/components/DynamicApplicationForm';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -65,7 +65,7 @@ export default async function CoachingApplicationPage({ params }: { params: { ha
     
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
-        <CoachingApplicationForm creator={creator} />
+        <DynamicApplicationForm creator={creator} />
       </div>
     );
   } catch (error) {

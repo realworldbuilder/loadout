@@ -32,6 +32,8 @@ interface Application {
   message?: string;
   status: string;
   created_at: string;
+  form_data?: Record<string, any>;
+  form_id?: string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -47,6 +49,300 @@ const STATUS_OPTIONS = [
   { value: 'accepted', label: 'Accepted' },
   { value: 'rejected', label: 'Rejected' },
 ];
+
+// Component to render dynamic form data
+function DynamicApplicationData({ formData, creatorId }: { formData: Record<string, any>; creatorId: string }) {
+  const [formFields, setFormFields] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFormFields = async () => {
+      try {
+        const response = await fetch(`/api/application-forms?creator_id=${creatorId}`);
+        const result = await response.json();
+        if (result.data?.fields) {
+          setFormFields(result.data.fields);
+        }
+      } catch (error) {
+        console.error('Error fetching form fields:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (creatorId) {
+      fetchFormFields();
+    }
+  }, [creatorId]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin h-6 w-6 border-2 border-white/60 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!formFields.length) {
+    return <div className="text-white/60 text-sm">no form structure available</div>;
+  }
+
+  // Group fields by basic info, goals, etc.
+  const basicFields = ['name', 'email', 'age', 'location', 'city', 'phone', 'instagram'];
+  const goalFields = ['goal', 'main goal', 'nutrition goal', 'training for'];
+  
+  const basicInfo = formFields.filter(field => 
+    basicFields.some(basic => field.label.toLowerCase().includes(basic))
+  );
+  
+  const goalInfo = formFields.filter(field => 
+    goalFields.some(goal => field.label.toLowerCase().includes(goal))
+  );
+  
+  const otherFields = formFields.filter(field => 
+    !basicInfo.includes(field) && !goalInfo.includes(field)
+  );
+
+  const renderFieldValue = (field: any, value: any) => {
+    if (!value) return null;
+    
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    
+    return value.toString();
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Basic Information */}
+      {basicInfo.length > 0 && (
+        <div>
+          <h3 className="text-white font-semibold mb-3">Basic Information</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {basicInfo.map(field => {
+              const value = formData[field.id];
+              if (!value) return null;
+              
+              return (
+                <div key={field.id}>
+                  <div className="text-white/30 text-xs uppercase tracking-wider mb-1">{field.label}</div>
+                  <div className="text-white/70 text-sm">{renderFieldValue(field, value)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Goals */}
+      {goalInfo.length > 0 && (
+        <div>
+          <h3 className="text-white font-semibold mb-3">Goals</h3>
+          <div className="space-y-3">
+            {goalInfo.map(field => {
+              const value = formData[field.id];
+              if (!value) return null;
+              
+              return (
+                <div key={field.id}>
+                  <div className="text-white/30 text-xs uppercase tracking-wider mb-1">{field.label}</div>
+                  <div className="text-white/60 text-sm whitespace-pre-line">{renderFieldValue(field, value)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Other Fields */}
+      {otherFields.length > 0 && (
+        <div>
+          <h3 className="text-white font-semibold mb-3">Additional Information</h3>
+          <div className="space-y-4">
+            {otherFields.map(field => {
+              const value = formData[field.id];
+              if (!value) return null;
+              
+              return (
+                <div key={field.id}>
+                  <div className="text-white/30 text-xs uppercase tracking-wider mb-1">{field.label}</div>
+                  <div className="text-white/70 text-sm whitespace-pre-line">{renderFieldValue(field, value)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Component to render legacy application data (for backwards compatibility)
+function LegacyApplicationData({ app }: { app: Application }) {
+  return (
+    <div className="space-y-6">
+      {/* Basic Info */}
+      <div>
+        <h3 className="text-white font-semibold mb-3">Basic Information</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {app.age && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Age</div>
+              <div className="text-white/70 text-sm">{app.age}</div>
+            </div>
+          )}
+          {app.location && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Location</div>
+              <div className="text-white/70 text-sm">{app.location}</div>
+            </div>
+          )}
+          {app.phone && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Phone</div>
+              <div className="text-white/70 text-sm">{app.phone}</div>
+            </div>
+          )}
+          {app.instagram && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Instagram</div>
+              <div className="text-white/70 text-sm">
+                <a
+                  href={`https://instagram.com/${app.instagram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {app.instagram}
+                </a>
+              </div>
+            </div>
+          )}
+          {app.how_found && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">How Found</div>
+              <div className="text-white/70 text-sm">{app.how_found}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Goals & Mindset */}
+      {app.goals && (
+        <div>
+          <h3 className="text-white font-semibold mb-3">Goals & Mindset</h3>
+          <div className="text-white/60 text-sm whitespace-pre-line">{app.goals}</div>
+        </div>
+      )}
+
+      {/* Fitness Background */}
+      <div>
+        <h3 className="text-white font-semibold mb-3">Fitness Background</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {app.experience && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Experience</div>
+              <div className="text-white/70 text-sm">{app.experience}</div>
+            </div>
+          )}
+          {app.training_days_per_week && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Training Days/Week</div>
+              <div className="text-white/70 text-sm">{app.training_days_per_week} days</div>
+            </div>
+          )}
+          {app.gym_type && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Gym Type</div>
+              <div className="text-white/70 text-sm">{app.gym_type}</div>
+            </div>
+          )}
+        </div>
+        {app.preferred_days && app.preferred_days.length > 0 && (
+          <div className="mt-4">
+            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Preferred Days</div>
+            <div className="text-white/70 text-sm">{app.preferred_days.join(', ')}</div>
+          </div>
+        )}
+        {app.equipment && (
+          <div className="mt-4">
+            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Equipment</div>
+            <div className="text-white/70 text-sm">{app.equipment}</div>
+          </div>
+        )}
+      </div>
+
+      {/* Nutrition */}
+      <div>
+        <h3 className="text-white font-semibold mb-3">Nutrition</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {app.tracked_macros && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Macro Tracking</div>
+              <div className="text-white/70 text-sm">{app.tracked_macros}</div>
+            </div>
+          )}
+          {app.has_food_scale !== null && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Food Scale</div>
+              <div className="text-white/70 text-sm">{app.has_food_scale ? 'Yes' : 'No'}</div>
+            </div>
+          )}
+        </div>
+        {app.food_allergies && (
+          <div className="mt-4">
+            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Allergies/Restrictions</div>
+            <div className="text-white/70 text-sm">{app.food_allergies}</div>
+          </div>
+        )}
+      </div>
+
+      {/* Current Stats & Commitment */}
+      <div>
+        <h3 className="text-white font-semibold mb-3">Current Stats & Commitment</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {app.current_weight && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Weight</div>
+              <div className="text-white/70 text-sm">{app.current_weight}</div>
+            </div>
+          )}
+          {app.current_height && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Height</div>
+              <div className="text-white/70 text-sm">{app.current_height}</div>
+            </div>
+          )}
+          {app.commitment_ready !== null && (
+            <div>
+              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Ready to Commit</div>
+              <div className="text-white/70 text-sm">{app.commitment_ready ? 'Yes' : 'Has concerns'}</div>
+            </div>
+          )}
+        </div>
+        {app.why_this_coach && (
+          <div className="mt-4">
+            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Why This Coach</div>
+            <div className="text-white/70 text-sm whitespace-pre-line">{app.why_this_coach}</div>
+          </div>
+        )}
+      </div>
+
+      {/* Additional Notes */}
+      {app.message && (
+        <div>
+          <h3 className="text-white font-semibold mb-3">Additional Notes</h3>
+          <div className="text-white/60 text-sm whitespace-pre-line">{app.message}</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CoachingDashboard() {
   const { user, profile, loading: authLoading, initializing } = useAuth();
@@ -243,159 +539,11 @@ export default function CoachingDashboard() {
                       </a>
                     </div>
 
-                    {/* Basic Info */}
-                    <div>
-                      <h3 className="text-white font-semibold mb-3">Basic Information</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {app.age && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Age</div>
-                            <div className="text-white/70 text-sm">{app.age}</div>
-                          </div>
-                        )}
-                        {app.location && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Location</div>
-                            <div className="text-white/70 text-sm">{app.location}</div>
-                          </div>
-                        )}
-                        {app.phone && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Phone</div>
-                            <div className="text-white/70 text-sm">{app.phone}</div>
-                          </div>
-                        )}
-                        {app.instagram && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Instagram</div>
-                            <div className="text-white/70 text-sm">
-                              <a
-                                href={`https://instagram.com/${app.instagram.replace('@', '')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-emerald-400 transition-colors"
-                              >
-                                {app.instagram}
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                        {app.how_found && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">How Found</div>
-                            <div className="text-white/70 text-sm">{app.how_found}</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Goals & Mindset */}
-                    {app.goals && (
-                      <div>
-                        <h3 className="text-white font-semibold mb-3">Goals & Mindset</h3>
-                        <div className="text-white/60 text-sm whitespace-pre-line">{app.goals}</div>
-                      </div>
-                    )}
-
-                    {/* Fitness Background */}
-                    <div>
-                      <h3 className="text-white font-semibold mb-3">Fitness Background</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {app.experience && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Experience</div>
-                            <div className="text-white/70 text-sm">{app.experience}</div>
-                          </div>
-                        )}
-                        {app.training_days_per_week && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Training Days/Week</div>
-                            <div className="text-white/70 text-sm">{app.training_days_per_week} days</div>
-                          </div>
-                        )}
-                        {app.gym_type && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Gym Type</div>
-                            <div className="text-white/70 text-sm">{app.gym_type}</div>
-                          </div>
-                        )}
-                      </div>
-                      {app.preferred_days && app.preferred_days.length > 0 && (
-                        <div className="mt-4">
-                          <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Preferred Days</div>
-                          <div className="text-white/70 text-sm">{app.preferred_days.join(', ')}</div>
-                        </div>
-                      )}
-                      {app.equipment && (
-                        <div className="mt-4">
-                          <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Equipment</div>
-                          <div className="text-white/70 text-sm">{app.equipment}</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Nutrition */}
-                    <div>
-                      <h3 className="text-white font-semibold mb-3">Nutrition</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {app.tracked_macros && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Macro Tracking</div>
-                            <div className="text-white/70 text-sm">{app.tracked_macros}</div>
-                          </div>
-                        )}
-                        {app.has_food_scale !== null && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Food Scale</div>
-                            <div className="text-white/70 text-sm">{app.has_food_scale ? 'Yes' : 'No'}</div>
-                          </div>
-                        )}
-                      </div>
-                      {app.food_allergies && (
-                        <div className="mt-4">
-                          <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Allergies/Restrictions</div>
-                          <div className="text-white/70 text-sm">{app.food_allergies}</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Current Stats & Commitment */}
-                    <div>
-                      <h3 className="text-white font-semibold mb-3">Current Stats & Commitment</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {app.current_weight && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Weight</div>
-                            <div className="text-white/70 text-sm">{app.current_weight}</div>
-                          </div>
-                        )}
-                        {app.current_height && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Height</div>
-                            <div className="text-white/70 text-sm">{app.current_height}</div>
-                          </div>
-                        )}
-                        {app.commitment_ready !== null && (
-                          <div>
-                            <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Ready to Commit</div>
-                            <div className="text-white/70 text-sm">{app.commitment_ready ? 'Yes' : 'Has concerns'}</div>
-                          </div>
-                        )}
-                      </div>
-                      {app.why_this_coach && (
-                        <div className="mt-4">
-                          <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Why This Coach</div>
-                          <div className="text-white/70 text-sm whitespace-pre-line">{app.why_this_coach}</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Additional Notes */}
-                    {app.message && (
-                      <div>
-                        <h3 className="text-white font-semibold mb-3">Additional Notes</h3>
-                        <div className="text-white/60 text-sm whitespace-pre-line">{app.message}</div>
-                      </div>
+                    {/* Dynamic Form Data */}
+                    {app.form_data && Object.keys(app.form_data).length > 0 ? (
+                      <DynamicApplicationData formData={app.form_data} creatorId={profile?.id || ''} />
+                    ) : (
+                      <LegacyApplicationData app={app} />
                     )}
                   </div>
                 )}
