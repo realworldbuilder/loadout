@@ -40,8 +40,36 @@ export default function OnboardingPage() {
   const [handleAvailable, setHandleAvailable] = useState<boolean | null>(null);
   const [checkingHandle, setCheckingHandle] = useState(false);
   
+  // Import data state
+  const [importedLinks, setImportedLinks] = useState<any[]>([]);
+  const [importedProfilePic, setImportedProfilePic] = useState<string | null>(null);
+  
   const router = useRouter();
   const { user, profile, refreshProfile, loading: authLoading } = useAuth();
+
+  // Check for imported Linktree data
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('loadout_import');
+      if (raw) {
+        const data = JSON.parse(raw);
+        setFormData(prev => ({
+          ...prev,
+          displayName: data.displayName || prev.displayName,
+          bio: data.bio || prev.bio,
+          socialLinks: {
+            instagram: data.socialLinks?.instagram?.replace(/https?:\/\/(www\.)?instagram\.com\/?/, '').replace(/\/$/, '') || '',
+            tiktok: data.socialLinks?.tiktok?.replace(/https?:\/\/(www\.)?tiktok\.com\/@?/, '').replace(/\/$/, '') || '',
+            youtube: data.socialLinks?.youtube?.replace(/https?:\/\/(www\.)?youtube\.com\/@?/, '').replace(/\/$/, '') || '',
+            twitter: data.socialLinks?.twitter?.replace(/https?:\/\/(www\.)?(twitter|x)\.com\/?/, '').replace(/\/$/, '') || '',
+          },
+        }));
+        if (data.links) setImportedLinks(data.links);
+        if (data.profilePicture) setImportedProfilePic(data.profilePicture);
+        // Don't clear yet — clear after onboarding completes
+      }
+    } catch {}
+  }, []);
 
   // Redirect if not authenticated or already onboarded
   useEffect(() => {
@@ -275,6 +303,7 @@ export default function OnboardingPage() {
       }
 
       await refreshProfile();
+      sessionStorage.removeItem('loadout_import');
       router.push('/dashboard');
     } catch (error) {
       setError('failed to create profile');
@@ -296,6 +325,19 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4">
       <div className="max-w-2xl mx-auto">
         
+        {/* Import banner */}
+        {importedLinks.length > 0 && (
+          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-3">
+            <svg className="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <div>
+              <p className="text-emerald-400 text-sm font-medium">importing from linktree</p>
+              <p className="text-white/50 text-xs">{importedLinks.length} links ready to import · bio + socials pre-filled</p>
+            </div>
+          </div>
+        )}
+
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
