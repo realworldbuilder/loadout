@@ -38,6 +38,12 @@ export interface Creator {
   subscription_tier?: 'free' | 'pro';
   subscription_ends_at?: string;
   is_active: boolean;
+  application_settings?: {
+    welcome_message?: string;
+    show_pricing?: boolean;
+    pricing_text?: string;
+    response_time?: string;
+  };
   created_at: string;
   updated_at: string;
 }

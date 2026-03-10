@@ -30,6 +30,13 @@ export default function SettingsPage() {
 
   const [theme, setTheme] = useState<CreatorTheme>(DEFAULT_THEME);
   
+  const [applicationSettings, setApplicationSettings] = useState({
+    welcome_message: "Proud of you for taking this step towards transforming your body and mind.",
+    show_pricing: false,
+    pricing_text: "",
+    response_time: "I will get back to you within 24-48hrs"
+  });
+  
   const [saveStatus, setSaveStatus] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -121,6 +128,11 @@ export default function SettingsPage() {
       } else {
         setTheme(DEFAULT_THEME);
       }
+      
+      // Load application settings
+      if (profile.application_settings) {
+        setApplicationSettings({ ...applicationSettings, ...profile.application_settings });
+      }
     }
   }, [profile]);
 
@@ -132,6 +144,8 @@ export default function SettingsPage() {
       let payload;
       if (section === 'theme') {
         payload = { user_id: user.id, theme };
+      } else if (section === 'application') {
+        payload = { user_id: user.id, application_settings: applicationSettings };
       } else {
         payload = { user_id: user.id, ...formData };
       }
@@ -604,6 +618,100 @@ export default function SettingsPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Application Settings Section */}
+          <div className="bg-white dark:bg-[#111] rounded-lg border border-white/5 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">coaching applications</h3>
+              <button
+                onClick={() => handleSave('application')}
+                disabled={loading}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#10a37f] text-black rounded-lg hover:bg-[#0d8b6b] transition-colors disabled:opacity-50"
+              >
+                {saveStatus.application ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    <span>saved</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    <span>save</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">welcome message</label>
+                <textarea
+                  value={applicationSettings.welcome_message}
+                  onChange={(e) => setApplicationSettings({ ...applicationSettings, welcome_message: e.target.value })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f] resize-none"
+                  rows={3}
+                  placeholder="Your welcome message for potential clients..."
+                />
+                <p className="text-gray-500 text-xs mt-1">This message appears at the top of your application form</p>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-lg">
+                <div>
+                  <p className="text-gray-900 dark:text-white font-medium">show pricing information</p>
+                  <p className="text-gray-400 text-sm">Display pricing details on your application form</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={applicationSettings.show_pricing}
+                    onChange={(e) => setApplicationSettings({ ...applicationSettings, show_pricing: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#10a37f]"></div>
+                </label>
+              </div>
+
+              {applicationSettings.show_pricing && (
+                <div>
+                  <label className="block text-gray-400 text-sm mb-2">pricing text</label>
+                  <input
+                    type="text"
+                    value={applicationSettings.pricing_text}
+                    onChange={(e) => setApplicationSettings({ ...applicationSettings, pricing_text: e.target.value })}
+                    className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                    placeholder="e.g., Starting at $197/month"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">response time</label>
+                <input
+                  type="text"
+                  value={applicationSettings.response_time}
+                  onChange={(e) => setApplicationSettings({ ...applicationSettings, response_time: e.target.value })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  placeholder="e.g., I'll get back to you within 24-48hrs"
+                />
+                <p className="text-gray-500 text-xs mt-1">This message shows after form submission and in confirmation emails</p>
+              </div>
+
+              {profile?.handle && (
+                <div className="bg-[#1a1a1a] rounded-lg p-4 border border-white/5">
+                  <p className="text-gray-400 text-sm mb-2">your application URL:</p>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[#10a37f] text-sm font-mono">loadout.fit/{profile.handle}/apply</span>
+                    <button
+                      onClick={() => window.open(`/${profile.handle}/apply`, '_blank')}
+                      className="text-gray-400 hover:text-gray-300 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
