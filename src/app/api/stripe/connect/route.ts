@@ -12,7 +12,7 @@ function getSupabase() {
 // POST: Create or retrieve Stripe Connect account and return onboarding link
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
+    const { userId, returnPath } = await request.json();
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
@@ -68,10 +68,11 @@ export async function POST(request: NextRequest) {
 
     // Create account onboarding link
     const origin = request.nextUrl.origin;
+    const finalReturnPath = returnPath || '/dashboard/settings';
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
       refresh_url: `${origin}/dashboard/settings?stripe=refresh`,
-      return_url: `${origin}/api/stripe/connect/callback?account_id=${stripeAccountId}`,
+      return_url: `${origin}/api/stripe/connect/callback?account_id=${stripeAccountId}&return_path=${encodeURIComponent(finalReturnPath)}`,
       type: 'account_onboarding',
     });
 

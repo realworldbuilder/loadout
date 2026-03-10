@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       .from('products')
       .select(`
         *,
-        creators (
+        creators!creator_id(
           stripe_account_id,
           stripe_onboarding_complete,
           display_name,
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: successUrl || `${request.nextUrl.origin}/${creator.handle}?success=true`,
+      success_url: successUrl || `${request.nextUrl.origin}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl || `${request.nextUrl.origin}/${creator.handle}`,
       metadata: {
         productId: product.id,

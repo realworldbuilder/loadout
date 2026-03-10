@@ -606,18 +606,23 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 );
               }
 
-              // Coaching application form
+              // Coaching application form — links to multi-step apply page
               if (p.product_type === 'coaching_form' || p.type === 'coaching_form') {
                 return (
                   <div key={i} className="mb-6">
-                    <CoachingForm
-                      creatorId={creator.id}
-                      productId={p.id}
-                      title={p.title}
-                      description={p.description}
-                      isDark={isDark}
-                      primaryColor={primaryColor}
-                    />
+                    <a
+                      href={`/${creator.handle}/apply`}
+                      className="block w-full py-4 px-6 rounded-2xl text-center font-semibold text-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                      style={{
+                        backgroundColor: primaryColor || '#10a37f',
+                        color: '#fff',
+                      }}
+                    >
+                      {p.title || 'apply for coaching'}
+                    </a>
+                    {p.description && (
+                      <p className={`text-sm ${mutedTextColor} text-center mt-2`}>{p.description}</p>
+                    )}
                   </div>
                 );
               }

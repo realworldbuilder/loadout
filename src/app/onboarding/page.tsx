@@ -25,6 +25,7 @@ interface FormData {
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [stripeLoading, setStripeLoading] = useState(false);
   const [error, setError] = useState('');
   
   // Form data
@@ -106,9 +107,120 @@ export default function OnboardingPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
       setError('');
+    }
+  };
+
+  // Handle Stripe Connect
+  const handleStripeConnect = async () => {
+    if (!user) return;
+
+    setStripeLoading(true);
+    setError('');
+
+    try {
+      // First complete the profile creation
+      const socialUrlMap: Record<string, string> = {
+        instagram: 'https://instagram.com/',
+        tiktok: 'https://tiktok.com/@',
+        youtube: 'https://youtube.com/@',
+        twitter: 'https://x.com/',
+      };
+      const cleanedLinks: SocialLinks = {};
+      Object.entries(formData.socialLinks).forEach(([platform, handle]) => {
+        if (handle && handle.trim()) {
+          const h = handle.trim().replace(/^@/, '');
+          cleanedLinks[platform as keyof SocialLinks] = socialUrlMap[platform] + h;
+        }
+      });
+
+      // Create complete profile
+      const { data, error } = await createCreatorProfile({
+        user_id: user.id,
+        handle: formData.handle.toLowerCase(),
+        display_name: formData.displayName.trim(),
+        bio: formData.bio.trim() || undefined,
+        social_links: cleanedLinks,
+      });
+
+      if (error) {
+        setError(error);
+        setStripeLoading(false);
+        return;
+      }
+
+      await refreshProfile();
+
+      const response = await fetch('/api/stripe/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          userId: user.id,
+          returnPath: '/dashboard'
+        }),
+      });
+
+      const stripeData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(stripeData.error || 'Failed to connect to Stripe');
+      }
+
+      // Redirect to Stripe onboarding
+      window.location.href = stripeData.url;
+    } catch (error: any) {
+      setError(error.message || 'Failed to connect to Stripe');
+      setStripeLoading(false);
+    }
+  };
+
+  // Skip Stripe and go to dashboard
+  const skipStripe = async () => {
+    if (!user) return;
+
+    setLoading(true);
+    
+    try {
+      // Build full URLs from handles
+      const socialUrlMap: Record<string, string> = {
+        instagram: 'https://instagram.com/',
+        tiktok: 'https://tiktok.com/@',
+        youtube: 'https://youtube.com/@',
+        twitter: 'https://x.com/',
+      };
+      const cleanedLinks: SocialLinks = {};
+      Object.entries(formData.socialLinks).forEach(([platform, handle]) => {
+        if (handle && handle.trim()) {
+          const h = handle.trim().replace(/^@/, '');
+          cleanedLinks[platform as keyof SocialLinks] = socialUrlMap[platform] + h;
+        }
+      });
+
+      // Create complete profile
+      const { data, error } = await createCreatorProfile({
+        user_id: user.id,
+        handle: formData.handle.toLowerCase(),
+        display_name: formData.displayName.trim(),
+        bio: formData.bio.trim() || undefined,
+        social_links: cleanedLinks,
+      });
+
+      if (error) {
+        setError(error);
+        setLoading(false);
+        return;
+      }
+
+      await refreshProfile();
+      window.location.href = '/dashboard';
+    } catch (error) {
+      setError('failed to create profile');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -188,11 +300,11 @@ export default function OnboardingPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-semibold text-white">setup your profile</h1>
-            <span className="text-white/60 text-sm">step {currentStep} of 3</span>
+            <span className="text-white/60 text-sm">step {currentStep} of 4</span>
           </div>
           
           <div className="flex space-x-2">
-            {[1, 2, 3].map((step) => (
+            {[1, 2, 3, 4].map((step) => (
               <div
                 key={step}
                 className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
@@ -343,8 +455,50 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3: Complete */}
+          {/* Step 3: Connect Payments */}
           {currentStep === 3 && (
+            <div className="text-center space-y-6">
+              <div className="mb-8">
+                <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                  </svg>
+                </div>
+                <h2 className="text-xl font-semibold text-white mb-2">connect stripe to start earning</h2>
+                <p className="text-white/60 text-sm">we use stripe to handle payments securely. you'll earn 95% of every sale (5% platform fee on the free tier).</p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => goToStep(2)}
+                  disabled={stripeLoading}
+                  className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white font-medium rounded transition-colors duration-200"
+                >
+                  back
+                </button>
+                <button
+                  onClick={handleStripeConnect}
+                  disabled={stripeLoading}
+                  className="flex-1 py-4 px-6 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-semibold rounded transition-colors duration-200"
+                >
+                  {stripeLoading ? 'connecting...' : 'connect stripe'}
+                </button>
+              </div>
+
+              <div className="pt-4">
+                <button
+                  onClick={skipStripe}
+                  disabled={loading || stripeLoading}
+                  className="text-white/60 hover:text-white/80 text-sm underline"
+                >
+                  {loading ? 'setting up...' : "i'll do this later"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Complete */}
+          {currentStep === 4 && (
             <div className="text-center space-y-6">
               <div className="mb-8">
                 <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -365,7 +519,7 @@ export default function OnboardingPage() {
 
               <div className="flex space-x-3">
                 <button
-                  onClick={() => goToStep(2)}
+                  onClick={() => goToStep(3)}
                   disabled={loading}
                   className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 disabled:bg-white/5 text-white font-medium rounded transition-colors duration-200"
                 >

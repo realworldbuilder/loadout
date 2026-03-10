@@ -12,9 +12,10 @@ function getSupabase() {
 // GET: Callback after Stripe Connect onboarding
 export async function GET(request: NextRequest) {
   const accountId = request.nextUrl.searchParams.get('account_id');
+  const returnPath = request.nextUrl.searchParams.get('return_path') || '/dashboard/settings';
 
   if (!accountId) {
-    return NextResponse.redirect(new URL('/dashboard/settings?stripe=error', request.url));
+    return NextResponse.redirect(new URL(`${returnPath}?stripe=error`, request.url));
   }
 
   try {
@@ -30,18 +31,18 @@ export async function GET(request: NextRequest) {
         .eq('stripe_account_id', accountId);
 
       return NextResponse.redirect(
-        new URL('/dashboard/settings?stripe=success', request.url)
+        new URL(`${returnPath}?stripe=success`, request.url)
       );
     } else {
       // Not fully onboarded yet — they may need to provide more info
       return NextResponse.redirect(
-        new URL('/dashboard/settings?stripe=pending', request.url)
+        new URL(`${returnPath}?stripe=pending`, request.url)
       );
     }
   } catch (error) {
     console.error('Stripe callback error:', error);
     return NextResponse.redirect(
-      new URL('/dashboard/settings?stripe=error', request.url)
+      new URL(`${returnPath}?stripe=error`, request.url)
     );
   }
 }
