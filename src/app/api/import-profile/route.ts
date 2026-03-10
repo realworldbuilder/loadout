@@ -13,7 +13,7 @@ interface ImportedLink {
 }
 
 interface ImportedProfile {
-  platform: 'linktree' | 'stan' | 'payhip' | 'gumroad' | 'unknown';
+  platform: 'linktree' | 'stan' | 'payhip' | 'gumroad' | 'hoobe' | 'linkme' | 'unknown';
   username: string;
   displayName: string;
   bio: string;
@@ -44,6 +44,18 @@ function detectPlatform(url: string): { platform: string; normalizedUrl: string 
     let normalized = url.trim();
     if (!normalized.startsWith('http')) normalized = `https://${normalized}`;
     return { platform: 'payhip', normalizedUrl: normalized };
+  }
+
+  if (lower.includes('hoo.be')) {
+    let normalized = url.trim();
+    if (!normalized.startsWith('http')) normalized = `https://${normalized}`;
+    return { platform: 'hoobe', normalizedUrl: normalized };
+  }
+
+  if (lower.includes('link.me')) {
+    let normalized = url.trim();
+    if (!normalized.startsWith('http')) normalized = `https://${normalized}`;
+    return { platform: 'linkme', normalizedUrl: normalized };
   }
 
   if (lower.includes('gumroad.com') || lower.includes('.gumroad.com')) {
@@ -317,6 +329,173 @@ async function parseGumroad(url: string): Promise<ImportedProfile> {
   };
 }
 
+// ── Hoo.be Parser ──────────────────────────────────────────────────────────
+
+async function parseHoobe(url: string): Promise<ImportedProfile> {
+  const html = await fetchPage(url);
+
+  const ogTitle = html.match(/og:title"\s+content="([^"]*)"/)?.[1] || '';
+  const ogDesc = html.match(/og:description"\s+content="([^"]*)"/)?.[1] || '';
+  const ogImage = html.match(/og:image"\s+content="([^"]*)"/)?.[1] || null;
+
+  // Username from URL
+  const urlObj = new URL(url);
+  const username = urlObj.pathname.replace(/^\//, '').split('/')[0] || '';
+
+  // Parse display name and bio from og:description format "Name || bio text"
+  let displayName = ogTitle || username;
+  let bio = '';
+  if (ogDesc.includes('||')) {
+    const parts = ogDesc.split('||');
+    displayName = parts[0].trim() || displayName;
+    bio = parts.slice(1).join('||').trim();
+  } else {
+    bio = ogDesc;
+  }
+
+  // Extract social links (hoobe adds utm_source=hoobe to all outbound links)
+  const socialLinks: Record<string, string> = {};
+  const socialMatches = Array.from(html.matchAll(/class="SocialItem[^"]*"[^>]*href="([^"]*)\?utm_source=hoobe/g));
+  for (const m of socialMatches) {
+    const linkUrl = m[1].replace(/&amp;/g, '&');
+    const lower = linkUrl.toLowerCase();
+    if (lower.includes('instagram.com') && !socialLinks.instagram) socialLinks.instagram = linkUrl;
+    if (lower.includes('tiktok.com') && !socialLinks.tiktok) socialLinks.tiktok = linkUrl;
+    if (lower.includes('youtube.com') && !socialLinks.youtube) socialLinks.youtube = linkUrl;
+    if ((lower.includes('twitter.com') || lower.includes('x.com')) && !socialLinks.twitter) socialLinks.twitter = linkUrl;
+    if (lower.includes('snapchat.com') || lower.includes('t.snapchat.com')) socialLinks.snapchat = linkUrl;
+  }
+
+  // Extract content links (non-social outbound links with utm_source=hoobe)
+  const links: ImportedLink[] = [];
+  const linkMatches = Array.from(html.matchAll(/<a[^>]*href="([^"]*)\?utm_source=hoobe[^"]*"[^>]*data-block-container="true"[^>]*>/g));
+  let i = 0;
+  for (const m of linkMatches) {
+    const linkUrl = m[1].replace(/&amp;/g, '&');
+    // Skip social links we already captured
+    const lower = linkUrl.toLowerCase();
+    if (lower.includes('instagram.com') || lower.includes('tiktok.com') || 
+        lower.includes('youtube.com') || lower.includes('twitter.com') || 
+        lower.includes('x.com') || lower.includes('snapchat.com')) continue;
+
+    // Determine if it's a product (shopping card) or regular link
+    const isProduct = m[0].includes('ShoppingLinkCard');
+    
+    // Try to extract title from URL path
+    let title = '';
+    try {
+      const u = new URL(linkUrl);
+      const pathParts = u.pathname.split('/').filter(Boolean);
+      title = pathParts[pathParts.length - 1]?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || u.hostname;
+    } catch {
+      title = linkUrl;
+    }
+
+    links.push({
+      id: `hoobe-${i}`,
+      title,
+      url: linkUrl,
+      position: i,
+      type: isProduct ? 'product' : 'link',
+    });
+    i++;
+  }
+
+  return {
+    platform: 'hoobe',
+    username,
+    displayName,
+    bio,
+    profilePicture: ogImage,
+    links: links.filter(l => l.type === 'link'),
+    products: links.filter(l => l.type === 'product'),
+    socialLinks,
+  };
+}
+
+// ── Link.me Parser ─────────────────────────────────────────────────────────
+
+async function parseLinkme(url: string): Promise<ImportedProfile> {
+  const html = await fetchPage(url);
+
+  // Link.me uses __NEXT_DATA__ with full profile data
+  const match = html.match(/__NEXT_DATA__[^>]*>([\s\S]+?)<\/script>/);
+  if (!match) throw new Error('could not parse link.me data');
+
+  const data = JSON.parse(match[1]);
+  const profile = data?.props?.pageProps?.profile;
+  if (!profile) throw new Error('link.me profile not found');
+
+  const socialLinks: Record<string, string> = {};
+  const links: ImportedLink[] = [];
+  let i = 0;
+
+  // Parse webLinks array
+  for (const wl of (profile.webLinks || [])) {
+    const title = wl.title || '';
+    const linkData = wl.links?.[0];
+    if (!linkData) continue;
+
+    const linkUrl = linkData.linkValue || '';
+    if (!linkUrl) continue;
+
+    const lower = linkUrl.toLowerCase();
+    const titleLower = title.toLowerCase();
+
+    // Check if it's a social link
+    if (titleLower === 'instagram' || lower.includes('instagram.com')) {
+      socialLinks.instagram = linkUrl;
+      continue;
+    }
+    if (titleLower === 'tiktok' || lower.includes('tiktok.com')) {
+      socialLinks.tiktok = linkUrl;
+      continue;
+    }
+    if (titleLower === 'youtube' || lower.includes('youtube.com')) {
+      socialLinks.youtube = linkUrl;
+      continue;
+    }
+    if (titleLower === 'twitter' || titleLower === 'x' || lower.includes('twitter.com') || lower.includes('x.com')) {
+      socialLinks.twitter = linkUrl;
+      continue;
+    }
+    if (titleLower === 'snapchat' || lower.includes('snapchat.com')) {
+      socialLinks.snapchat = linkUrl;
+      continue;
+    }
+
+    links.push({
+      id: `linkme-${i}`,
+      title: title || linkUrl,
+      url: linkUrl,
+      position: i,
+      type: 'link',
+      image: linkData.linkImage || undefined,
+    });
+    i++;
+  }
+
+  // Profile image URL construction
+  let profilePicture: string | null = null;
+  if (profile.profileImage) {
+    // link.me stores relative paths, need to construct full URL
+    profilePicture = profile.profileImage.startsWith('http') 
+      ? profile.profileImage 
+      : `https://link.me/${profile.profileImage}`;
+  }
+
+  return {
+    platform: 'linkme',
+    username: profile.username || '',
+    displayName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || profile.username || '',
+    bio: profile.bio || '',
+    profilePicture,
+    links,
+    products: [],
+    socialLinks,
+  };
+}
+
 // ── Main Handler ───────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -342,6 +521,12 @@ export async function POST(request: NextRequest) {
         break;
       case 'gumroad':
         profile = await parseGumroad(normalizedUrl);
+        break;
+      case 'hoobe':
+        profile = await parseHoobe(normalizedUrl);
+        break;
+      case 'linkme':
+        profile = await parseLinkme(normalizedUrl);
         break;
       default:
         return NextResponse.json(

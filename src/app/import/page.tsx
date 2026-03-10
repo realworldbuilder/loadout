@@ -30,6 +30,8 @@ const platformLabels: Record<string, { name: string; color: string; icon: string
   stan: { name: 'Stan Store', color: 'text-yellow-400', icon: '⚡' },
   payhip: { name: 'Payhip', color: 'text-blue-400', icon: '💳' },
   gumroad: { name: 'Gumroad', color: 'text-pink-400', icon: '🎯' },
+  hoobe: { name: 'Hoo.be', color: 'text-purple-400', icon: '🟣' },
+  linkme: { name: 'Link.me', color: 'text-cyan-400', icon: '🔗' },
 };
 
 export default function ImportPage() {
@@ -125,8 +127,8 @@ export default function ImportPage() {
               switch to loadout
             </h1>
             <p className="text-white/60 text-lg max-w-xl mx-auto">
-              paste your link from linktree, stan store, payhip, or gumroad. 
-              we'll pull everything over — links, products, bio, socials.
+              paste your link from any platform — linktree, stan, hoo.be, link.me, payhip, gumroad. 
+              we'll pull everything over in seconds.
             </p>
           </div>
         )}
@@ -140,7 +142,7 @@ export default function ImportPage() {
                 value={url}
                 onChange={(e) => { setUrl(e.target.value); setError(''); }}
                 onKeyDown={(e) => e.key === 'Enter' && handleImport()}
-                placeholder="linktr.ee/you · stan.store/you · payhip.com/you"
+                placeholder="linktr.ee/you · hoo.be/you · link.me/you · stan.store/you"
                 className="flex-1 px-4 py-3.5 bg-[#111] border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white placeholder-white/30 text-sm"
                 disabled={loading}
               />
@@ -167,6 +169,8 @@ export default function ImportPage() {
             <div className="mt-6 flex items-center justify-center gap-4 text-xs text-white/30">
               <span>works with:</span>
               <span className="px-2 py-0.5 rounded bg-white/5 text-white/50">🌳 Linktree</span>
+              <span className="px-2 py-0.5 rounded bg-white/5 text-white/50">🟣 Hoo.be</span>
+              <span className="px-2 py-0.5 rounded bg-white/5 text-white/50">🔗 Link.me</span>
               <span className="px-2 py-0.5 rounded bg-white/5 text-white/50">⚡ Stan</span>
               <span className="px-2 py-0.5 rounded bg-white/5 text-white/50">💳 Payhip</span>
               <span className="px-2 py-0.5 rounded bg-white/5 text-white/50">🎯 Gumroad</span>
@@ -313,6 +317,16 @@ export default function ImportPage() {
                       <li>→ 10% platform fee</li>
                       <li>→ no link-in-bio</li>
                       <li>→ not fitness-focused</li>
+                    </>}
+                    {profile.platform === 'hoobe' && <>
+                      <li>→ invite-only, limited access</li>
+                      <li>→ no digital product sales</li>
+                      <li>→ no fitness-specific tools</li>
+                    </>}
+                    {profile.platform === 'linkme' && <>
+                      <li>→ social-focused, not sales-focused</li>
+                      <li>→ no digital product storefront</li>
+                      <li>→ no fitness-native features</li>
                     </>}
                     <li>→ no AI tools</li>
                   </ul>
