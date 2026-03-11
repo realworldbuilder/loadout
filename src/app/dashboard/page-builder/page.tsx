@@ -45,7 +45,7 @@ interface Product {
   title: string;
   description?: string;
   price: number;
-  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block' | 'video_block' | 'coaching_form';
+  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block' | 'video_block' | 'pinterest_block' | 'coaching_form';
   file_url?: string;
   thumbnail_url?: string;
   external_url?: string;
@@ -60,7 +60,7 @@ interface Product {
 
 // Add form state
 interface AddFormState {
-  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | 'video' | 'coaching' | null;
+  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | 'video' | 'pinterest' | 'coaching' | null;
   title: string;
   description: string;
   price: string;
@@ -246,7 +246,7 @@ export default function PageBuilder() {
 
   // Add new item
   const handleAdd = async () => {
-    const isAutoTitled = ['codes', 'picks', 'text', 'countdown', 'video', 'coaching'].includes(addForm.type || '');
+    const isAutoTitled = ['codes', 'picks', 'text', 'countdown', 'video', 'pinterest', 'coaching'].includes(addForm.type || '');
     if (!addForm.type || (!isAutoTitled && !addForm.title.trim()) || !profile?.id) return;
     
     setSaving(true);
@@ -257,11 +257,13 @@ export default function PageBuilder() {
                addForm.type === 'picks' ? (selectedPicksCollection === 'all' ? 'my picks' : `picks: ${selectedPicksCollection}`) : 
                addForm.type === 'countdown' ? 'countdown timer' : 
                addForm.type === 'video' ? (addForm.title || 'video') :
+               addForm.type === 'pinterest' ? (addForm.title || 'pinterest board') :
                addForm.type === 'coaching' ? 'coaching application' :
                addForm.title,
         description: addForm.type === 'picks' ? (selectedPicksCollection || 'all') : 
-                     addForm.type === 'video' ? (addForm.external_url || '') : (addForm.description || ''),
-        price: ['header', 'text', 'countdown', 'video', 'coaching'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
+                     addForm.type === 'video' ? (addForm.external_url || '') : 
+                     addForm.type === 'pinterest' ? (addForm.external_url || '') : (addForm.description || ''),
+        price: ['header', 'text', 'countdown', 'video', 'pinterest', 'coaching'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
         product_type: addForm.type === 'link' ? 'link' : 
                       addForm.type === 'header' ? 'header' :
                       addForm.type === 'codes' ? 'codes_block' :
@@ -269,6 +271,7 @@ export default function PageBuilder() {
                       addForm.type === 'text' ? 'text_block' :
                       addForm.type === 'countdown' ? 'countdown_block' :
                       addForm.type === 'video' ? 'video_block' :
+                      addForm.type === 'pinterest' ? 'pinterest_block' :
                       addForm.type === 'coaching' ? 'coaching_form' :
                       'digital_product',
         external_url: addForm.external_url || '',
@@ -416,6 +419,8 @@ export default function PageBuilder() {
         return Clock;
       case 'video_block':
         return Play;
+      case 'pinterest_block':
+        return Heart; // Using Heart as Pinterest icon placeholder
       case 'coaching_form':
         return ClipboardList;
       default:
@@ -439,6 +444,8 @@ export default function PageBuilder() {
       case 'countdown_block':
         return 'bg-orange-500/10 text-orange-400';
       case 'video_block':
+        return 'bg-red-500/10 text-red-400';
+      case 'pinterest_block':
         return 'bg-red-500/10 text-red-400';
       case 'coaching_form':
         return 'bg-teal-500/10 text-teal-400';
@@ -586,6 +593,15 @@ export default function PageBuilder() {
                 <Play size={20} />
                 <span className="text-sm lowercase">add video</span>
               </button>
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'pinterest' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                {/* Pinterest SVG icon */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
+                <span className="text-sm lowercase">pinterest</span>
+              </button>
             </div>
             <div className="grid grid-cols-3 gap-3 mt-3">
               <button
@@ -730,7 +746,22 @@ export default function PageBuilder() {
                     <p className="text-white/30 text-xs mt-1">supports youtube and tiktok links</p>
                   </div>
                 )}
-                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && addForm.type !== 'text' && addForm.type !== 'countdown' && addForm.type !== 'video' && (
+                {/* Pinterest block input */}
+                {addForm.type === 'pinterest' && (
+                  <div>
+                    <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">pinterest url</label>
+                    <input
+                      type="text"
+                      placeholder="paste pin or board url..."
+                      value={addForm.external_url}
+                      onChange={(e) => setAddForm({ ...addForm, external_url: e.target.value })}
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                      required
+                    />
+                    <p className="text-white/30 text-xs mt-1">paste a pin url, board url, or profile url</p>
+                  </div>
+                )}
+                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && addForm.type !== 'text' && addForm.type !== 'countdown' && addForm.type !== 'video' && addForm.type !== 'pinterest' && (
                   <div>
                     <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">layout</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -913,7 +944,7 @@ export default function PageBuilder() {
                                         </div>
                                       </>
                                     )}
-                                    {(product.product_type === 'digital_product' || product.product_type === 'link') && (
+                                    {(product.product_type === 'digital_product' || product.product_type === 'link' || product.product_type === 'video_block' || product.product_type === 'pinterest_block') && (
                                       <div>
                                         <input
                                           type="url"
@@ -923,7 +954,7 @@ export default function PageBuilder() {
                                         />
                                       </div>
                                     )}
-                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && product.product_type !== 'text_block' && product.product_type !== 'countdown_block' && product.product_type !== 'coaching_form' && (
+                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && product.product_type !== 'text_block' && product.product_type !== 'countdown_block' && product.product_type !== 'video_block' && product.product_type !== 'pinterest_block' && product.product_type !== 'coaching_form' && (
                                       <div>
                                         <label className="text-white/50 text-xs mb-1 block">layout</label>
                                         <div className="grid grid-cols-2 gap-2">
@@ -1648,6 +1679,17 @@ export default function PageBuilder() {
                           <div key={product.id} className="py-2">
                             <div className="aspect-video rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.textColor}08`, border: `1px solid ${theme.textColor}10` }}>
                               <Play size={24} style={{ color: `${theme.textColor}30` }} />
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'pinterest_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <div className="rounded-lg p-4 flex items-center gap-3" style={{ backgroundColor: `${theme.textColor}05`, border: `1px solid ${theme.textColor}10` }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#E60023' }}><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
+                              <span className="text-sm" style={{ color: `${theme.textColor}60` }}>pinterest embed</span>
                             </div>
                           </div>
                         );

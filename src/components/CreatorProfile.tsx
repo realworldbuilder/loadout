@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Instagram, Youtube, Twitter, ExternalLink, ShoppingBag, Mail, Play } from 'lucide-react';
 import TrackClick from '@/components/TrackClick';
@@ -89,6 +89,29 @@ const TwitchIcon = ({ className }: { className?: string }) => (
     <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
   </svg>
 );
+
+// Pinterest Embed Component
+const PinterestEmbed = ({ url }: { url: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if ((window as any).PinUtils) {
+      (window as any).PinUtils.build(ref.current);
+    }
+  }, [url]);
+  
+  const isPin = url.includes('/pin/');
+  const dataPinDo = isPin ? 'embedPin' : url.match(/pinterest\.\w+\/[^/]+\/[^/]+\/?$/) ? 'embedBoard' : 'embedUser';
+  
+  return (
+    <div ref={ref} className="mb-8">
+      <a
+        data-pin-do={dataPinDo}
+        href={url}
+      />
+    </div>
+  );
+};
 
 // Countdown Block Component
 const CountdownBlock = ({ product, textColor }: { product: DBProduct; textColor: string }) => {
@@ -197,6 +220,25 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
 
   // Theme handling - use full theme structure
   const creatorTheme: CreatorTheme = { ...DEFAULT_THEME, ...creator.theme };
+
+  // Load Pinterest SDK when there are pinterest blocks
+  useEffect(() => {
+    const hasPinterest = products.some(p => p.product_type === 'pinterest_block');
+    if (!hasPinterest) return;
+    
+    // Load Pinterest SDK
+    if (!document.getElementById('pinterest-sdk')) {
+      const script = document.createElement('script');
+      script.id = 'pinterest-sdk';
+      script.src = 'https://assets.pinterest.com/js/pinit.js';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    } else if ((window as any).PinUtils) {
+      // Re-parse if SDK already loaded
+      (window as any).PinUtils.build();
+    }
+  }, [products]);
   const isDark = isDarkColor(creatorTheme.background);
   const fontClass = getThemeFontClass(creatorTheme.font);
   
@@ -700,6 +742,14 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                   );
                 }
                 return null;
+              }
+
+              // Pinterest block component
+              if (p.product_type === 'pinterest_block') {
+                const pinUrl = p.description || p.external_url || '';
+                if (!pinUrl) return null;
+                
+                return <PinterestEmbed key={i} url={pinUrl} />;
               }
 
               // Email collector component
