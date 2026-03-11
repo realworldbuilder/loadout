@@ -114,7 +114,7 @@ export default function DashboardPage() {
   const pageUrl = `loadout.fit/${profile.handle}`;
 
   return (
-    <div className="px-6 py-8 lg:px-8 max-w-4xl">
+    <div className="px-6 py-8 lg:px-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-1 lowercase">

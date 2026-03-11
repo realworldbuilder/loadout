@@ -42,6 +42,7 @@ export default function SettingsPage() {
   const [saveStatus, setSaveStatus] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
   const avatarInputRef = useRef<HTMLInputElement>(null);
   
   // Stripe Connect state
@@ -244,22 +245,37 @@ export default function SettingsPage() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB'); return; }
+    
+    setAvatarError('');
+    
+    if (file.size > 5 * 1024 * 1024) { 
+      setAvatarError('Image must be under 5MB'); 
+      return; 
+    }
     
     setAvatarUploading(true);
     try {
       const { url, error } = await uploadAvatar(file, user.id);
-      if (error) { alert('Upload failed: ' + error); return; }
+      if (error) { 
+        setAvatarError('Upload failed: ' + error); 
+        return; 
+      }
       if (url) {
-        await fetch('/api/profile', {
+        const res = await fetch('/api/profile', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: user.id, avatar_url: url }),
         });
+        
+        if (!res.ok) {
+          setAvatarError('Failed to update profile');
+          return;
+        }
+        
         await refreshProfile();
       }
     } catch (err) {
-      alert('Upload failed');
+      setAvatarError('Upload failed');
     } finally {
       setAvatarUploading(false);
     }
@@ -377,16 +393,25 @@ export default function SettingsPage() {
                 
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">avatar</label>
-                  <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-                  <button
-                    type="button"
-                    onClick={() => avatarInputRef.current?.click()}
-                    disabled={avatarUploading}
-                    className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-[#1a1a1a] border border-white/5 rounded-lg text-gray-300 hover:text-gray-900 dark:text-white hover:bg-[#262626] transition-colors disabled:opacity-50"
+                  <input 
+                    id="avatar-input"
+                    ref={avatarInputRef} 
+                    type="file" 
+                    accept="image/*" 
+                    capture="user"
+                    onChange={handleAvatarUpload} 
+                    className="hidden" 
+                  />
+                  <label
+                    htmlFor="avatar-input"
+                    className={`w-full flex items-center justify-center space-x-2 px-3 py-2 bg-[#1a1a1a] border border-white/5 rounded-lg text-gray-300 hover:text-gray-900 dark:text-white hover:bg-[#262626] transition-colors cursor-pointer ${avatarUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Camera className="h-4 w-4" />
                     <span>{avatarUploading ? 'uploading...' : profile?.avatar_url ? 'change avatar' : 'upload avatar'}</span>
-                  </button>
+                  </label>
+                  {avatarError && (
+                    <p className="text-red-400 text-xs mt-1">{avatarError}</p>
+                  )}
                   {profile?.avatar_url && (
                     <div className="mt-2">
                       <img src={profile.avatar_url} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-white/10" />
