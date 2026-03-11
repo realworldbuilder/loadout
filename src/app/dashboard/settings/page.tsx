@@ -9,6 +9,8 @@ import { uploadAvatar } from '@/lib/storage';
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
 import CustomDomainSettings from '@/components/CustomDomainSettings';
+import { useAutosave } from '@/hooks/useAutosave';
+import DraftRestoredToast from '@/components/DraftRestoredToast';
 
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -45,6 +47,59 @@ export default function SettingsPage() {
   // Stripe Connect state
   const [stripeStatus, setStripeStatus] = useState<'loading' | 'not_connected' | 'pending' | 'complete'>('loading');
   const [stripeLoading, setStripeLoading] = useState(false);
+
+  // Toast state for draft restoration
+  const [showDraftToast, setShowDraftToast] = useState(false);
+  const [draftToastMessage, setDraftToastMessage] = useState('');
+
+  // Autosave hooks for form persistence
+  const profileAutosave = useAutosave({
+    key: 'settings-profile-form',
+    data: formData
+  });
+
+  const themeAutosave = useAutosave({
+    key: 'settings-theme-form', 
+    data: theme
+  });
+
+  const applicationAutosave = useAutosave({
+    key: 'settings-application-form',
+    data: applicationSettings
+  });
+
+  // Restore saved drafts on mount
+  useEffect(() => {
+    let restored = false;
+    
+    // Restore profile form data
+    const savedProfile = profileAutosave.getRestoredData();
+    if (savedProfile && !profile) {
+      // Only restore if profile hasn't loaded yet to avoid overwriting real data
+      setFormData(savedProfile);
+      restored = true;
+    }
+
+    // Restore theme data
+    const savedTheme = themeAutosave.getRestoredData();
+    if (savedTheme) {
+      setTheme(savedTheme);
+      restored = true;
+    }
+
+    // Restore application settings data
+    const savedApplication = applicationAutosave.getRestoredData();
+    if (savedApplication) {
+      setApplicationSettings(savedApplication);
+      restored = true;
+    }
+
+    // Show toast if any data was restored
+    if (restored) {
+      setDraftToastMessage('Settings draft restored from previous session');
+      setShowDraftToast(true);
+    }
+  }, []);
 
   // Check Stripe status on mount
   useEffect(() => {
@@ -161,6 +216,15 @@ export default function SettingsPage() {
       if (!res.ok) {
         alert(`failed to save: ${result.error}`);
         return;
+      }
+      
+      // Clear saved form data on successful submission
+      if (section === 'theme') {
+        themeAutosave.clearSavedData();
+      } else if (section === 'application') {
+        applicationAutosave.clearSavedData();
+      } else {
+        profileAutosave.clearSavedData();
       }
       
       setSaveStatus({ ...saveStatus, [section]: true });
@@ -799,6 +863,13 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Draft Restored Toast */}
+      <DraftRestoredToast
+        show={showDraftToast}
+        onClose={() => setShowDraftToast(false)}
+        message={draftToastMessage}
+      />
     </div>
   );
 }

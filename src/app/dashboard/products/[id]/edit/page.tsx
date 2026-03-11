@@ -15,6 +15,8 @@ import {
   ExternalLink,
   Trash2
 } from 'lucide-react';
+import { useAutosave } from '@/hooks/useAutosave';
+import DraftRestoredToast from '@/components/DraftRestoredToast';
 
 export default function EditProductPage() {
   const { user, profile, loading: authLoading, initializing } = useAuth();
@@ -56,6 +58,28 @@ export default function EditProductPage() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [layout, setLayout] = useState<'classic' | 'featured'>('classic');
 
+  // Toast state for draft restoration
+  const [showDraftToast, setShowDraftToast] = useState(false);
+  const [draftToastMessage, setDraftToastMessage] = useState('');
+
+  // Autosave form data
+  const formData = {
+    title,
+    description,
+    price,
+    productType,
+    externalUrl,
+    ctaText,
+    layout,
+    thumbnailFilename: thumbnailFile?.name || null
+  };
+
+  const autosave = useAutosave({
+    key: `edit-product-${productId}`,
+    data: formData,
+    enabled: !!product // Only save after product is loaded
+  });
+
   async function loadProduct() {
     try {
       setLoadingProduct(true);
@@ -88,6 +112,34 @@ export default function EditProductPage() {
       setExternalUrl(data.external_url || '');
       setCtaText(data.cta_text || '');
       setLayout(data.layout || 'classic');
+
+      // After loading product, check for saved draft
+      setTimeout(() => {
+        const savedData = autosave.getRestoredData();
+        if (savedData) {
+          // Only restore if different from loaded product
+          const hasChanges = 
+            savedData.title !== data.title ||
+            savedData.description !== (data.description || '') ||
+            savedData.price !== data.price.toString() ||
+            savedData.externalUrl !== (data.external_url || '') ||
+            savedData.ctaText !== (data.cta_text || '') ||
+            savedData.layout !== (data.layout || 'classic');
+
+          if (hasChanges) {
+            setTitle(savedData.title || data.title);
+            setDescription(savedData.description || '');
+            setPrice(savedData.price || data.price.toString());
+            setProductType(savedData.productType || data.product_type);
+            setExternalUrl(savedData.externalUrl || '');
+            setCtaText(savedData.ctaText || '');
+            setLayout(savedData.layout || 'classic');
+
+            setDraftToastMessage('Draft changes restored from previous session');
+            setShowDraftToast(true);
+          }
+        }
+      }, 100); // Small delay to ensure autosave is ready
     } catch (error) {
       console.error('Error loading product:', error);
       router.push('/dashboard/products');
@@ -135,6 +187,9 @@ export default function EditProductPage() {
         alert('Failed to update product. Please try again.');
         return;
       }
+
+      // Clear saved form data on successful submission
+      autosave.clearSavedData();
 
       router.push('/dashboard/products');
     } catch (error) {
@@ -539,6 +594,13 @@ export default function EditProductPage() {
           </div>
         </div>
       </div>
+
+      {/* Draft Restored Toast */}
+      <DraftRestoredToast
+        show={showDraftToast}
+        onClose={() => setShowDraftToast(false)}
+        message={draftToastMessage}
+      />
     </div>
   );
 }

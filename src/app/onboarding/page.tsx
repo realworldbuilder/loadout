@@ -7,6 +7,8 @@ import {
   checkHandleAvailability, 
   createCreatorProfile
 } from '@/lib/auth';
+import { useAutosave } from '@/hooks/useAutosave';
+import DraftRestoredToast from '@/components/DraftRestoredToast';
 
 interface SocialLinks {
   instagram?: string;
@@ -43,9 +45,19 @@ export default function OnboardingPage() {
   // Import data state
   const [importedLinks, setImportedLinks] = useState<any[]>([]);
   const [importedProfilePic, setImportedProfilePic] = useState<string | null>(null);
+
+  // Toast state for draft restoration
+  const [showDraftToast, setShowDraftToast] = useState(false);
+  const [draftToastMessage, setDraftToastMessage] = useState('');
   
   const router = useRouter();
   const { user, profile, refreshProfile, loading: authLoading } = useAuth();
+
+  // Autosave form data
+  const autosave = useAutosave({
+    key: 'onboarding-form',
+    data: { ...formData, currentStep, handleAvailable }
+  });
 
   // Check for imported Linktree data
   useEffect(() => {
@@ -69,6 +81,24 @@ export default function OnboardingPage() {
         // Don't clear yet — clear after onboarding completes
       }
     } catch {}
+  }, []);
+
+  // Restore saved draft on mount
+  useEffect(() => {
+    const savedData = autosave.getRestoredData();
+    if (savedData && !formData.handle) { // Only restore if form is empty
+      setFormData({
+        handle: savedData.handle || '',
+        displayName: savedData.displayName || '',
+        bio: savedData.bio || '',
+        socialLinks: savedData.socialLinks || {}
+      });
+      setCurrentStep(savedData.currentStep || 1);
+      setHandleAvailable(savedData.handleAvailable || null);
+      
+      setDraftToastMessage('Onboarding progress restored from previous session');
+      setShowDraftToast(true);
+    }
   }, []);
 
   // Redirect if not authenticated or already onboarded
@@ -180,6 +210,9 @@ export default function OnboardingPage() {
       }
 
       await refreshProfile();
+
+      // Clear saved onboarding data on successful completion
+      autosave.clearSavedData();
 
       const response = await fetch('/api/stripe/connect', {
         method: 'POST',
@@ -303,6 +336,10 @@ export default function OnboardingPage() {
       }
 
       await refreshProfile();
+      
+      // Clear saved onboarding data on successful completion
+      autosave.clearSavedData();
+      
       sessionStorage.removeItem('loadout_import');
       router.push('/dashboard');
     } catch (error) {
@@ -579,6 +616,13 @@ export default function OnboardingPage() {
           )}
         </div>
       </div>
+
+      {/* Draft Restored Toast */}
+      <DraftRestoredToast
+        show={showDraftToast}
+        onClose={() => setShowDraftToast(false)}
+        message={draftToastMessage}
+      />
     </div>
   );
 }

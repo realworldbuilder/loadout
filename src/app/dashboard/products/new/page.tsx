@@ -18,6 +18,8 @@ import {
   X,
   ImageIcon
 } from 'lucide-react';
+import { useAutosave } from '@/hooks/useAutosave';
+import DraftRestoredToast from '@/components/DraftRestoredToast';
 
 function NewProductInner() {
   const { user, profile, loading: authLoading, initializing } = useAuth();
@@ -43,6 +45,46 @@ function NewProductInner() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [layout, setLayout] = useState<'classic' | 'featured'>('classic');
+
+  // Toast state for draft restoration
+  const [showDraftToast, setShowDraftToast] = useState(false);
+  const [draftToastMessage, setDraftToastMessage] = useState('');
+
+  // Autosave form data (excluding file since it can't be serialized)
+  const formData = {
+    title,
+    description, 
+    price,
+    productType,
+    externalUrl,
+    ctaText,
+    layout,
+    // Store filename for restoration hint but not actual file
+    thumbnailFilename: thumbnailFile?.name || null
+  };
+
+  const autosave = useAutosave({
+    key: 'new-product-form',
+    data: formData
+  });
+
+  // Restore saved draft on mount
+  useEffect(() => {
+    const savedData = autosave.getRestoredData();
+    if (savedData) {
+      setTitle(savedData.title || '');
+      setDescription(savedData.description || '');
+      setPrice(savedData.price || '');
+      setProductType(savedData.productType || 'digital');
+      setExternalUrl(savedData.externalUrl || '');
+      setCtaText(savedData.ctaText || '');
+      setLayout(savedData.layout || 'classic');
+      
+      // Show toast notification
+      setDraftToastMessage('Product draft restored from previous session');
+      setShowDraftToast(true);
+    }
+  }, []);
 
   // Set price to 0 for links, email collectors, and headers
   useEffect(() => {
@@ -138,6 +180,9 @@ function NewProductInner() {
         alert('Failed to create product: ' + result.error);
         return;
       }
+
+      // Clear saved form data on successful submission
+      autosave.clearSavedData();
 
       router.push('/dashboard/products');
     } catch (error) {
@@ -489,6 +534,13 @@ function NewProductInner() {
           </div>
         </div>
       </div>
+
+      {/* Draft Restored Toast */}
+      <DraftRestoredToast
+        show={showDraftToast}
+        onClose={() => setShowDraftToast(false)}
+        message={draftToastMessage}
+      />
     </div>
   );
 }

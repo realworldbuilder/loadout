@@ -35,6 +35,8 @@ import {
 import { CreatorTheme, DEFAULT_THEME, PRESET_THEMES, PRESET_GRADIENTS } from '@/types/theme';
 import { getThemeStyles, getThemeFontClass } from '@/lib/utils';
 import ImageUpload from '@/components/ImageUpload';
+import { useAutosave } from '@/hooks/useAutosave';
+import DraftRestoredToast from '@/components/DraftRestoredToast';
 
 // Product types
 interface Product {
@@ -109,9 +111,64 @@ export default function PageBuilder() {
     layout: 'classic'
   });
 
+  // Toast state for draft restoration
+  const [showDraftToast, setShowDraftToast] = useState(false);
+  const [draftToastMessage, setDraftToastMessage] = useState('');
+
   // Picks collections for the picks block selector
   const [picksCollections, setPicksCollections] = useState<string[]>([]);
   const [selectedPicksCollection, setSelectedPicksCollection] = useState<string>('all');
+
+  // Autosave hooks for form persistence
+  const addFormAutosave = useAutosave({
+    key: 'page-builder-add-form',
+    data: { ...addForm, selectedPicksCollection }
+  });
+
+  const editFormAutosave = useAutosave({
+    key: 'page-builder-edit-form',
+    data: editForm.product ? editForm : null, // Only save when actively editing
+    enabled: !!editForm.product
+  });
+
+  const themeAutosave = useAutosave({
+    key: 'page-builder-theme',
+    data: theme
+  });
+
+  // Restore saved drafts on mount
+  useEffect(() => {
+    let restored = false;
+    
+    // Restore add form data
+    const savedAddForm = addFormAutosave.getRestoredData();
+    if (savedAddForm) {
+      const { selectedPicksCollection: savedCollection, ...formData } = savedAddForm;
+      setAddForm(formData);
+      setSelectedPicksCollection(savedCollection || 'all');
+      restored = true;
+    }
+
+    // Restore edit form data  
+    const savedEditForm = editFormAutosave.getRestoredData();
+    if (savedEditForm && savedEditForm.product) {
+      setEditForm(savedEditForm);
+      restored = true;
+    }
+
+    // Restore theme data
+    const savedTheme = themeAutosave.getRestoredData();
+    if (savedTheme) {
+      setTheme(savedTheme);
+      restored = true;
+    }
+
+    // Show toast if any data was restored
+    if (restored) {
+      setDraftToastMessage('Draft restored from previous session');
+      setShowDraftToast(true);
+    }
+  }, []);
 
   // Fetch collections from collections API
   useEffect(() => {
@@ -230,6 +287,9 @@ export default function PageBuilder() {
 
       const result = await res.json();
       if (res.ok) {
+        // Clear saved form data on successful submission
+        addFormAutosave.clearSavedData();
+        
         // Reset form
         setAddForm({
           type: null,
@@ -287,6 +347,9 @@ export default function PageBuilder() {
       });
 
       if (res.ok) {
+        // Clear saved edit data on successful submission
+        editFormAutosave.clearSavedData();
+        
         setEditForm({ product: null, title: '', description: '', price: '', external_url: '', layout: 'classic' });
         fetchProducts();
       }
@@ -402,6 +465,9 @@ export default function PageBuilder() {
         alert(`failed to save theme: ${result.error}`);
         return;
       }
+      
+      // Clear saved theme data on successful submission
+      themeAutosave.clearSavedData();
       
       await refreshProfile();
     } catch (error) {
@@ -1674,6 +1740,13 @@ export default function PageBuilder() {
           </div>
         </div>
       </div>
+
+      {/* Draft Restored Toast */}
+      <DraftRestoredToast
+        show={showDraftToast}
+        onClose={() => setShowDraftToast(false)}
+        message={draftToastMessage}
+      />
     </div>
   );
 }
