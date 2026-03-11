@@ -778,20 +778,37 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 const tkUrl = p.description || p.external_url || '';
                 if (!tkUrl) return null;
                 
-                const tkMatch = tkUrl.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+                const tkMatch = tkUrl.match(/tiktok\.com\/@([^/]+)\/video\/(\d+)/);
                 if (!tkMatch) return null;
                 
+                const tkUsername = tkMatch[1];
+                
                 return (
-                  <div key={i} className="mb-8">
-                    <iframe
-                      src={`https://www.tiktok.com/embed/v2/${tkMatch[1]}`}
-                      className="w-full rounded-xl border-0"
-                      style={{ height: '740px', maxWidth: '325px', margin: '0 auto', display: 'block' }}
-                      allowFullScreen
-                      allow="encrypted-media"
-                      scrolling="no"
-                    />
-                  </div>
+                  <a
+                    key={i}
+                    href={tkUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mb-8 block rounded-xl overflow-hidden transition-transform hover:scale-[1.02]"
+                    style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}` }}
+                  >
+                    <div className="flex items-center gap-3 p-4">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{ color: isDark ? '#00f2ea' : '#000' }}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48V13a8.28 8.28 0 005.58 2.17V11.7a4.83 4.83 0 01-3.77-1.24V6.69h3.77z"/></svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate" style={{ color: isDark ? '#fff' : '#000' }}>
+                          {p.title !== 'tiktok' ? p.title : `@${tkUsername}`}
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)' }}>
+                          watch on tiktok →
+                        </p>
+                      </div>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ color: isDark ? '#fff' : '#000' }}><path d="M8 5v14l11-7z"/></svg>
+                      </div>
+                    </div>
+                  </a>
                 );
               }
 
