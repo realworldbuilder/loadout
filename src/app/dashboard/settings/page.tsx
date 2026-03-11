@@ -23,6 +23,7 @@ export default function SettingsPage() {
       tiktok: '',
       youtube: '',
       twitter: '',
+      pinterest: '',
       snapchat: '',
       facebook: '',
       spotify: '',
@@ -171,6 +172,7 @@ export default function SettingsPage() {
           tiktok: profile.social_links?.tiktok || '',
           youtube: profile.social_links?.youtube || '',
           twitter: profile.social_links?.twitter || '',
+          pinterest: profile.social_links?.pinterest || '',
           snapchat: profile.social_links?.snapchat || '',
           facebook: profile.social_links?.facebook || '',
           spotify: profile.social_links?.spotify || '',
@@ -499,6 +501,20 @@ export default function SettingsPage() {
                   })}
                   className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
                   placeholder="@username"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">pinterest</label>
+                <input
+                  type="text"
+                  value={formData.social_links.pinterest}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    social_links: { ...formData.social_links, pinterest: e.target.value }
+                  })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f]"
+                  placeholder="https://pinterest.com/username"
                 />
               </div>
 

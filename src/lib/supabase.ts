@@ -27,6 +27,7 @@ export interface Creator {
     tiktok?: string;
     youtube?: string;
     twitter?: string;
+    pinterest?: string;
     snapchat?: string;
     facebook?: string;
     spotify?: string;
