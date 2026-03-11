@@ -752,6 +752,76 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
                 return <PinterestEmbed key={i} url={pinUrl} />;
               }
 
+              if (p.product_type === 'instagram_block') {
+                const igUrl = p.description || p.external_url || '';
+                if (!igUrl) return null;
+                
+                // Extract post ID and build embed
+                const igMatch = igUrl.match(/instagram\.com\/(p|reel|reels)\/([A-Za-z0-9_-]+)/);
+                if (!igMatch) return null;
+                
+                return (
+                  <div key={i} className="mb-8">
+                    <iframe
+                      src={`https://www.instagram.com/${igMatch[1]}/${igMatch[2]}/embed`}
+                      className="w-full rounded-xl border-0"
+                      style={{ minHeight: '480px', maxWidth: '540px', margin: '0 auto', display: 'block' }}
+                      allowTransparency
+                      allowFullScreen
+                      scrolling="no"
+                    />
+                  </div>
+                );
+              }
+
+              if (p.product_type === 'tiktok_block') {
+                const tkUrl = p.description || p.external_url || '';
+                if (!tkUrl) return null;
+                
+                const tkMatch = tkUrl.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+                if (!tkMatch) return null;
+                
+                return (
+                  <div key={i} className="mb-8">
+                    <iframe
+                      src={`https://www.tiktok.com/embed/v2/${tkMatch[1]}`}
+                      className="w-full rounded-xl border-0"
+                      style={{ height: '740px', maxWidth: '325px', margin: '0 auto', display: 'block' }}
+                      allowFullScreen
+                      allow="encrypted-media"
+                      scrolling="no"
+                    />
+                  </div>
+                );
+              }
+
+              if (p.product_type === 'spotify_block') {
+                const spotUrl = p.description || p.external_url || '';
+                if (!spotUrl) return null;
+                
+                // Convert open.spotify.com URL to embed URL
+                // Supports: track, album, playlist, episode, show
+                const spotMatch = spotUrl.match(/open\.spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
+                if (!spotMatch) return null;
+                
+                const spotType = spotMatch[1];
+                const spotId = spotMatch[2];
+                const isCompact = spotType === 'track';
+                
+                return (
+                  <div key={i} className="mb-8">
+                    <iframe
+                      src={`https://open.spotify.com/embed/${spotType}/${spotId}?theme=0`}
+                      className="w-full rounded-xl border-0"
+                      style={{ height: isCompact ? '152px' : '352px' }}
+                      allowFullScreen
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                    />
+                  </div>
+                );
+              }
+
               // Email collector component
               if (p.product_type === 'email_collector' || p.type === 'email_collector') {
                 const state = emailStates[p.id] || { email: '', isSubmitting: false, success: false, error: '' };

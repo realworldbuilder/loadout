@@ -45,7 +45,7 @@ interface Product {
   title: string;
   description?: string;
   price: number;
-  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block' | 'video_block' | 'pinterest_block' | 'coaching_form';
+  product_type: 'digital_product' | 'coaching' | 'affiliate_link' | 'subscription' | 'link' | 'header' | 'codes_block' | 'picks_block' | 'text_block' | 'countdown_block' | 'video_block' | 'pinterest_block' | 'instagram_block' | 'tiktok_block' | 'spotify_block' | 'coaching_form';
   file_url?: string;
   thumbnail_url?: string;
   external_url?: string;
@@ -60,7 +60,7 @@ interface Product {
 
 // Add form state
 interface AddFormState {
-  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | 'video' | 'pinterest' | 'coaching' | null;
+  type: 'link' | 'product' | 'header' | 'codes' | 'picks' | 'text' | 'countdown' | 'video' | 'pinterest' | 'instagram' | 'tiktok' | 'spotify' | 'coaching' | null;
   title: string;
   description: string;
   price: string;
@@ -246,7 +246,7 @@ export default function PageBuilder() {
 
   // Add new item
   const handleAdd = async () => {
-    const isAutoTitled = ['codes', 'picks', 'text', 'countdown', 'video', 'pinterest', 'coaching'].includes(addForm.type || '');
+    const isAutoTitled = ['codes', 'picks', 'text', 'countdown', 'video', 'pinterest', 'instagram', 'tiktok', 'spotify', 'coaching'].includes(addForm.type || '');
     if (!addForm.type || (!isAutoTitled && !addForm.title.trim()) || !profile?.id) return;
     
     setSaving(true);
@@ -258,12 +258,18 @@ export default function PageBuilder() {
                addForm.type === 'countdown' ? 'countdown timer' : 
                addForm.type === 'video' ? (addForm.title || 'video') :
                addForm.type === 'pinterest' ? (addForm.title || 'pinterest board') :
+               addForm.type === 'instagram' ? (addForm.title || 'instagram') :
+               addForm.type === 'tiktok' ? (addForm.title || 'tiktok') :
+               addForm.type === 'spotify' ? (addForm.title || 'spotify') :
                addForm.type === 'coaching' ? 'coaching application' :
                addForm.title,
         description: addForm.type === 'picks' ? (selectedPicksCollection || 'all') : 
                      addForm.type === 'video' ? (addForm.external_url || '') : 
-                     addForm.type === 'pinterest' ? (addForm.external_url || '') : (addForm.description || ''),
-        price: ['header', 'text', 'countdown', 'video', 'pinterest', 'coaching'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
+                     addForm.type === 'pinterest' ? (addForm.external_url || '') :
+                     addForm.type === 'instagram' ? (addForm.external_url || '') :
+                     addForm.type === 'tiktok' ? (addForm.external_url || '') :
+                     addForm.type === 'spotify' ? (addForm.external_url || '') : (addForm.description || ''),
+        price: ['header', 'text', 'countdown', 'video', 'pinterest', 'instagram', 'tiktok', 'spotify', 'coaching'].includes(addForm.type || '') ? 0 : Number(addForm.price) || 0,
         product_type: addForm.type === 'link' ? 'link' : 
                       addForm.type === 'header' ? 'header' :
                       addForm.type === 'codes' ? 'codes_block' :
@@ -272,6 +278,9 @@ export default function PageBuilder() {
                       addForm.type === 'countdown' ? 'countdown_block' :
                       addForm.type === 'video' ? 'video_block' :
                       addForm.type === 'pinterest' ? 'pinterest_block' :
+                      addForm.type === 'instagram' ? 'instagram_block' :
+                      addForm.type === 'tiktok' ? 'tiktok_block' :
+                      addForm.type === 'spotify' ? 'spotify_block' :
                       addForm.type === 'coaching' ? 'coaching_form' :
                       'digital_product',
         external_url: addForm.external_url || '',
@@ -420,7 +429,13 @@ export default function PageBuilder() {
       case 'video_block':
         return Play;
       case 'pinterest_block':
-        return Heart; // Using Heart as Pinterest icon placeholder
+        return Heart;
+      case 'instagram_block':
+        return Heart;
+      case 'tiktok_block':
+        return Play;
+      case 'spotify_block':
+        return Play;
       case 'coaching_form':
         return ClipboardList;
       default:
@@ -447,6 +462,12 @@ export default function PageBuilder() {
         return 'bg-red-500/10 text-red-400';
       case 'pinterest_block':
         return 'bg-red-500/10 text-red-400';
+      case 'instagram_block':
+        return 'bg-pink-500/10 text-pink-400';
+      case 'tiktok_block':
+        return 'bg-cyan-500/10 text-cyan-400';
+      case 'spotify_block':
+        return 'bg-green-500/10 text-green-400';
       case 'coaching_form':
         return 'bg-teal-500/10 text-teal-400';
       default:
@@ -603,7 +624,35 @@ export default function PageBuilder() {
                 <span className="text-sm lowercase">pinterest</span>
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-3 mt-3">
+            <p className="text-xs text-white/30 mt-4 mb-2 lowercase">embeds</p>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'instagram' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                <span className="text-sm lowercase">instagram</span>
+              </button>
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'tiktok' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48V13a8.28 8.28 0 005.58 2.17V11.7a4.83 4.83 0 01-3.77-1.24V6.69h3.77z"/></svg>
+                <span className="text-sm lowercase">tiktok</span>
+              </button>
+              <button
+                onClick={() => setAddForm({ ...addForm, type: 'spotify' })}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors"
+                disabled={!!addForm.type}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                <span className="text-sm lowercase">spotify</span>
+              </button>
+            </div>
+            <p className="text-xs text-white/30 mt-4 mb-2 lowercase">tools</p>
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={() => setAddForm({ ...addForm, type: 'codes' })}
                 className="flex flex-col items-center gap-2 p-3 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors"
@@ -761,7 +810,52 @@ export default function PageBuilder() {
                     <p className="text-white/30 text-xs mt-1">paste a pin url, board url, or profile url</p>
                   </div>
                 )}
-                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && addForm.type !== 'text' && addForm.type !== 'countdown' && addForm.type !== 'video' && addForm.type !== 'pinterest' && (
+                {/* Instagram block input */}
+                {addForm.type === 'instagram' && (
+                  <div>
+                    <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">instagram url</label>
+                    <input
+                      type="text"
+                      placeholder="paste instagram post or reel url..."
+                      value={addForm.external_url}
+                      onChange={(e) => setAddForm({ ...addForm, external_url: e.target.value })}
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                      required
+                    />
+                    <p className="text-white/30 text-xs mt-1">supports posts, reels, and carousels</p>
+                  </div>
+                )}
+                {/* TikTok block input */}
+                {addForm.type === 'tiktok' && (
+                  <div>
+                    <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">tiktok url</label>
+                    <input
+                      type="text"
+                      placeholder="paste tiktok video url..."
+                      value={addForm.external_url}
+                      onChange={(e) => setAddForm({ ...addForm, external_url: e.target.value })}
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                      required
+                    />
+                    <p className="text-white/30 text-xs mt-1">paste any tiktok video link</p>
+                  </div>
+                )}
+                {/* Spotify block input */}
+                {addForm.type === 'spotify' && (
+                  <div>
+                    <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">spotify url</label>
+                    <input
+                      type="text"
+                      placeholder="paste spotify track, playlist, or podcast url..."
+                      value={addForm.external_url}
+                      onChange={(e) => setAddForm({ ...addForm, external_url: e.target.value })}
+                      className="w-full px-3 py-2 bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50"
+                      required
+                    />
+                    <p className="text-white/30 text-xs mt-1">tracks, playlists, albums, or podcasts</p>
+                  </div>
+                )}
+                {addForm.type !== 'header' && addForm.type !== 'codes' && addForm.type !== 'picks' && addForm.type !== 'text' && addForm.type !== 'countdown' && addForm.type !== 'video' && addForm.type !== 'pinterest' && addForm.type !== 'instagram' && addForm.type !== 'tiktok' && addForm.type !== 'spotify' && (
                   <div>
                     <label className="text-gray-500 dark:text-white/60 text-xs mb-2 block lowercase">layout</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -944,7 +1038,7 @@ export default function PageBuilder() {
                                         </div>
                                       </>
                                     )}
-                                    {(product.product_type === 'digital_product' || product.product_type === 'link' || product.product_type === 'video_block' || product.product_type === 'pinterest_block') && (
+                                    {(product.product_type === 'digital_product' || product.product_type === 'link' || product.product_type === 'video_block' || product.product_type === 'pinterest_block' || product.product_type === 'instagram_block' || product.product_type === 'tiktok_block' || product.product_type === 'spotify_block') && (
                                       <div>
                                         <input
                                           type="url"
@@ -954,7 +1048,7 @@ export default function PageBuilder() {
                                         />
                                       </div>
                                     )}
-                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && product.product_type !== 'text_block' && product.product_type !== 'countdown_block' && product.product_type !== 'video_block' && product.product_type !== 'pinterest_block' && product.product_type !== 'coaching_form' && (
+                                    {product.product_type !== 'header' && product.product_type !== 'codes_block' && product.product_type !== 'picks_block' && product.product_type !== 'text_block' && product.product_type !== 'countdown_block' && product.product_type !== 'video_block' && product.product_type !== 'pinterest_block' && product.product_type !== 'instagram_block' && product.product_type !== 'tiktok_block' && product.product_type !== 'spotify_block' && product.product_type !== 'coaching_form' && (
                                       <div>
                                         <label className="text-white/50 text-xs mb-1 block">layout</label>
                                         <div className="grid grid-cols-2 gap-2">
@@ -1690,6 +1784,39 @@ export default function PageBuilder() {
                             <div className="rounded-lg p-4 flex items-center gap-3" style={{ backgroundColor: `${theme.textColor}05`, border: `1px solid ${theme.textColor}10` }}>
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#E60023' }}><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
                               <span className="text-sm" style={{ color: `${theme.textColor}60` }}>pinterest embed</span>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'instagram_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <div className="rounded-lg p-4 flex items-center gap-3" style={{ backgroundColor: `${theme.textColor}05`, border: `1px solid ${theme.textColor}10` }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#E4405F' }}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                              <span className="text-sm" style={{ color: `${theme.textColor}60` }}>instagram embed</span>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'tiktok_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <div className="rounded-lg p-4 flex items-center gap-3" style={{ backgroundColor: `${theme.textColor}05`, border: `1px solid ${theme.textColor}10` }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#00f2ea' }}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48V13a8.28 8.28 0 005.58 2.17V11.7a4.83 4.83 0 01-3.77-1.24V6.69h3.77z"/></svg>
+                              <span className="text-sm" style={{ color: `${theme.textColor}60` }}>tiktok embed</span>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (product.product_type === 'spotify_block') {
+                        return (
+                          <div key={product.id} className="py-2">
+                            <div className="rounded-lg p-4 flex items-center gap-3" style={{ backgroundColor: `${theme.textColor}05`, border: `1px solid ${theme.textColor}10` }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#1DB954' }}><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                              <span className="text-sm" style={{ color: `${theme.textColor}60` }}>spotify embed</span>
                             </div>
                           </div>
                         );
