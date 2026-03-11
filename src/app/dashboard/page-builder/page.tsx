@@ -317,7 +317,8 @@ export default function PageBuilder() {
         fetchProducts();
       } else {
         console.error('Save failed:', result);
-        alert(`failed to save: ${result.error || 'unknown error'}`);
+        console.error('Save error:', result.error);
+        alert('something went wrong saving your block. try again!');
       }
     } catch (error) {
       console.error('Error adding product:', error);
@@ -490,7 +491,8 @@ export default function PageBuilder() {
       const result = await res.json();
       
       if (!res.ok) {
-        alert(`failed to save theme: ${result.error}`);
+        console.error('Theme save error:', result.error);
+        alert('something went wrong saving your theme. try again!');
         return;
       }
       
