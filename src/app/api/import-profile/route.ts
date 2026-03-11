@@ -442,28 +442,22 @@ async function parseLinkme(url: string): Promise<ImportedProfile> {
     const lower = linkUrl.toLowerCase();
     const titleLower = title.toLowerCase();
 
-    // Check if it's a social link
+    // Capture social links (but still add them to links so they show up in the import)
     if (titleLower === 'instagram' || lower.includes('instagram.com')) {
       socialLinks.instagram = linkUrl;
-      continue;
-    }
-    if (titleLower === 'tiktok' || lower.includes('tiktok.com')) {
+    } else if (titleLower === 'tiktok' || lower.includes('tiktok.com')) {
       socialLinks.tiktok = linkUrl;
-      continue;
-    }
-    if (titleLower === 'youtube' || lower.includes('youtube.com')) {
+    } else if (titleLower === 'youtube' || lower.includes('youtube.com')) {
       socialLinks.youtube = linkUrl;
-      continue;
-    }
-    if (titleLower === 'twitter' || titleLower === 'x' || lower.includes('twitter.com') || lower.includes('x.com')) {
+    } else if (titleLower === 'twitter' || titleLower === 'x' || lower.includes('twitter.com') || lower.includes('x.com')) {
       socialLinks.twitter = linkUrl;
-      continue;
-    }
-    if (titleLower === 'snapchat' || lower.includes('snapchat.com')) {
+    } else if (titleLower === 'snapchat' || lower.includes('snapchat.com')) {
       socialLinks.snapchat = linkUrl;
-      continue;
+    } else if (titleLower === 'threads' || lower.includes('threads.net')) {
+      socialLinks.threads = linkUrl;
     }
 
+    // Always add to links array so everything shows in the import
     links.push({
       id: `linkme-${i}`,
       title: title || linkUrl,
