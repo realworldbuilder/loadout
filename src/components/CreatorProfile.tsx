@@ -531,7 +531,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
               <h1 className={`text-2xl font-bold ${textColor} mb-1`}>{creator.display_name}</h1>
               <p className={`${mutedTextColor} mb-3`}>@{creator.handle}</p>
               {creator.bio && (
-                <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
+                <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center whitespace-pre-line`}>
                   {creator.bio}
                 </p>
               )}
@@ -560,7 +560,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
             <h1 className={`text-3xl font-bold ${textColor} mb-2`}>{creator.display_name}</h1>
             <p className={`${mutedTextColor} mb-4`}>@{creator.handle}</p>
             {creator.bio && (
-              <p className={`${mutedTextColor} leading-relaxed max-w-md mx-auto mb-6 text-center text-lg`}>
+              <p className={`${mutedTextColor} leading-relaxed max-w-md mx-auto mb-6 text-center text-lg whitespace-pre-line`}>
                 {creator.bio}
               </p>
             )}
@@ -606,7 +606,7 @@ export default function CreatorProfile({ handle, dbData }: CreatorProfileProps) 
             
             {/* Bio - max 2-3 lines, centered */}
             {creator.bio && (
-              <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center`}>
+              <p className={`${mutedTextColor} leading-relaxed max-w-sm mx-auto mb-6 text-center whitespace-pre-line`}>
                 {creator.bio}
               </p>
             )}
