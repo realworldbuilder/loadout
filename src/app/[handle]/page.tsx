@@ -129,11 +129,44 @@ export default async function CreatorProfilePage({ params }: { params: { handle:
   try {
     const dbData = await getCreatorData(params.handle);
     
+    // Schema.org structured data for AI discoverability
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'ProfilePage',
+      mainEntity: {
+        '@type': 'Person',
+        name: dbData.creator.display_name,
+        url: `https://loadout.fit/${params.handle}`,
+        image: dbData.creator.avatar_url,
+        description: dbData.creator.bio,
+        sameAs: Object.values(dbData.creator.social_links || {}).filter(Boolean),
+      },
+      hasPart: dbData.products
+        .filter((p: any) => p.type !== 'header')
+        .map((p: any) => ({
+          '@type': p.type === 'coaching' ? 'Service' : 'Product',
+          name: p.title,
+          description: p.description,
+          url: p.external_url || `https://loadout.fit/${params.handle}`,
+          ...(p.thumbnail_url && { image: p.thumbnail_url }),
+          ...(p.price_cents > 0 && {
+            offers: {
+              '@type': 'Offer',
+              price: (p.price_cents / 100).toFixed(2),
+              priceCurrency: 'USD',
+            },
+          }),
+        })),
+    };
+
     return (
       <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <CreatorProfile handle={params.handle} dbData={dbData} />
         <TrackPageView creatorId={dbData.creator.id} />
-      </>
     );
   } catch (error) {
     // Creator not found - show 404

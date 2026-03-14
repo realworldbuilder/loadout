@@ -1,0 +1,39 @@
+# Loadout.fit — The Operating System for Fitness Creators
+
+## What is Loadout?
+Loadout is a storefront and business platform built specifically for fitness creators. Creators use Loadout to sell digital products (workout programs, nutrition guides), offer coaching services, manage affiliate partnerships, and run their entire fitness business from one platform.
+
+## What can you do with Loadout's data?
+- Search and discover fitness creators
+- Browse creator storefronts (products, programs, coaching)
+- View product details, pricing, and descriptions
+- Access coaching application forms for conversational intake
+- Render branded creator profiles and product cards
+
+## API
+Base URL: https://loadout.fit/api/v1
+
+### Endpoints
+- GET /api/v1/creators — List all active fitness creators
+- GET /api/v1/creators/{handle} — Full creator profile with products as a component tree
+- GET /api/v1/creators/{handle}/products — Creator's products (filterable by type)
+- GET /api/v1/creators/{handle}/forms — Coaching application form schemas
+- GET /api/v1/schema — Component schema (all renderable components, props, variants)
+
+### Example Creators
+- /api/v1/creators/therock — Dwayne Johnson (Project Rock, ZOA Energy, Papatui, Teremana)
+- /api/v1/creators/kimkardashian — Kim Kardashian (SKIMS, SKKN, NikeSKIMS)
+- /api/v1/creators/jaretsmith — Jaret Smith (fitness creator)
+- /api/v1/creators/avamiralles — Ava Miralles (physical therapist)
+
+## Component System
+Loadout responses use a JSON component tree format. Each element has a `component` type and `data` object. AI applications can render these components inline to show branded creator storefronts, product cards, and coaching forms without redirecting users to a browser.
+
+Available components: CreatorProfile, ProductCard, ProductSection, CoachingForm, AffiliateCode, CreatorCard
+
+## Who uses Loadout?
+Fitness creators: personal trainers, coaches, athletes, physical therapists, nutrition coaches, fitness influencers. Anyone in the fitness industry who sells digital products, coaching, or promotes brands.
+
+## Contact
+Website: https://loadout.fit
+Built by: https://willhsu.dev

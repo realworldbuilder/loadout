@@ -1,0 +1,224 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Loadout.fit API",
+    "description": "The operating system for fitness creators. Search creators, browse products, and access coaching forms.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Loadout",
+      "url": "https://loadout.fit"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://loadout.fit",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/api/v1/creators": {
+      "get": {
+        "operationId": "listCreators",
+        "summary": "List all active fitness creators on Loadout",
+        "description": "Returns a list of fitness creators with their handle, display name, avatar, product count, and tier. Use this to help users discover fitness coaches and creators.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 20 },
+            "description": "Max results to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": { "type": "integer", "default": 0 },
+            "description": "Pagination offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of creators",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "creators": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/CreatorCard" }
+                    },
+                    "total": { "type": "integer" },
+                    "limit": { "type": "integer" },
+                    "offset": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/creators/{handle}": {
+      "get": {
+        "operationId": "getCreatorProfile",
+        "summary": "Get a fitness creator's full profile and products",
+        "description": "Returns a complete creator profile as a JSON component tree including all products, sections, social links, and theme. Use this when a user asks about a specific fitness creator or wants to see what they sell.",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Creator's handle (e.g. 'therock', 'kimkardashian')"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Creator profile component tree",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreatorProfile" }
+              }
+            }
+          },
+          "404": {
+            "description": "Creator not found"
+          }
+        }
+      }
+    },
+    "/api/v1/creators/{handle}/products": {
+      "get": {
+        "operationId": "getCreatorProducts",
+        "summary": "Get a creator's products",
+        "description": "Returns products for a specific creator. Filter by type (digital, coaching, link, subscription). Use this when a user wants to browse a creator's offerings.",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["digital", "coaching", "link", "subscription", "affiliate_link"] },
+            "description": "Filter by product type"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 50 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "products": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ProductCard" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/creators/{handle}/forms": {
+      "get": {
+        "operationId": "getCreatorForms",
+        "summary": "Get coaching application form schemas",
+        "description": "Returns the coaching application form schema for a creator. AI can use this to conduct coaching intake conversationally — ask each field as a question, collect answers, then submit. Fields include type, label, required status, and options.",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application form schemas"
+          }
+        }
+      }
+    },
+    "/api/v1/schema": {
+      "get": {
+        "operationId": "getComponentSchema",
+        "summary": "Get the Loadout component schema",
+        "description": "Returns all available component types, their props, and variants. Use this to understand what UI components can be rendered from Loadout data.",
+        "responses": {
+          "200": {
+            "description": "Component schema definition"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreatorCard": {
+        "type": "object",
+        "properties": {
+          "handle": { "type": "string" },
+          "displayName": { "type": "string" },
+          "avatarUrl": { "type": "string" },
+          "bio": { "type": "string" },
+          "productCount": { "type": "integer" },
+          "tier": { "type": "string" },
+          "profileUrl": { "type": "string" }
+        }
+      },
+      "CreatorProfile": {
+        "type": "object",
+        "properties": {
+          "component": { "type": "string", "enum": ["CreatorProfile"] },
+          "version": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "handle": { "type": "string" },
+              "displayName": { "type": "string" },
+              "bio": { "type": "string" },
+              "avatarUrl": { "type": "string" },
+              "theme": { "type": "object" },
+              "socialLinks": { "type": "object" },
+              "products": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/ProductCard" }
+              }
+            }
+          }
+        }
+      },
+      "ProductCard": {
+        "type": "object",
+        "properties": {
+          "component": { "type": "string", "enum": ["ProductCard"] },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "price": { "type": "number" },
+              "type": { "type": "string" },
+              "thumbnailUrl": { "type": "string" },
+              "externalUrl": { "type": "string" },
+              "ctaText": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Loadout — Fitness Creator Storefronts",
+  "name_for_model": "loadout_fitness",
+  "description_for_human": "Find fitness creators, browse their products, and apply for coaching — all built for the fitness industry.",
+  "description_for_model": "Search and discover fitness creators on Loadout.fit. Retrieve creator profiles, products (workout programs, nutrition guides, coaching services), and coaching application forms. Use this to help users find fitness coaches, browse fitness products, or apply for coaching programs. All responses use a JSON component tree format that can be rendered inline.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://loadout.fit/api/v1/openapi.json"
+  },
+  "logo_url": "https://loadout.fit/icon.png",
+  "contact_email": "hello@loadout.fit",
+  "legal_info_url": "https://loadout.fit/terms"
+}
