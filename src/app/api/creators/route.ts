@@ -24,12 +24,12 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (error && error.code === 'PGRST116') {
-        return NextResponse.json({ data: null });
+        return NextResponse.json({ data: [] });
       }
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
-      return NextResponse.json({ data });
+      return NextResponse.json({ data: data ? [data] : [] });
     }
 
     // Search creators
