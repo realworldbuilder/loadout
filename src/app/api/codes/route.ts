@@ -14,18 +14,19 @@ export async function GET(request: NextRequest) {
     const creatorId = searchParams.get('creator_id');
     const isPublic = searchParams.get('public') === 'true';
 
-    if (!creatorId) {
-      return NextResponse.json(
-        { error: 'creator_id is required' },
-        { status: 400 }
-      );
-    }
-
     let query = supabase
       .from('creator_codes')
       .select('*')
-      .eq('creator_id', creatorId)
       .order('created_at', { ascending: false });
+
+    if (creatorId) {
+      query = query.eq('creator_id', creatorId);
+    }
+    
+    // Limit when fetching all codes
+    if (!creatorId) {
+      query = query.limit(50);
+    }
 
     // For public requests, only return active codes that haven't expired
     if (isPublic) {
