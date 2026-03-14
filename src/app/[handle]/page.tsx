@@ -167,6 +167,7 @@ export default async function CreatorProfilePage({ params }: { params: { handle:
         />
         <CreatorProfile handle={params.handle} dbData={dbData} />
         <TrackPageView creatorId={dbData.creator.id} />
+      </>
     );
   } catch (error) {
     // Creator not found - show 404
