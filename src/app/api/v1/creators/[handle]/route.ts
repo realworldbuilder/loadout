@@ -104,7 +104,7 @@ export async function GET(
     const sections: ProductSectionComponent[] = [];
     
     // Add named collections first
-    for (const [title, products] of collections.entries()) {
+    for (const [title, products] of Array.from(collections.entries())) {
       sections.push({
         component: 'ProductSection',
         data: {
