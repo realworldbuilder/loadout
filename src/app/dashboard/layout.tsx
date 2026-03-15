@@ -39,6 +39,7 @@ const navItems = [
   { href: '/dashboard/picks', label: 'picks', icon: Heart },
   { href: '/dashboard/applications', label: 'applications', icon: FileText },
   { href: '/dashboard/coaching', label: 'coaching', icon: ClipboardList },
+  { href: '/dashboard/copilot', label: 'copilot', icon: Bot },
   { href: '/dashboard/analytics', label: 'analytics', icon: BarChart3 },
   { href: '/dashboard/settings', label: 'settings', icon: Settings },
 ];

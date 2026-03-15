@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import CreatorProfile from '@/components/CreatorProfile';
 import TrackPageView from '@/components/TrackPageView';
+import ChatWidget from '@/components/ChatWidget';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -167,6 +168,10 @@ export default async function CreatorProfilePage({ params }: { params: { handle:
         />
         <CreatorProfile handle={params.handle} dbData={dbData} />
         <TrackPageView creatorId={dbData.creator.id} />
+        <ChatWidget 
+          creatorHandle={params.handle} 
+          creatorName={dbData.creator.display_name}
+        />
       </>
     );
   } catch (error) {
