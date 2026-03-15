@@ -49,7 +49,7 @@ export default function ProductsPage() {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/products?creator_id=${profile.id}`);
+      const res = await fetch(`/api/products?creator_id=${profile.id}&exclude_blocks=true`);
       const result = await res.json();
       
       if (!res.ok) {

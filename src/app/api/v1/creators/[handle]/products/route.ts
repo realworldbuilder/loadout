@@ -61,8 +61,10 @@ export async function GET(
       .eq('creator_id', creator.id)
       .eq('is_active', true);
 
-    // Filter by type if specified
-    if (type) {
+    // Exclude page builder blocks by default
+    if (!type) {
+      query = query.not('type', 'like', '%_block').neq('type', 'header');
+    } else {
       query = query.eq('type', type);
     }
 

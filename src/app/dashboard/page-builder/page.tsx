@@ -186,7 +186,7 @@ export default function PageBuilder() {
     if (!profile?.id) return;
     
     try {
-      const res = await fetch(`/api/products?creator_id=${profile.id}`);
+      const res = await fetch(`/api/products?creator_id=${profile.id}&exclude_blocks=false`);
       const { data } = await res.json();
       setProducts(data || []);
     } catch (error) {

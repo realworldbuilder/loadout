@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { PAGE_BLOCK_TYPES } from '@/lib/product-types';
 
 function getSupabase() {
   return createClient(
@@ -80,11 +81,22 @@ export async function GET(request: NextRequest) {
     // Otherwise, fetch by creator_id
     if (!creatorId) return NextResponse.json({ error: 'Missing creator_id or id' }, { status: 400 });
 
-    const { data, error } = await supabase
+    const excludeBlocks = request.nextUrl.searchParams.get('exclude_blocks') !== 'false';
+    
+    let query = supabase
       .from('products')
       .select('*')
       .eq('creator_id', creatorId)
       .order('sort_order', { ascending: true });
+
+    // By default exclude page builder blocks — pass exclude_blocks=false to get everything
+    if (excludeBlocks) {
+      for (const blockType of PAGE_BLOCK_TYPES) {
+        query = query.neq('type', blockType);
+      }
+    }
+
+    const { data, error } = await query;
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ data: (data || []).map(mapFromDb) });

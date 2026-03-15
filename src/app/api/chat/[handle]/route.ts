@@ -182,12 +182,14 @@ Always end responses by asking if they have any other questions or if they'd lik
       );
     }
 
-    // Fetch creator's products
+    // Fetch creator's real products (exclude page builder blocks)
     const { data: products, error: productsError } = await supabase
       .from('products')
       .select('*')
       .eq('creator_id', creator.id)
       .eq('is_active', true)
+      .not('type', 'like', '%_block')
+      .neq('type', 'header')
       .order('sort_order', { ascending: true });
 
     if (productsError) {

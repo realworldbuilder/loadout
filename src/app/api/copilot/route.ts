@@ -48,11 +48,13 @@ async function getCreatorData(userId: string) {
     throw new Error('Creator not found');
   }
 
-  // Get products
+  // Get real products (exclude page builder blocks)
   const { data: products, error: productsError } = await supabase
     .from('products')
     .select('*')
     .eq('creator_id', creator.id)
+    .not('type', 'like', '%_block')
+    .neq('type', 'header')
     .order('created_at', { ascending: false });
 
   // Get recent orders (last 30 days for analytics)
