@@ -356,6 +356,8 @@ async function executeTool(toolName: string, args: any, creatorId: string) {
         .from('products')
         .select('*')
         .eq('creator_id', creatorId)
+        .not('type', 'like', '%_block')
+        .neq('type', 'header')
         .order('created_at', { ascending: false });
 
       if (!args.include_inactive) {
