@@ -109,6 +109,19 @@ export async function PATCH(request: NextRequest) {
     }
 
     const supabase = getServiceSupabase();
+
+    // Handle ai_persona — store it inside theme jsonb since it's not a separate column
+    if (updates.ai_persona !== undefined) {
+      const { data: existing } = await supabase
+        .from('creators')
+        .select('theme')
+        .eq('user_id', user_id)
+        .single();
+      
+      updates.theme = { ...(existing?.theme || {}), ai_persona: updates.ai_persona };
+      delete updates.ai_persona;
+    }
+
     const { data, error } = await supabase
       .from('creators')
       .update(updates)

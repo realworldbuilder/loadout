@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     display_name: '',
     bio: '',
+    ai_persona: '',
     social_links: {
       instagram: '',
       tiktok: '',
@@ -167,6 +168,7 @@ export default function SettingsPage() {
       setFormData({
         display_name: profile.display_name || '',
         bio: profile.bio || '',
+        ai_persona: profile.theme?.ai_persona || '',
         social_links: {
           instagram: profile.social_links?.instagram || '',
           tiktok: profile.social_links?.tiktok || '',
@@ -381,6 +383,18 @@ export default function SettingsPage() {
                 />
               </div>
               
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">ai chat personality</label>
+                <textarea
+                  value={formData.ai_persona || ''}
+                  onChange={(e) => setFormData({ ...formData, ai_persona: e.target.value })}
+                  className="w-full bg-[#1a1a1a] border border-white/5 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#10a37f] resize-none"
+                  rows={4}
+                  placeholder="describe yourself as a fitness professional. your background, training style, personality, what makes you unique. the AI chat on your page will use this to represent you authentically.&#10;&#10;example: 'i'm a certified PT specializing in powerlifting and body recomp. been coaching for 8 years. i keep it real — no BS, science-backed advice. i'm big on progressive overload and tracking everything.'"
+                />
+                <p className="text-gray-500 text-xs mt-1">this shapes how the AI chat represents you to visitors on your page</p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">handle</label>
