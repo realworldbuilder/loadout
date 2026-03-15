@@ -121,26 +121,9 @@ RESPONSE STYLE:
 - Conversational, encouraging, fitness industry-aware
 - Use lowercase style (like the Loadout brand voice)
 - Be specific and actionable
-- When suggesting actions, ask for confirmation before executing
-
-AVAILABLE ACTIONS:
-- update_bio: Update the creator's bio
-- create_product_draft: Create a new product (always as draft)
-- update_product_description: Update existing product description
-- Never delete anything without explicit confirmation
-
-Always respond in JSON format:
-{
-  "message": "your response text",
-  "suggested_actions": [
-    {
-      "type": "update_bio" | "create_product_draft" | "update_product_description",
-      "description": "what this action does",
-      "data": { /* action-specific data */ }
-    }
-  ],
-  "follow_up_suggestions": ["suggestion 1", "suggestion 2"]
-}`;
+- When suggesting changes (bio, descriptions, etc), write the full draft text so the creator can review it
+- Keep responses concise and useful — no fluff
+- Respond in plain text, NOT JSON. Just talk naturally.`;
 }
 
 export async function POST(request: NextRequest) {
@@ -215,18 +198,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Copilot API error:', error);
     
-    // Return a fallback JSON response if streaming fails
-    const fallbackResponse = {
-      message: "i'm here to help you grow your fitness business! try asking me to:\n\n• write your bio\n• create product descriptions\n• analyze your sales performance\n• suggest content ideas\n\nwhat would you like to work on?",
-      suggested_actions: [],
-      follow_up_suggestions: [
-        "write my bio",
-        "how are my sales doing?",
-        "create instagram captions for my program"
-      ]
-    };
-    
-    return NextResponse.json(fallbackResponse);
+    return NextResponse.json({
+      message: "something went wrong — try again in a sec."
+    });
   }
 }
 
