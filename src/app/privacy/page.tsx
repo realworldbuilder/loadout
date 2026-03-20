@@ -20,9 +20,6 @@ export default function PrivacyPage() {
             </Link>
             
             <div className="flex items-center gap-3">
-              <Link href="/discover" className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors px-3 py-2 lowercase font-medium">
-                discover
-              </Link>
               <Link href="/login" className="text-sm text-white/80 hover:text-white transition-colors px-3 py-2 lowercase font-medium">
                 sign in
               </Link>
